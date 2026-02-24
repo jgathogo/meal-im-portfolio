@@ -200,6 +200,40 @@
     .btn-amber { background: var(--amber); color: var(--white); }
     .btn-amber:hover { background: var(--amber2); }
 
+    /* ── PIPELINE VISUAL ── */
+    .pipeline-steps {
+      display: flex; gap: 0; align-items: stretch; margin: 20px 0 8px;
+      overflow-x: auto; padding-bottom: 4px;
+    }
+    .pipeline-step {
+      flex: 1; min-width: 0; position: relative;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px 12px 12px; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .pipeline-step + .pipeline-step { margin-left: 20px; }
+    .pipeline-step + .pipeline-step::before {
+      content: ''; position: absolute; left: -16px; top: 50%;
+      width: 12px; height: 2px; background: var(--amber);
+    }
+    .pipeline-step-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0;
+    }
+    .pipeline-step-icon.collect { background: #E3F2FD; }
+    .pipeline-step-icon.clean   { background: #FFF3E0; }
+    .pipeline-step-icon.analyse { background: #E8F5E9; }
+    .pipeline-step-icon.viz     { background: #F3E5F5; }
+    .pipeline-step-icon.decide  { background: #FCE4EC; }
+    .pipeline-step-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .pipeline-step-detail { font-size: 11.5px; color: var(--text); line-height: 1.35; }
+    @media (max-width: 700px) {
+      .pipeline-steps { flex-direction: column; gap: 8px; }
+      .pipeline-step + .pipeline-step { margin-left: 0; }
+      .pipeline-step + .pipeline-step::before { display: none; }
+    }
+
     /* ── COMPETENCIES ── */
     #competencies { background: var(--navy); color: var(--white); }
     #competencies .section-title { color: var(--white); }
@@ -419,37 +453,63 @@
         </div>
       </article>
 
-      <!-- ── PROJECT 3: WBR Hwange Endline (Live) ── -->
+      <!-- ── PROJECT 3: WBR Hwange Endline ── -->
       <article class="project-card fade-up">
         <div class="card-body" style="padding: 28px 32px;">
           <div class="card-header">
             <span class="card-num">Project 03</span>
             <span class="status-badge status-live">Live</span>
           </div>
-          <h3 class="card-title">WBR Hwange Endline Evaluation — Quarto Book + Shiny</h3>
-          <p class="card-org" style="margin-top:6px;">Context: Hwange Mobilised Communities Programme — 6,461 bicycles, 17 wards, 5 years; mixed-methods evaluation</p>
+          <h3 class="card-title">End-to-End Evaluation Pipeline — Bicycle Mobility Impact</h3>
+          <p class="card-org" style="margin-top:6px;">Context: Hwange Mobilised Communities Programme · World Bicycle Relief · 6,461 bicycles · 17 wards · 5 years</p>
           <div class="card-problem" style="margin-top:12px;">
-            <strong>The problem:</strong> Programme and donor audiences need a reproducible, mixed-methods view of bicycle mobility impacts (education, livelihoods, service delivery) with quant and qual integrated — not just static PDFs.
+            <strong>The problem:</strong> A 5-year bicycle distribution programme needed an endline evaluation that integrates longitudinal quantitative data (346 students, 400+ adults, 4 survey waves) with qualitative evidence (FGDs, KIIs) — and translates mixed-methods findings into actionable programme decisions.
           </div>
-          <ul style="margin-top:10px;font-size:13px;color:var(--text);padding-left:1.2rem;">
-            <li>Quarto Book: methodology, bicycle ecosystem, education, livelihoods, community service, sustainability, recommendations</li>
-            <li>Shiny app: trend explorer, pre–post comparisons, data table</li>
-            <li>R analysis libraries + anonymisation pipeline; qualitative themes and quotes (YAML)</li>
-          </ul>
+
+          <div class="pipeline-steps">
+            <div class="pipeline-step">
+              <div class="pipeline-step-icon collect">📋</div>
+              <div class="pipeline-step-label">Collect</div>
+              <div class="pipeline-step-detail">KoBo surveys across 4 waves; FGDs &amp; KIIs with students, adults, community workers</div>
+            </div>
+            <div class="pipeline-step">
+              <div class="pipeline-step-icon clean">🔧</div>
+              <div class="pipeline-step-label">Clean &amp; Link</div>
+              <div class="pipeline-step-detail">R pipeline: panel merging, EMIS join, ID mapping, anonymisation for public sharing</div>
+            </div>
+            <div class="pipeline-step">
+              <div class="pipeline-step-icon analyse">📊</div>
+              <div class="pipeline-step-label">Analyse</div>
+              <div class="pipeline-step-detail">Pre–post t-tests, trend decomposition, qualitative theme coding (YAML)</div>
+            </div>
+            <div class="pipeline-step">
+              <div class="pipeline-step-icon viz">📈</div>
+              <div class="pipeline-step-label">Visualise</div>
+              <div class="pipeline-step-detail">Interactive dashboard: attendance, academic trends, pre–post comparisons</div>
+            </div>
+            <div class="pipeline-step">
+              <div class="pipeline-step-icon decide">✅</div>
+              <div class="pipeline-step-label">Decide</div>
+              <div class="pipeline-step-detail">Evidence fed spare-parts strategy, mechanic sustainability plan, scale-up decisions</div>
+            </div>
+          </div>
+
           <div class="stack-pills" style="margin-top:16px;">
             <span class="stack-pill">R</span>
-            <span class="stack-pill">Quarto</span>
-            <span class="stack-pill">Shiny</span>
             <span class="stack-pill">tidyverse</span>
+            <span class="stack-pill">KoBo Toolbox</span>
+            <span class="stack-pill">ggplot2</span>
+            <span class="stack-pill">Chart.js</span>
+            <span class="stack-pill">Mixed Methods</span>
           </div>
           <div class="card-actions" style="margin-top:16px;">
-            <a class="btn btn-primary" href="projects/wbr-analysis/index.html" target="_blank" rel="noopener">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5v-15A2.5 2.5 0 016.5 2H20v20H6.5a2.5 2.5 0 010-5H20"/></svg>
-              View Live Book
+            <a class="btn btn-amber" href="projects/wbr-education/index.html" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Explore Education Outcomes
             </a>
             <a class="btn btn-secondary" href="https://github.com/jgathogo/kazi/tree/main/portfolio/portfolio-wbr-analysis" target="_blank" rel="noopener">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-              View Code &amp; Docs
+              View R Code &amp; Pipeline
             </a>
           </div>
         </div>

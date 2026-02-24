@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Education Outcomes — WBR Hwange Endline Evaluation</title>
+  <meta name="description" content="Interactive education outcomes dashboard from the Hwange Mobilised Communities Programme endline evaluation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:   #1B3044;
+      --navy2:  #253D52;
+      --amber:  #E8A020;
+      --amber2: #F5B84A;
+      --bg:     #F4F6F9;
+      --white:  #FFFFFF;
+      --text:   #1B3044;
+      --muted:  #5C6B7A;
+      --border: #DDE4EC;
+      --green:  #2E7D52;
+      --blue:   #0072B2;
+      --orange: #E69F00;
+      --radius: 12px;
+      --shadow: 0 2px 16px rgba(27,48,68,.08);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    /* Header */
+    .dash-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      color: #fff; padding: 40px 24px 32px; text-align: center;
+    }
+    .dash-header-inner { max-width: 900px; margin: 0 auto; }
+    .dash-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: rgba(255,255,255,.6); font-size: 12px; font-weight: 500;
+      text-decoration: none; margin-bottom: 16px; transition: color .15s;
+    }
+    .dash-back:hover { color: #fff; }
+    .dash-header h1 { font-size: clamp(22px, 4vw, 34px); font-weight: 700; margin-bottom: 6px; }
+    .dash-header h1 span { color: var(--amber); }
+    .dash-subtitle { font-size: 14px; color: rgba(255,255,255,.65); max-width: 600px; margin: 0 auto; }
+    .dash-meta {
+      display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+      margin-top: 18px; font-size: 12px; color: rgba(255,255,255,.5);
+    }
+    .dash-meta span { display: flex; align-items: center; gap: 4px; }
+
+    /* Layout */
+    .dash-body { max-width: 1000px; margin: 0 auto; padding: 28px 20px 60px; }
+
+    /* KPI row */
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .kpi-card {
+      background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
+      box-shadow: var(--shadow); padding: 20px; text-align: center;
+    }
+    .kpi-value { font-size: 32px; font-weight: 700; color: var(--navy); line-height: 1.1; }
+    .kpi-value.positive { color: var(--green); }
+    .kpi-value.amber { color: var(--amber); }
+    .kpi-label { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500; }
+    .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* Chart panels */
+    .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    @media (max-width: 700px) { .chart-grid { grid-template-columns: 1fr; } }
+    .chart-panel {
+      background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
+      box-shadow: var(--shadow); padding: 24px;
+    }
+    .chart-panel h3 { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+    .chart-panel .chart-desc { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+    .chart-panel canvas { max-height: 280px; }
+
+    /* Full-width panel */
+    .full-panel {
+      background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
+      box-shadow: var(--shadow); padding: 24px; margin-bottom: 28px;
+    }
+    .full-panel h3 { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+    .full-panel .chart-desc { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+
+    /* Pre-post layout */
+    .prepost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
+    @media (max-width: 600px) { .prepost-grid { grid-template-columns: 1fr; } }
+    .prepost-stat {
+      text-align: center; padding: 20px;
+      background: var(--bg); border-radius: var(--radius);
+    }
+    .prepost-stat .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .prepost-stat .big { font-size: 36px; font-weight: 700; margin: 4px 0; }
+    .prepost-stat .big.pre { color: var(--orange); }
+    .prepost-stat .big.post { color: var(--blue); }
+    .prepost-stat .detail { font-size: 12px; color: var(--muted); }
+    .stat-badge {
+      display: inline-block; margin-top: 10px; padding: 4px 12px;
+      background: #E8F5EE; color: var(--green); font-size: 12px;
+      font-weight: 600; border-radius: 20px;
+    }
+
+    /* Qual section */
+    .qual-section { margin-bottom: 28px; }
+    .qual-section h3 { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 16px; }
+    .qual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .qual-grid { grid-template-columns: 1fr; } }
+    .qual-card {
+      background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
+      border-left: 3px solid var(--amber); padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+    .qual-card blockquote {
+      font-size: 13.5px; font-style: italic; color: var(--text); line-height: 1.55;
+      margin: 0 0 10px; padding: 0;
+    }
+    .qual-card .qual-source {
+      font-size: 11px; font-weight: 600; color: var(--muted);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .qual-card .qual-tag {
+      display: inline-block; font-size: 10px; padding: 2px 8px;
+      background: var(--bg); border-radius: 4px; color: var(--navy); font-weight: 500;
+    }
+
+    /* Method note */
+    .method-note {
+      background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
+      box-shadow: var(--shadow); padding: 20px 24px; font-size: 13px; color: var(--muted);
+      line-height: 1.7;
+    }
+    .method-note strong { color: var(--navy); }
+
+    /* Footer */
+    .dash-footer {
+      text-align: center; padding: 32px 24px; font-size: 12px; color: var(--muted);
+    }
+    .dash-footer a { color: var(--amber); text-decoration: none; font-weight: 500; }
+    .dash-footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header class="dash-header">
+  <div class="dash-header-inner">
+    <a class="dash-back" href="../../index.html">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Portfolio
+    </a>
+    <h1>Education <span>Outcomes</span></h1>
+    <p class="dash-subtitle">
+      How did bicycle access affect school attendance, academic performance, and retention across 346 students over 6 years?
+    </p>
+    <div class="dash-meta">
+      <span>📍 Hwange District, Zimbabwe</span>
+      <span>📅 2019–2024 (longitudinal panel)</span>
+      <span>👥 346 students · 17 wards</span>
+      <span>🔒 Data anonymised</span>
+    </div>
+  </div>
+</header>
+
+<div class="dash-body">
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-value positive">-71%</div>
+      <div class="kpi-label">Absenteeism reduction</div>
+      <div class="kpi-sub">12.6 → 3.6 days/year (2019–2024)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value positive">+31%</div>
+      <div class="kpi-label">Academic improvement</div>
+      <div class="kpi-sub">Overall average: 38% → 50%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value amber">p &lt; .001</div>
+      <div class="kpi-label">Pre–post attendance test</div>
+      <div class="kpi-sub">Welch's t-test, two-sided</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">346</div>
+      <div class="kpi-label">Students tracked</div>
+      <div class="kpi-sub">Longitudinal panel, 6 academic years</div>
+    </div>
+  </div>
+
+  <!-- Trend charts -->
+  <div class="chart-grid">
+    <div class="chart-panel">
+      <h3>Attendance trend</h3>
+      <p class="chart-desc">Mean days absent per academic year (lower = better)</p>
+      <canvas id="attendanceChart"></canvas>
+    </div>
+    <div class="chart-panel">
+      <h3>Academic performance</h3>
+      <p class="chart-desc">Overall average mark (%) across all subjects</p>
+      <canvas id="academicChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Pre-post comparison -->
+  <div class="full-panel">
+    <h3>Pre–post bicycle comparison</h3>
+    <p class="chart-desc">Mean days absent before bicycle distribution (2019–2020) vs after (2021–2024)</p>
+    <div class="prepost-grid">
+      <canvas id="prepostChart" style="max-height:240px;"></canvas>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="prepost-stat">
+          <div class="label">Pre-bicycle (2019–20)</div>
+          <div class="big pre">9.9</div>
+          <div class="detail">mean days absent / year</div>
+        </div>
+        <div class="prepost-stat">
+          <div class="label">Post-bicycle (2021–24)</div>
+          <div class="big post">4.4</div>
+          <div class="detail">mean days absent / year</div>
+        </div>
+        <div style="text-align:center;">
+          <span class="stat-badge">-5.5 days · 56% reduction · p &lt; .001</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Qualitative evidence -->
+  <div class="qual-section">
+    <h3>What students and teachers said</h3>
+    <div class="qual-grid">
+      <div class="qual-card">
+        <blockquote>"I managed to complete my school just because of the bicycle. The bicycle made us to be at school always... If I had no bicycle, it would be easy for me to hide in the bushes and abscond lessons."</blockquote>
+        <div class="qual-source">
+          <span class="qual-tag">FGD</span> Out-of-School Alumni · Retention &amp; attendance
+        </div>
+      </div>
+      <div class="qual-card">
+        <blockquote>"I used to take two hours walking to school... now the same distance takes only 45 minutes."</blockquote>
+        <div class="qual-source">
+          <span class="qual-tag">FGD</span> Student · Travel time reduction
+        </div>
+      </div>
+      <div class="qual-card">
+        <blockquote>"The fatigue of walking 14 kilometres every day made some students miss lessons... because of the bicycles, they are not missing out."</blockquote>
+        <div class="qual-source">
+          <span class="qual-tag">KII</span> School Head · Attendance &amp; fatigue
+        </div>
+      </div>
+      <div class="qual-card">
+        <blockquote>"Before the bicycles... I used to find lessons have commenced... After: both my attendance and pass rate has improved."</blockquote>
+        <div class="qual-source">
+          <span class="qual-tag">FGD</span> Student · Punctuality &amp; performance
+        </div>
+      </div>
+      <div class="qual-card">
+        <blockquote>"The issue of dropouts... has been reduced since most of the children have the chance of coming to school with the use of those bicycles."</blockquote>
+        <div class="qual-source">
+          <span class="qual-tag">KII</span> District Education Official · Dropout reduction
+        </div>
+      </div>
+      <div class="qual-card">
+        <blockquote>"Some learners who had already dropped out started coming to school... it improved even the issue of truancy."</blockquote>
+        <div class="qual-source">
+          <span class="qual-tag">KII</span> School Head · Re-engagement
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Method note -->
+  <div class="method-note">
+    <strong>Methodology note:</strong> Student data comes from a longitudinal panel of 346 students tracked from 2019–2024 across 17 wards in Hwange District. Attendance records are annual days absent from school records; academic performance is the overall average mark (%). Pre–post comparison uses Welch's two-sample t-test (unequal variance). Qualitative findings are from focus group discussions (FGDs) and key informant interviews (KIIs) conducted during the endline evaluation. All data are anonymised for public display. See <a href="https://github.com/jgathogo/kazi/tree/main/portfolio/portfolio-wbr-analysis" target="_blank">full R pipeline</a> for code and reproducibility details.
+  </div>
+</div>
+
+<footer class="dash-footer">
+  <p><a href="../../index.html">← Back to Portfolio</a> · <a href="https://github.com/jgathogo/kazi/tree/main/portfolio/portfolio-wbr-analysis" target="_blank">View R Code</a></p>
+  <p style="margin-top:8px;">James Gathogo · MEAL &amp; IM · 2026</p>
+</footer>
+
+<script>
+const NAVY   = '#1B3044';
+const BLUE   = '#0072B2';
+const ORANGE = '#E69F00';
+const GREEN  = '#2E7D52';
+const AMBER  = '#E8A020';
+
+const years = ['2019','2020','2021','2022','2023','2024'];
+
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: NAVY,
+      titleFont: { family: 'Inter', size: 12 },
+      bodyFont: { family: 'Inter', size: 12 },
+      cornerRadius: 6,
+      padding: 10
+    }
+  },
+  scales: {
+    x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 } } },
+    y: { grid: { color: '#EEF1F5' }, ticks: { font: { family: 'Inter', size: 11 } }, beginAtZero: true }
+  }
+};
+
+/* Attendance trend */
+new Chart(document.getElementById('attendanceChart'), {
+  type: 'line',
+  data: {
+    labels: years,
+    datasets: [{
+      data: [12.6, 7.1, 9.1, 5.1, 3.8, 3.6],
+      borderColor: BLUE,
+      backgroundColor: BLUE + '18',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 5,
+      pointBackgroundColor: BLUE,
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
+      borderWidth: 2.5
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    scales: {
+      ...chartDefaults.scales,
+      y: { ...chartDefaults.scales.y, title: { display: true, text: 'Mean days absent', font: { family: 'Inter', size: 11, weight: '500' }, color: '#5C6B7A' } }
+    }
+  }
+});
+
+/* Academic trend */
+new Chart(document.getElementById('academicChart'), {
+  type: 'line',
+  data: {
+    labels: years,
+    datasets: [{
+      data: [38.2, 35.6, 43.0, 47.9, 49.3, 50.2],
+      borderColor: GREEN,
+      backgroundColor: GREEN + '18',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 5,
+      pointBackgroundColor: GREEN,
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
+      borderWidth: 2.5
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    scales: {
+      ...chartDefaults.scales,
+      y: {
+        ...chartDefaults.scales.y,
+        min: 0, max: 70,
+        title: { display: true, text: 'Overall average (%)', font: { family: 'Inter', size: 11, weight: '500' }, color: '#5C6B7A' }
+      }
+    }
+  }
+});
+
+/* Pre-post bar */
+new Chart(document.getElementById('prepostChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Pre-Bicycle\n(2019–20)', 'Post-Bicycle\n(2021–24)'],
+    datasets: [{
+      data: [9.9, 4.4],
+      backgroundColor: [ORANGE, BLUE],
+      borderRadius: 6,
+      barPercentage: 0.55
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    scales: {
+      ...chartDefaults.scales,
+      y: {
+        ...chartDefaults.scales.y,
+        max: 14,
+        title: { display: true, text: 'Mean days absent', font: { family: 'Inter', size: 11, weight: '500' }, color: '#5C6B7A' }
+      }
+    },
+    plugins: {
+      ...chartDefaults.plugins,
+      legend: { display: false }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
