@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>James Gathogo — MEAL & IM Portfolio</title>
+  <meta name="description" content="MEAL & Information Management portfolio — live dashboards, reproducible pipelines, and data governance artefacts for humanitarian programmes." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #1B3044;
+      --navy2:  #253D52;
+      --amber:  #E8A020;
+      --amber2: #F5B84A;
+      --cream:  #FFF9F2;
+      --bg:     #F4F6F9;
+      --white:  #FFFFFF;
+      --text:   #1B3044;
+      --muted:  #5C6B7A;
+      --border: #DDE4EC;
+      --green:  #2E7D52;
+      --greenl: #E8F5EE;
+      --radius: 12px;
+      --shadow: 0 2px 16px rgba(27,48,68,.08);
+      --shadow-hover: 0 8px 32px rgba(27,48,68,.16);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      color: var(--white);
+      padding: 72px 24px 64px;
+      text-align: center;
+    }
+    .hero-inner { max-width: 720px; margin: 0 auto; }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(232,160,32,.18);
+      color: var(--amber2);
+      border: 1px solid rgba(232,160,32,.35);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      margin-bottom: 20px;
+    }
+    .hero h1 { font-size: clamp(28px, 5vw, 48px); font-weight: 700; letter-spacing: -.02em; margin-bottom: 8px; }
+    .hero h1 span { color: var(--amber); }
+    .hero .subtitle { font-size: 17px; font-weight: 400; color: rgba(255,255,255,.72); margin-bottom: 28px; max-width: 520px; margin-left: auto; margin-right: auto; }
+    .hero-tagline {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 36px;
+      line-height: 1.4;
+    }
+    .hero-tagline em { color: var(--amber); font-style: normal; }
+
+    .hero-links { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 44px; }
+    .hero-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; text-decoration: none;
+      border: 1px solid rgba(255,255,255,.25); color: rgba(255,255,255,.9);
+      transition: background .2s, border-color .2s;
+    }
+    .hero-link:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.5); }
+
+    .tools-bar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .tool-pill {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 6px;
+      color: rgba(255,255,255,.85);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+    }
+
+    /* ── NAV ── */
+    .sticky-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 8px rgba(27,48,68,.06);
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 52px;
+    }
+    .nav-name { font-size: 14px; font-weight: 600; color: var(--navy); }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { font-size: 13px; color: var(--muted); text-decoration: none; font-weight: 500; transition: color .15s; }
+    .nav-links a:hover { color: var(--navy); }
+
+    /* ── SECTIONS ── */
+    section { padding: 64px 24px; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--amber); margin-bottom: 8px;
+    }
+    .section-title { font-size: clamp(22px, 3vw, 32px); font-weight: 700; color: var(--navy); margin-bottom: 12px; }
+    .section-desc { font-size: 16px; color: var(--muted); max-width: 580px; margin-bottom: 40px; }
+
+    /* ── PROJECT CARDS ── */
+    .projects-grid { display: grid; gap: 28px; }
+
+    .project-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    .project-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+
+    @media (min-width: 780px) {
+      .project-card.has-screenshot { grid-template-columns: 460px 1fr; }
+      .project-card.has-screenshot.reverse { grid-template-columns: 1fr 460px; }
+      .project-card.has-screenshot.reverse .card-screenshot { order: 2; }
+      .project-card.has-screenshot.reverse .card-body { order: 1; }
+    }
+
+    .card-screenshot { background: var(--bg); overflow: hidden; min-height: 260px; display: flex; align-items: center; }
+    .card-screenshot img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+    .card-screenshot.placeholder {
+      background: linear-gradient(135deg, #EEF2F7 0%, #DDE4EC 100%);
+      align-items: center; justify-content: center; flex-direction: column; gap: 12px;
+      min-height: 260px; padding: 32px;
+    }
+    .placeholder-icon { font-size: 40px; opacity: .4; }
+    .placeholder-text { font-size: 13px; color: var(--muted); text-align: center; }
+
+    .card-body { padding: 32px; display: flex; flex-direction: column; gap: 16px; }
+
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .card-num { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      border-radius: 20px; font-size: 11px; font-weight: 600; padding: 3px 10px;
+    }
+    .status-live { background: var(--greenl); color: var(--green); }
+    .status-live::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
+    .status-progress { background: #FFF3E0; color: #E65100; }
+    .status-progress::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #E65100; display: inline-block; }
+
+    .card-title { font-size: 20px; font-weight: 700; color: var(--navy); line-height: 1.3; }
+    .card-org { font-size: 13px; color: var(--muted); margin-top: -8px; }
+
+    .card-problem {
+      background: var(--cream);
+      border-left: 3px solid var(--amber);
+      border-radius: 0 6px 6px 0;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      color: var(--text);
+    }
+    .card-problem strong { color: var(--navy); font-weight: 600; }
+
+    .card-what { font-size: 14px; color: var(--muted); }
+    .card-what ul { padding-left: 18px; margin-top: 4px; display: flex; flex-direction: column; gap: 3px; }
+    .card-what li::marker { color: var(--amber); }
+
+    .stack-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .stack-pill {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--navy);
+      padding: 3px 10px;
+    }
+
+    .card-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 8px;
+      font-size: 13px; font-weight: 600; text-decoration: none;
+      transition: all .2s; border: none; cursor: pointer;
+    }
+    .btn-primary { background: var(--navy); color: var(--white); }
+    .btn-primary:hover { background: var(--navy2); box-shadow: 0 4px 12px rgba(27,48,68,.25); }
+    .btn-secondary { background: var(--white); color: var(--navy); border: 1.5px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--navy); background: var(--bg); }
+    .btn-amber { background: var(--amber); color: var(--white); }
+    .btn-amber:hover { background: var(--amber2); }
+
+    /* ── COMPETENCIES ── */
+    #competencies { background: var(--navy); color: var(--white); }
+    #competencies .section-title { color: var(--white); }
+    #competencies .section-desc { color: rgba(255,255,255,.6); }
+
+    .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .comp-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .comp-icon { font-size: 24px; margin-bottom: 10px; }
+    .comp-title { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 6px; }
+    .comp-items { font-size: 12.5px; color: rgba(255,255,255,.6); line-height: 1.7; }
+
+    /* ── ABOUT ── */
+    #about { background: var(--white); }
+    .about-grid { display: grid; grid-template-columns: 1fr; gap: 40px; }
+    @media (min-width: 780px) { .about-grid { grid-template-columns: 1fr 1fr; } }
+    .about-text { font-size: 15px; color: var(--muted); line-height: 1.8; }
+    .about-text p + p { margin-top: 14px; }
+    .about-text strong { color: var(--navy); }
+
+    .principle-list { display: flex; flex-direction: column; gap: 12px; }
+    .principle-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 14px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border);
+    }
+    .principle-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); margin-top: 6px; flex-shrink: 0; }
+    .principle-text { font-size: 14px; color: var(--text); }
+    .principle-text strong { display: block; font-weight: 600; color: var(--navy); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--navy);
+      color: rgba(255,255,255,.55);
+      text-align: center;
+      padding: 32px 24px;
+      font-size: 13px;
+    }
+    footer a { color: var(--amber); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    footer .footer-links { display: flex; gap: 20px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+    footer strong { color: rgba(255,255,255,.8); }
+
+    /* ── DIVIDER ── */
+    .divider { width: 40px; height: 3px; background: var(--amber); border-radius: 2px; margin-bottom: 24px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .hero { padding: 48px 20px 44px; }
+      section { padding: 48px 20px; }
+      .card-body { padding: 24px; }
+      .nav-links { display: none; }
+    }
+
+    /* ── FADE IN ── */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+    .fade-up { animation: fadeUp .5s ease forwards; }
+    .fade-up:nth-child(2) { animation-delay: .1s; }
+    .fade-up:nth-child(3) { animation-delay: .2s; }
+  </style>
+</head>
+<body>
+
+<!-- ── HERO ───────────────────────────────────────────────────────────────── -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">MEAL &amp; Information Management Portfolio</div>
+    <h1>James <span>Gathogo</span></h1>
+    <p class="subtitle">MEAL &amp; IM Specialist · Humanitarian Programmes · East Africa</p>
+    <p class="hero-tagline">Turning humanitarian data into <em>decisions that reach people.</em></p>
+
+    <div class="hero-links">
+      <a class="hero-link" href="https://github.com/jgathogo" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a class="hero-link" href="mailto:james@onesouth.co.ke">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email
+      </a>
+      <a class="hero-link" href="https://www.linkedin.com/in/jamesgathogo" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </a>
+    </div>
+
+    <div class="tools-bar">
+      <span class="tool-pill">KoBo Toolbox</span>
+      <span class="tool-pill">Power BI</span>
+      <span class="tool-pill">Google Sheets + Apps Script</span>
+      <span class="tool-pill">R · Quarto · Shiny</span>
+      <span class="tool-pill">Python</span>
+      <span class="tool-pill">DHIS2</span>
+      <span class="tool-pill">Git / GitHub</span>
+    </div>
+  </div>
+</header>
+
+<!-- ── STICKY NAV ─────────────────────────────────────────────────────────── -->
+<nav class="sticky-nav">
+  <div class="nav-inner">
+    <span class="nav-name">James Gathogo · MEAL &amp; IM</span>
+    <div class="nav-links">
+      <a href="#portfolio">Portfolio</a>
+      <a href="#competencies">Competencies</a>
+      <a href="#about">About</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── PORTFOLIO SECTION ──────────────────────────────────────────────────── -->
+<section id="portfolio">
+  <div class="section-inner">
+    <div class="section-label">Portfolio</div>
+    <h2 class="section-title">Live projects you can click into.</h2>
+    <p class="section-desc">Each project is a working artefact — not a description of one. All data is synthetic or anonymised.</p>
+    <div class="divider"></div>
+
+    <div class="projects-grid">
+
+      <!-- ── PROJECT 2: GNB ── -->
+      <article class="project-card has-screenshot fade-up">
+        <div class="card-screenshot">
+          <img src="assets/gnb_dashboard.png" alt="GNB Self-Assessment Scorecard Dashboard screenshot" loading="lazy" />
+        </div>
+        <div class="card-body">
+          <div class="card-header">
+            <span class="card-num">Project 02</span>
+            <span class="status-badge status-live">Live</span>
+          </div>
+          <div>
+            <h3 class="card-title">Member Self-Assessment Scorecard Dashboard</h3>
+            <p class="card-org">Context: Multi-country civil society partnership · Girls Not Brides (anonymised)</p>
+          </div>
+          <div class="card-problem">
+            <strong>The problem:</strong> A global civil society network needed to track member organisations' performance across 8 governance principles and 6 gender-transformative practice (GTP) indicators — across multiple countries, languages, and reporting years — without requiring specialist software.
+          </div>
+          <div class="card-what">
+            <strong style="font-size:13px;color:var(--navy);">What was built:</strong>
+            <ul>
+              <li>Live-connected Google Sheet pulling from KoBo via Apps Script (Token auth)</li>
+              <li>Dynamic scorecard: avg scores per principle, RAG conditional formatting</li>
+              <li>GTP results table with Gender Transformative Approach (GTA) continuum visualisation</li>
+              <li>Cascading filters (Year → Country → Org) with KPI chips (Submissions, Avg Score, GTA Zone)</li>
+              <li>Full multilingual UI — English / French / Portuguese / Spanish</li>
+              <li>Data anonymised; all scripts in GitHub</li>
+            </ul>
+          </div>
+          <div class="stack-pills">
+            <span class="stack-pill">KoBo Toolbox EU</span>
+            <span class="stack-pill">Google Sheets</span>
+            <span class="stack-pill">Google Apps Script</span>
+            <span class="stack-pill">Python (anonymisation)</span>
+            <span class="stack-pill">clasp</span>
+          </div>
+          <div class="card-actions">
+            <a class="btn btn-amber" href="https://docs.google.com/spreadsheets/d/1TfPNHyViMf7DDlRSRhIQsSwXGX-trfPvo3N-L00SY/view" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              View Live Dashboard
+            </a>
+            <a class="btn btn-secondary" href="https://github.com/jgathogo/kazi/tree/main/portfolio/project_2/gnb_script" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              View Code
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── PROJECT 1: Power BI ── -->
+      <article class="project-card has-screenshot reverse fade-up">
+        <div class="card-screenshot placeholder">
+          <span class="placeholder-icon">📊</span>
+          <p class="placeholder-text">Power BI Dashboard<br/><strong>4 pages · 10,000+ records</strong><br/>Open .pbix in Power BI Desktop to explore</p>
+        </div>
+        <div class="card-body">
+          <div class="card-header">
+            <span class="card-num">Project 01</span>
+            <span class="status-badge status-live">Live</span>
+          </div>
+          <div>
+            <h3 class="card-title">Consortium Beneficiary Registration &amp; Monitoring Dashboard</h3>
+            <p class="card-org">Context: 2-partner EC-funded protection &amp; livelihoods programme (synthetic data)</p>
+          </div>
+          <div class="card-problem">
+            <strong>The problem:</strong> A consortium of two implementing partners has 10,000+ beneficiary registrations across 5 locations with no unified monitoring view — programme managers and the donor have no real-time picture of coverage, vulnerability profiles, or assistance delivery.
+          </div>
+          <div class="card-what">
+            <strong style="font-size:13px;color:var(--navy);">What was built:</strong>
+            <ul>
+              <li>KoBo EU XLSForm (skip logic, GPS, consent) + 10,000 synthetic records via API</li>
+              <li>Power Query M connector with Token auth, date parsing, column typing</li>
+              <li>4-page dashboard: Overview, Demographics, Assistance &amp; Vulnerability, Case Management</li>
+              <li>DAX measures: CALCULATE, DIVIDE, DISTINCTCOUNT, DATEADD; RAG thresholds</li>
+              <li>Data governance: protection note, versioning SOP, indicator dictionary</li>
+            </ul>
+          </div>
+          <div class="stack-pills">
+            <span class="stack-pill">KoBo Toolbox EU</span>
+            <span class="stack-pill">Power Query M</span>
+            <span class="stack-pill">Power BI Desktop</span>
+            <span class="stack-pill">DAX</span>
+            <span class="stack-pill">Python</span>
+          </div>
+          <div class="card-actions">
+            <a class="btn btn-primary" href="https://drive.google.com/file/d/1b5PEPBymZHLByxHprTB5IAAYRJgGlye6/view?usp=drive_link" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              View Dashboard (.pbix)
+            </a>
+            <a class="btn btn-secondary" href="https://github.com/jgathogo/kazi/tree/main/portfolio" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              View Code &amp; Docs
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── PROJECT 3: R/Quarto/Shiny (In Progress) ── -->
+      <article class="project-card fade-up">
+        <div class="card-body" style="padding: 28px 32px;">
+          <div class="card-header">
+            <span class="card-num">Project 03 · In Progress</span>
+            <span class="status-badge status-progress">Building</span>
+          </div>
+          <h3 class="card-title">WBR Analysis Pipeline — R · Quarto · Shiny</h3>
+          <p class="card-org" style="margin-top:6px;">Context: Weekly Beneficiary Reporting (WBR) — food security programme, 6 months of data</p>
+          <div class="card-problem" style="margin-top:12px;">
+            <strong>The problem:</strong> Programme managers need a reproducible 6-month trend analysis and a live filterable dashboard — without waiting for a manually compiled Excel report every week.
+          </div>
+          <div class="stack-pills" style="margin-top:16px;">
+            <span class="stack-pill">R</span>
+            <span class="stack-pill">Quarto (HTML report)</span>
+            <span class="stack-pill">Shiny dashboard</span>
+            <span class="stack-pill">shinyapps.io</span>
+            <span class="stack-pill">QuartoPub</span>
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-top:16px;">Reproducible Quarto report + interactive Shiny dashboard — coming Q1 2026.</p>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── COMPETENCIES ───────────────────────────────────────────────────────── -->
+<section id="competencies">
+  <div class="section-inner">
+    <div class="section-label" style="color:var(--amber);">Competencies</div>
+    <h2 class="section-title">What I bring to a MEAL/IM role.</h2>
+    <p class="section-desc">Skills built across real humanitarian programmes — not just training courses.</p>
+    <div class="divider"></div>
+
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-icon">📋</div>
+        <div class="comp-title">MEAL System Design</div>
+        <div class="comp-items">Results frameworks · Log frames · Indicator dictionaries · IPTT design · DQ checklists · Theory of Change</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">📱</div>
+        <div class="comp-title">Data Collection & ODK</div>
+        <div class="comp-items">KoBo XLSForm design · Skip logic · GPS · ODK Central · Consent management · API submission</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">📊</div>
+        <div class="comp-title">Dashboards & Visualisation</div>
+        <div class="comp-items">Power BI (DAX, M, star schema) · Google Sheets (Apps Script, QUERY) · DHIS2 reporting · Shiny</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">🔬</div>
+        <div class="comp-title">Data Analysis & Reporting</div>
+        <div class="comp-items">R (tidyverse, ggplot2) · Python (pandas) · Quarto reports · Qualitative synthesis · Donor reporting</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">🔒</div>
+        <div class="comp-title">Data Governance & Protection</div>
+        <div class="comp-items">PII anonymisation · Access control · Data classification · GDPR-aligned SOPs · Responsible data</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">🤝</div>
+        <div class="comp-title">Coordination & Capacity</div>
+        <div class="comp-items">Consortium M&E · Partner reporting systems · MEAL training · Remote team coordination · Surge support</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ABOUT ──────────────────────────────────────────────────────────────── -->
+<section id="about" style="background:var(--white);">
+  <div class="section-inner">
+    <div class="section-label">About</div>
+    <h2 class="section-title">The context behind the work.</h2>
+    <div class="divider"></div>
+
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I am a MEAL and Information Management professional with experience across humanitarian and development programmes in East Africa. My work sits at the intersection of field operations, data systems, and programme accountability — designing the pipelines that help teams ask better questions of their data.</p>
+        <p>I have supported programmes funded by <strong>ECHO, SIDA, UNHCR, and FCDO</strong>, building M&E frameworks, data collection tools, and reporting systems that are usable by field staff and trusted by donors. The projects in this portfolio demonstrate the technical side of that work — built to the standard I would deliver on a real programme.</p>
+        <p>I am actively seeking <strong>MEAL/IM Coordinator and Data/MEAL Manager roles</strong> in INGOs operating in humanitarian contexts, particularly in East and Central Africa, the Horn of Africa, and internationally.</p>
+        <p style="margin-top:20px;font-size:13px;color:var(--muted);background:var(--bg);padding:14px;border-radius:8px;border:1px solid var(--border);">
+          <strong style="color:var(--navy);">Data note:</strong> All data in this portfolio is either fully synthetic (generated programmatically) or anonymised in line with humanitarian data protection standards. No real beneficiary data, GPS coordinates, or identifying information are present.
+        </p>
+      </div>
+
+      <div class="principle-list">
+        <div class="principle-item">
+          <div class="principle-dot"></div>
+          <div class="principle-text">
+            <strong>Every project is clickable.</strong>
+            Not a list of things done — actual live dashboards, code, and reproducible pipelines.
+          </div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-dot"></div>
+          <div class="principle-text">
+            <strong>Built for decisions, not decoration.</strong>
+            Each artefact answers a real programme question: who was reached, what is the trend, where are the gaps.
+          </div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-dot"></div>
+          <div class="principle-text">
+            <strong>Tool-agnostic.</strong>
+            Power BI for donors, Google Sheets for field teams, R/Quarto for analysis. The right tool for the right audience.
+          </div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-dot"></div>
+          <div class="principle-text">
+            <strong>Governance built in.</strong>
+            PII anonymisation, data protection notes, and access SOPs are part of every project — not an afterthought.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-links">
+    <a href="https://github.com/jgathogo" target="_blank" rel="noopener">GitHub</a>
+    <a href="mailto:james@onesouth.co.ke">james@onesouth.co.ke</a>
+    <a href="https://www.linkedin.com/in/jamesgathogo" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+  <p><strong>James Gathogo</strong> · MEAL &amp; Information Management · East Africa</p>
+  <p style="margin-top:6px;font-size:11px;">All portfolio data is synthetic or anonymised · Built with plain HTML + GitHub Pages · 2026</p>
+</footer>
+
+</body>
+</html>
