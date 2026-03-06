@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TWENDE PMEAL Dashboard Prototype — James Gathogo</title>
+  <meta name="description" content="Power BI PMEAL prototype for the IUCN TWENDE Project: 6 dashboard pages, star-schema data model, GIS integration, and GRM tracking across 11 ASAL counties." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1B3044; --navy2: #253D52; --amber: #E8A020; --amber2: #F5B84A;
+      --bg: #F4F6F9; --white: #FFFFFF; --text: #1B3044; --muted: #5C6B7A;
+      --border: #DDE4EC; --green: #2E7D52; --radius: 12px;
+      --shadow: 0 2px 16px rgba(27,48,68,.08);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    .top-bar {
+      background: var(--navy); padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .top-bar a { color: rgba(255,255,255,.7); font-size: 13px; text-decoration: none; font-weight: 500; }
+    .top-bar a:hover { color: var(--white); }
+    .top-bar .name { color: var(--white); font-weight: 600; font-size: 14px; }
+
+    .hero-section {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      color: var(--white); padding: 56px 24px 48px; text-align: center;
+    }
+    .hero-section h1 { font-size: clamp(24px, 4vw, 38px); font-weight: 700; margin-bottom: 12px; }
+    .hero-section h1 span { color: var(--amber); }
+    .hero-section .sub { font-size: 16px; color: rgba(255,255,255,.7); max-width: 680px; margin: 0 auto 28px; }
+    .meta-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-size: 13px; color: rgba(255,255,255,.55); }
+    .meta-row strong { color: rgba(255,255,255,.85); }
+
+    .content { max-width: 1100px; margin: 0 auto; padding: 48px 24px; }
+
+    .context-box {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 28px 32px; margin-bottom: 40px; box-shadow: var(--shadow);
+    }
+    .context-box h2 { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
+    .context-box p { font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+    .context-box ul { padding-left: 20px; font-size: 14px; color: var(--muted); }
+    .context-box li { margin-bottom: 4px; }
+    .context-box li::marker { color: var(--amber); }
+
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .pill {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      font-size: 12px; font-weight: 500; color: var(--navy); padding: 4px 12px;
+    }
+
+    .pages-heading {
+      font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 8px;
+    }
+    .pages-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
+
+    .page-card {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden; margin-bottom: 32px;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .page-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(27,48,68,.12); }
+    .page-card img { width: 100%; display: block; border-bottom: 1px solid var(--border); }
+    .page-card-body { padding: 24px 28px; }
+    .page-card-body h3 { font-size: 17px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+    .page-card-body .page-num {
+      font-size: 11px; font-weight: 700; color: var(--amber); letter-spacing: .08em;
+      text-transform: uppercase; margin-bottom: 4px;
+    }
+    .page-card-body p { font-size: 13.5px; color: var(--muted); }
+
+    .data-note {
+      background: #FFF9F2; border: 1px solid #F0DFC0; border-left: 3px solid var(--amber);
+      border-radius: 0 8px 8px 0; padding: 16px 20px; margin-top: 40px;
+      font-size: 13px; color: var(--text);
+    }
+    .data-note strong { color: var(--navy); }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 32px;
+      font-size: 14px; font-weight: 600; color: var(--navy); text-decoration: none;
+      padding: 10px 20px; border-radius: 8px; border: 1.5px solid var(--border);
+      transition: all .2s;
+    }
+    .back-link:hover { border-color: var(--navy); background: var(--white); }
+
+    footer {
+      background: var(--navy); color: rgba(255,255,255,.55); text-align: center;
+      padding: 28px 24px; font-size: 13px; margin-top: 32px;
+    }
+    footer strong { color: rgba(255,255,255,.8); }
+
+    @media (max-width: 600px) {
+      .hero-section { padding: 40px 20px 36px; }
+      .content { padding: 32px 16px; }
+      .page-card-body { padding: 18px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span class="name">James Gathogo</span>
+  <a href="../../index.html">&larr; Back to Portfolio</a>
+</div>
+
+<div class="hero-section">
+  <h1>TWENDE <span>PMEAL</span> Dashboard Prototype</h1>
+  <p class="sub">A 6-page Power BI PMEAL system prototype built on synthetic data for the IUCN TWENDE Project (GCF FP113) across Kenya's Arid and Semi-Arid Lands.</p>
+  <div class="meta-row">
+    <span><strong>Client context:</strong> IUCN Kenya Country Office</span>
+    <span><strong>Scope:</strong> 3 landscapes, 11 counties, 4 partners</span>
+    <span><strong>Data:</strong> Synthetic (5,000+ beneficiaries)</span>
+    <span><strong>Built:</strong> March 2026</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="context-box">
+    <h2>What this demonstrates</h2>
+    <p>The TWENDE Project generates monitoring data across four implementing partners using KoBoToolbox, SurveyCTO, and Excel, but these are not integrated within a unified framework. This prototype demonstrates the proposed PMEAL system architecture: a star-schema data model with 6 dimension tables and 5 fact tables, feeding 6 dashboard pages with GIS integration and differentiated user access.</p>
+    <ul>
+      <li>Star schema: dim_landscape, dim_county, dim_partner, dim_indicator, dim_period, dim_intervention</li>
+      <li>Fact tables: achievement (1,525 rows), beneficiary (5,000), training (400), workplan (180), GRM (80)</li>
+      <li>Global slicers (period, landscape, partner) filter across all pages</li>
+      <li>Row-level security designed for 5 user tiers</li>
+      <li>GIS integration via Azure Maps with county-level bubble visualisation</li>
+    </ul>
+    <div class="pills">
+      <span class="pill">Power BI Desktop</span>
+      <span class="pill">DAX</span>
+      <span class="pill">Star Schema</span>
+      <span class="pill">Azure Maps</span>
+      <span class="pill">Python (data gen)</span>
+      <span class="pill">KoBoToolbox</span>
+      <span class="pill">SharePoint</span>
+    </div>
+  </div>
+
+  <h2 class="pages-heading">Dashboard pages</h2>
+  <p class="pages-sub">Each page maps to a PMEAL module. Click any screenshot to view full size.</p>
+
+  <div class="page-card">
+    <a href="../../assets/twende/overview.png" target="_blank"><img src="../../assets/twende/overview.png" alt="Project Overview dashboard page" loading="lazy" /></a>
+    <div class="page-card-body">
+      <div class="page-num">Page 1</div>
+      <h3>Project Overview</h3>
+      <p>KPI cards for beneficiaries reached (5,000), hectares under restoration (1.05M), female percentage (51%), and overall log frame completion (112%). Quarterly achievement trend lines by indicator level. Beneficiaries by landscape bar chart and progress-by-component donut.</p>
+    </div>
+  </div>
+
+  <div class="page-card">
+    <a href="../../assets/twende/beneficiaries.png" target="_blank"><img src="../../assets/twende/beneficiaries.png" alt="Beneficiaries dashboard page" loading="lazy" /></a>
+    <div class="page-card-body">
+      <div class="page-num">Page 2</div>
+      <h3>Beneficiary Database</h3>
+      <p>Individual-level tracking across 5,000 records. Reach by county, gender distribution (51% female), age group breakdown (60% adult, 25% youth, 15% elder), vulnerability status (16%), and reach by intervention type across all eight categories.</p>
+    </div>
+  </div>
+
+  <div class="page-card">
+    <a href="../../assets/twende/spatial_map.png" target="_blank"><img src="../../assets/twende/spatial_map.png" alt="Spatial Map dashboard page" loading="lazy" /></a>
+    <div class="page-card-body">
+      <div class="page-num">Page 3</div>
+      <h3>Spatial Map</h3>
+      <p>Azure Maps visualisation plotting beneficiary reach as proportional bubbles on county centroids across Kenya's ASAL region. County summary table showing beneficiary count and training participant totals grouped by landscape (Chyulu, Mid-Tana, Sabarwawa).</p>
+    </div>
+  </div>
+
+  <div class="page-card">
+    <a href="../../assets/twende/iptt.png" target="_blank"><img src="../../assets/twende/iptt.png" alt="IPTT dashboard page" loading="lazy" /></a>
+    <div class="page-card-body">
+      <div class="page-num">Page 4</div>
+      <h3>Indicator Performance Tracking Table (IPTT)</h3>
+      <p>Cumulative achievement versus target for each log frame indicator (32 indicators across 3 components + cross-cutting). Designed for traffic-light conditional formatting enabling the MEAL team to identify on-track, at-risk, and behind-schedule indicators.</p>
+    </div>
+  </div>
+
+  <div class="page-card">
+    <a href="../../assets/twende/partner_performance.png" target="_blank"><img src="../../assets/twende/partner_performance.png" alt="Partner Performance dashboard page" loading="lazy" /></a>
+    <div class="page-card-body">
+      <div class="page-num">Page 5</div>
+      <h3>Partner Performance</h3>
+      <p>Activity completion and average indicator achievement compared across all four implementing partners (IUCN, MoAI-SDLD, NDMA, Conservation International). Workplan status stacked bar chart showing completed, in-progress, delayed, and not-started activities per partner.</p>
+    </div>
+  </div>
+
+  <div class="page-card">
+    <a href="../../assets/twende/risk_grievance.png" target="_blank"><img src="../../assets/twende/risk_grievance.png" alt="Risk and Grievance dashboard page" loading="lazy" /></a>
+    <div class="page-card-body">
+      <div class="page-num">Page 6</div>
+      <h3>Risk and Grievance (GRM)</h3>
+      <p>80 cases tracked across four categories (social, operational, environmental, fiduciary). Resolution pipeline from open through escalated to resolved. Full register table with GRM ID, severity, county, partner, status, and reporting/resolution dates.</p>
+    </div>
+  </div>
+
+  <div class="data-note">
+    <strong>Data note:</strong> All data in this prototype is synthetic, generated using a deterministic Python script with realistic distributions. No real beneficiary data, GPS coordinates, or identifying information are present. The data model, dashboard layouts, and DAX measures are production-ready and designed to connect to live SharePoint data sources.
+  </div>
+
+  <a class="back-link" href="../../index.html">&larr; Back to Portfolio</a>
+</div>
+
+<footer>
+  <p><strong>James Gathogo</strong> &middot; MEAL &amp; Information Management &middot; 2026</p>
+</footer>
+
+</body>
+</html>
