@@ -502,6 +502,50 @@
         </div>
       </article>
 
+      <!-- ── PROJECT 5: Humanitarian Assessment Dashboard ── -->
+      <article class="project-card fade-up">
+        <div class="card-body" style="padding: 28px 32px;">
+          <div class="card-header">
+            <span class="card-num">Project 05</span>
+            <span class="status-badge status-live">Live</span>
+          </div>
+          <h3 class="card-title">Consortium Humanitarian Assessment Dashboard</h3>
+          <p class="card-org" style="margin-top:6px;">Context: EC-funded Youth Livelihoods Programme · Sudan · 2 consortium partners · 7 states</p>
+          <div class="card-problem" style="margin-top:12px;">
+            <strong>The problem:</strong> A two-partner humanitarian consortium needs a unified view across post-distribution monitoring (PDM), activity reach, food security (rCSI), and community feedback mechanism (CFM) data — harmonised from partners using different KoBo form schemas with inconsistent column names, coding, and validation.
+          </div>
+          <div class="card-what">
+            <strong style="font-size:13px;color:var(--navy);">What was built:</strong>
+            <ul>
+              <li>Interactive dashboard with 7 visualisation panels: KPIs, geographic map, rCSI analysis, activity reach, CFM tracking, and demographics</li>
+              <li>Leaflet.js map with 7 sites across Sudan, circle markers sized by respondent count</li>
+              <li>rCSI calculation using standard WFP weights (1, 2, 1, 3, 1) with state-level comparison</li>
+              <li>CFM pipeline tracking: 120 cases, 7 categories including SEA, severity flagging, closure rate monitoring</li>
+              <li>Partner data harmonisation: different column schemas mapped to a common indicator dictionary</li>
+              <li>All data synthetic — generated for a consortium MEAL/IM coordination exercise</li>
+            </ul>
+          </div>
+          <div class="stack-pills" style="margin-top:16px;">
+            <span class="stack-pill">Chart.js</span>
+            <span class="stack-pill">Leaflet.js</span>
+            <span class="stack-pill">KoBoToolbox</span>
+            <span class="stack-pill">rCSI / WFP</span>
+            <span class="stack-pill">CFM Tracking</span>
+            <span class="stack-pill">Data Harmonisation</span>
+          </div>
+          <div class="card-actions" style="margin-top:16px;">
+            <a class="btn btn-amber" href="projects/humanitarian-assessment/index.html" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Explore Dashboard
+            </a>
+            <a class="btn btn-secondary" href="https://github.com/jgathogo/meal-im-portfolio" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              View Code
+            </a>
+          </div>
+        </div>
+      </article>
+
       <!-- ── PROJECT 3: WBR Hwange Endline ── -->
       <article class="project-card fade-up">
         <div class="card-body" style="padding: 28px 32px;">
@@ -529,12 +573,12 @@
             <div class="pipeline-step">
               <div class="pipeline-step-icon analyse">📊</div>
               <div class="pipeline-step-label">Analyse</div>
-              <div class="pipeline-step-detail">Pre–post t-tests, trend decomposition, qualitative theme coding (YAML)</div>
+              <div class="pipeline-step-detail">Pre–post t-tests, Difference-in-Difference, qualitative theme coding</div>
             </div>
             <div class="pipeline-step">
               <div class="pipeline-step-icon viz">📈</div>
               <div class="pipeline-step-label">Visualise</div>
-              <div class="pipeline-step-detail">Interactive dashboard: attendance, academic trends, pre–post comparisons</div>
+              <div class="pipeline-step-detail">Interactive dashboards: education outcomes, DiD impact, qualitative synthesis</div>
             </div>
             <div class="pipeline-step">
               <div class="pipeline-step-icon decide">✅</div>
@@ -550,11 +594,20 @@
             <span class="stack-pill">ggplot2</span>
             <span class="stack-pill">Chart.js</span>
             <span class="stack-pill">Mixed Methods</span>
+            <span class="stack-pill">Difference-in-Difference</span>
           </div>
           <div class="card-actions" style="margin-top:16px;">
             <a class="btn btn-amber" href="projects/wbr-education/index.html" target="_blank" rel="noopener">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              Explore Education Outcomes
+              Education Outcomes
+            </a>
+            <a class="btn btn-amber" href="projects/wbr-education/did-analysis.html" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              DiD Impact Analysis
+            </a>
+            <a class="btn btn-amber" href="projects/wbr-education/qualitative-analysis.html" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Qualitative Synthesis
             </a>
             <a class="btn btn-secondary" href="https://github.com/jgathogo/kazi/tree/main/portfolio/portfolio-wbr-analysis" target="_blank" rel="noopener">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>

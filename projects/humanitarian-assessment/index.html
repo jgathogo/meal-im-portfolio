@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consortium Humanitarian Assessment Dashboard | James Gathogo</title>
+  <meta name="description" content="Interactive humanitarian assessment dashboard: rCSI food security, CFM tracking, activity reach, and geographic mapping for an EC-funded consortium in Sudan." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1B3044; --navy2: #253D52; --amber: #E8A020; --amber2: #F5B84A;
+      --bg: #F4F6F9; --white: #FFFFFF; --text: #1B3044; --muted: #5C6B7A;
+      --border: #DDE4EC; --green: #2E7D52; --red: #C0392B; --radius: 12px;
+      --shadow: 0 2px 16px rgba(27,48,68,.08);
+      --partnerA: #3B82F6; --partnerB: #E8A020;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    .top-bar {
+      background: var(--navy); padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .top-bar a { color: rgba(255,255,255,.7); font-size: 13px; text-decoration: none; font-weight: 500; }
+    .top-bar a:hover { color: var(--white); }
+    .top-bar .name { color: var(--white); font-weight: 600; font-size: 14px; }
+
+    .hero-section {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      color: var(--white); padding: 52px 24px 44px; text-align: center;
+    }
+    .hero-section h1 { font-size: clamp(22px, 4vw, 36px); font-weight: 700; margin-bottom: 10px; }
+    .hero-section h1 span { color: var(--amber); }
+    .hero-section .sub {
+      font-size: 15px; color: rgba(255,255,255,.65); max-width: 680px;
+      margin: 0 auto 24px; line-height: 1.5;
+    }
+    .meta-badges { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .meta-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(232,160,32,.15); border: 1px solid rgba(232,160,32,.3);
+      border-radius: 20px; padding: 5px 14px;
+      font-size: 12px; font-weight: 600; color: var(--amber2);
+    }
+
+    .content { max-width: 1100px; margin: 0 auto; padding: 40px 24px 60px; }
+
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--amber); margin-bottom: 6px;
+    }
+    .section-title { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 20px; }
+    .divider { width: 40px; height: 3px; background: var(--amber); border-radius: 2px; margin-bottom: 20px; }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px; margin-bottom: 40px;
+    }
+    .kpi-card {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 22px 24px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+    }
+    .kpi-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--amber);
+    }
+    .kpi-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+    .kpi-value { font-size: 32px; font-weight: 700; color: var(--navy); line-height: 1.1; }
+    .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    /* Cards */
+    .dash-card {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 28px; box-shadow: var(--shadow); margin-bottom: 28px;
+    }
+    .dash-card h3 {
+      font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-icon {
+      width: 28px; height: 28px; border-radius: 6px; display: inline-flex;
+      align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+    }
+
+    /* Map */
+    #map { height: 420px; border-radius: 8px; border: 1px solid var(--border); }
+
+    /* Chart containers */
+    .chart-wrap { position: relative; width: 100%; }
+    .chart-wrap.bar { height: 320px; }
+    .chart-wrap.doughnut { max-width: 300px; margin: 0 auto; }
+
+    /* Two-column grid */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    @media (max-width: 780px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* CFM status bar */
+    .status-bar { display: flex; border-radius: 6px; overflow: hidden; height: 28px; margin: 12px 0; }
+    .status-bar .closed { background: var(--green); }
+    .status-bar .open { background: var(--amber); }
+    .status-legend { display: flex; gap: 20px; font-size: 13px; color: var(--muted); align-items: center; }
+    .status-legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+    .status-legend .dot.green { background: var(--green); }
+    .status-legend .dot.amber { background: var(--amber); }
+
+    .sensitive-flag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #FDE8E8; border: 1px solid #F5C6C6; border-radius: 6px;
+      padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--red); margin-top: 12px;
+    }
+
+    /* Methodology */
+    .methodology {
+      background: #FFF9F2; border: 1px solid #F0DFC0; border-left: 3px solid var(--amber);
+      border-radius: 0 8px 8px 0; padding: 20px 24px; margin-top: 12px;
+    }
+    .methodology h4 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+    .methodology p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+    footer {
+      background: var(--navy); color: rgba(255,255,255,.55); text-align: center;
+      padding: 28px 24px; font-size: 13px;
+    }
+    footer strong { color: rgba(255,255,255,.8); }
+    footer a { color: var(--amber); text-decoration: none; }
+
+    .leaflet-popup-content-wrapper { border-radius: 8px; }
+    .leaflet-popup-content { font-family: 'Inter', system-ui, sans-serif; font-size: 13px; line-height: 1.5; }
+    .popup-title { font-weight: 700; color: var(--navy); font-size: 14px; margin-bottom: 4px; }
+    .popup-row { color: #5C6B7A; }
+
+    @media (max-width: 600px) {
+      .hero-section { padding: 40px 20px 36px; }
+      .content { padding: 28px 16px 48px; }
+      .dash-card { padding: 20px; }
+      #map { height: 300px; }
+    }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+    .fade-up { animation: fadeUp .45s ease forwards; }
+  </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <a href="../../">&larr; Back to Portfolio</a>
+  <span class="name">James Gathogo &middot; MEAL &amp; IM</span>
+</div>
+
+<!-- Hero -->
+<header class="hero-section">
+  <h1>Consortium Humanitarian <span>Assessment</span> Dashboard</h1>
+  <p class="sub">EC-funded Youth Livelihoods Programme &middot; Sudan &middot; 2 Partners &middot; 7 States</p>
+  <div class="meta-badges">
+    <span class="meta-badge">220 PDM Respondents</span>
+    <span class="meta-badge">120 Activities</span>
+    <span class="meta-badge">120 CFM Cases</span>
+  </div>
+</header>
+
+<div class="content">
+
+  <!-- KPI Row -->
+  <div class="kpi-grid fade-up">
+    <div class="kpi-card">
+      <div class="kpi-label">Total PDM Respondents</div>
+      <div class="kpi-value">220</div>
+      <div class="kpi-sub">Partner A: 120 &middot; Partner B: 100</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Mean rCSI Score</div>
+      <div class="kpi-value">8.2</div>
+      <div class="kpi-sub">Weighted avg across 7 states</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Safe Access Rate</div>
+      <div class="kpi-value">62%</div>
+      <div class="kpi-sub">% reporting safe access to services</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">CFM Closure Rate</div>
+      <div class="kpi-value">75%</div>
+      <div class="kpi-sub">87 closed of 116 total cases</div>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div class="dash-card fade-up">
+    <h3><span class="card-icon" style="background:#E3F2FD;">&#127758;</span> Geographic Coverage</h3>
+    <div id="map"></div>
+  </div>
+
+  <!-- rCSI -->
+  <div class="dash-card fade-up">
+    <h3><span class="card-icon" style="background:#FFF3E0;">&#127860;</span> Food Security: Reduced Coping Strategy Index (rCSI) by State</h3>
+    <div class="chart-wrap bar">
+      <canvas id="rcsiChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Activity Reach -->
+  <div class="dash-card fade-up">
+    <h3><span class="card-icon" style="background:#E8F5E9;">&#128200;</span> Activity Reach by Type (Participants)</h3>
+    <div class="chart-wrap bar">
+      <canvas id="activityChart"></canvas>
+    </div>
+  </div>
+
+  <!-- CFM + Demographics -->
+  <div class="two-col">
+    <!-- CFM -->
+    <div class="dash-card fade-up">
+      <h3><span class="card-icon" style="background:#F3E5F5;">&#128172;</span> CFM Cases by Category</h3>
+      <div class="chart-wrap doughnut">
+        <canvas id="cfmChart"></canvas>
+      </div>
+      <div style="margin-top:20px;">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">Resolution Status</div>
+        <div class="status-bar">
+          <div class="closed" style="width:75%;" title="Closed: 87"></div>
+          <div class="open" style="width:25%;" title="Open: 29"></div>
+        </div>
+        <div class="status-legend">
+          <span><span class="dot green"></span> Closed: 87</span>
+          <span><span class="dot amber"></span> Open: 29</span>
+        </div>
+        <div class="sensitive-flag">&#9888; 7 sensitive cases flagged (incl. SEA)</div>
+      </div>
+    </div>
+
+    <!-- Demographics -->
+    <div style="display:flex;flex-direction:column;gap:28px;">
+      <div class="dash-card fade-up">
+        <h3><span class="card-icon" style="background:#FCE4EC;">&#128101;</span> Displacement Status</h3>
+        <div class="chart-wrap doughnut">
+          <canvas id="displacementChart"></canvas>
+        </div>
+      </div>
+      <div class="dash-card fade-up">
+        <h3><span class="card-icon" style="background:#E3F2FD;">&#9792;&#9794;</span> Gender Split</h3>
+        <div class="chart-wrap doughnut">
+          <canvas id="genderChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Methodology -->
+  <div class="methodology fade-up">
+    <h4>Methodology Note</h4>
+    <p>All data is synthetic, generated for a consortium MEAL/IM coordination exercise. The dashboard demonstrates harmonisation of partner data with different column schemas, rCSI calculation with standard WFP weights (less preferred meals = 1, borrowing food = 2, limiting portions = 1, adults reducing intake = 3, reducing meals = 1), CFM tracking with severity flagging, and geographic coverage mapping. Built with Chart.js and Leaflet.js.</p>
+  </div>
+
+</div>
+
+<footer>
+  <p><strong>James Gathogo</strong> &middot; MEAL &amp; Information Management</p>
+  <p style="margin-top:6px;font-size:11px;">All data is synthetic &middot; <a href="../../">Back to Portfolio</a></p>
+</footer>
+
+<script>
+(function () {
+  // ── DATA ──────────────────────────────────────────────────────────────────
+
+  const sites = [
+    { name: 'Port Sudan',  state: 'Red Sea',          lat: 19.6158, lon: 37.2164, n: 28 },
+    { name: 'Kassala',     state: 'Kassala',           lat: 15.45,   lon: 36.4,    n: 30 },
+    { name: 'Gedaref',     state: 'Al Qadarif',        lat: 14.0333, lon: 35.3833, n: 34 },
+    { name: 'El Obeid',    state: 'North Kordofan',    lat: 13.1842, lon: 30.2167, n: 32 },
+    { name: 'Nyala',       state: 'South Darfur',      lat: 12.05,   lon: 24.88,   n: 34 },
+    { name: 'El Fasher',   state: 'North Darfur',      lat: 13.6279, lon: 25.3495, n: 30 },
+    { name: 'Damazin',     state: 'Blue Nile',         lat: 11.78,   lon: 34.35,   n: 32 }
+  ];
+
+  const stateData = {
+    'North Darfur':    { n: 30, rcsi: 9.1, safe: 0.63, male: 14, female: 13, missing: 3 },
+    'Blue Nile':       { n: 32, rcsi: 7.4, safe: 0.59, male: 15, female: 14, missing: 3 },
+    'Al Qadarif':      { n: 34, rcsi: 7.8, safe: 0.62, male: 16, female: 14, missing: 4 },
+    'Kassala':         { n: 30, rcsi: 8.5, safe: 0.60, male: 13, female: 13, missing: 4 },
+    'South Darfur':    { n: 34, rcsi: 9.4, safe: 0.58, male: 16, female: 15, missing: 3 },
+    'North Kordofan':  { n: 32, rcsi: 8.0, safe: 0.64, male: 14, female: 15, missing: 3 },
+    'Red Sea':         { n: 28, rcsi: 6.9, safe: 0.67, male: 14, female: 12, missing: 2 }
+  };
+
+  const displacement = { IDP: 95, Host: 78, Returnee: 30, Unknown: 17 };
+
+  const activities = {
+    'Skills Training':       { A: 580, B: 520 },
+    'Cash for Work':         { A: 510, B: 490 },
+    'Business Grants':       { A: 460, B: 440 },
+    'Mentorship':            { A: 250, B: 380 },
+    'Psychosocial Support':  { A: 280, B: 420 }
+  };
+
+  const cfmCategories = {
+    Accessibility: 22, Safety: 16, 'Service Quality': 22,
+    'Data Privacy': 18, Inclusion: 16, 'Staff Behaviour': 14, SEA: 8
+  };
+
+  const stateColors = {
+    'Red Sea': '#3B82F6', 'Kassala': '#10B981', 'Al Qadarif': '#8B5CF6',
+    'North Kordofan': '#F59E0B', 'South Darfur': '#EF4444',
+    'North Darfur': '#EC4899', 'Blue Nile': '#06B6D4'
+  };
+
+  // ── CHART DEFAULTS ────────────────────────────────────────────────────────
+
+  Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+  Chart.defaults.font.size = 12;
+  Chart.defaults.color = '#5C6B7A';
+
+  // ── MAP ────────────────────────────────────────────────────────────────────
+
+  const map = L.map('map', { scrollWheelZoom: false }).setView([14.0, 31.0], 5.5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+    maxZoom: 18
+  }).addTo(map);
+
+  sites.forEach(function (s) {
+    var radius = 8 + (s.n / 34) * 14;
+    L.circleMarker([s.lat, s.lon], {
+      radius: radius,
+      fillColor: stateColors[s.state],
+      color: '#fff',
+      weight: 2,
+      fillOpacity: 0.75
+    }).addTo(map).bindPopup(
+      '<div class="popup-title">' + s.name + '</div>' +
+      '<div class="popup-row"><strong>State:</strong> ' + s.state + '</div>' +
+      '<div class="popup-row"><strong>PDM respondents:</strong> ' + s.n + '</div>'
+    );
+  });
+
+  // ── rCSI CHART ────────────────────────────────────────────────────────────
+
+  var rcsiEntries = Object.entries(stateData).sort(function (a, b) { return b[1].rcsi - a[1].rcsi; });
+  var rcsiLabels = rcsiEntries.map(function (e) { return e[0]; });
+  var rcsiValues = rcsiEntries.map(function (e) { return e[1].rcsi; });
+  var rcsiColors = rcsiValues.map(function (v) {
+    return v >= 9 ? '#EF4444' : v >= 8 ? '#F59E0B' : '#10B981';
+  });
+
+  new Chart(document.getElementById('rcsiChart'), {
+    type: 'bar',
+    data: {
+      labels: rcsiLabels,
+      datasets: [{
+        label: 'Mean rCSI',
+        data: rcsiValues,
+        backgroundColor: rcsiColors,
+        borderRadius: 4,
+        barThickness: 28
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            afterLabel: function (ctx) {
+              var state = ctx.label;
+              var d = stateData[state];
+              return 'n = ' + d.n + ' · Safe access: ' + Math.round(d.safe * 100) + '%';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Mean rCSI Score', font: { weight: '600' } },
+          grid: { color: 'rgba(0,0,0,.06)' },
+          beginAtZero: true,
+          max: 12
+        },
+        y: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+  // ── ACTIVITY CHART ────────────────────────────────────────────────────────
+
+  var actLabels = Object.keys(activities);
+  var actA = actLabels.map(function (k) { return activities[k].A; });
+  var actB = actLabels.map(function (k) { return activities[k].B; });
+
+  new Chart(document.getElementById('activityChart'), {
+    type: 'bar',
+    data: {
+      labels: actLabels,
+      datasets: [
+        { label: 'Partner A', data: actA, backgroundColor: 'rgba(59,130,246,.8)', borderRadius: 4 },
+        { label: 'Partner B', data: actB, backgroundColor: 'rgba(232,160,32,.8)', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'rectRounded', padding: 16 } },
+        tooltip: {
+          callbacks: {
+            afterBody: function (items) {
+              var total = 0;
+              items.forEach(function (i) { total += i.raw; });
+              return 'Combined: ' + total;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: {
+          stacked: true,
+          title: { display: true, text: 'Total Participants', font: { weight: '600' } },
+          grid: { color: 'rgba(0,0,0,.06)' },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  // ── CFM DOUGHNUT ──────────────────────────────────────────────────────────
+
+  var cfmLabels = Object.keys(cfmCategories);
+  var cfmValues = Object.values(cfmCategories);
+  var cfmColors = ['#3B82F6', '#10B981', '#8B5CF6', '#06B6D4', '#F59E0B', '#EC4899', '#EF4444'];
+
+  new Chart(document.getElementById('cfmChart'), {
+    type: 'doughnut',
+    data: {
+      labels: cfmLabels,
+      datasets: [{
+        data: cfmValues,
+        backgroundColor: cfmColors,
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '55%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: { size: 11 } }
+        }
+      }
+    }
+  });
+
+  // ── DISPLACEMENT PIE ──────────────────────────────────────────────────────
+
+  new Chart(document.getElementById('displacementChart'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(displacement),
+      datasets: [{
+        data: Object.values(displacement),
+        backgroundColor: ['#EF4444', '#3B82F6', '#10B981', '#CBD5E1'],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '50%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: { size: 11 } }
+        }
+      }
+    }
+  });
+
+  // ── GENDER DONUT ──────────────────────────────────────────────────────────
+
+  var totalMale = 0, totalFemale = 0, totalMissing = 0;
+  Object.values(stateData).forEach(function (d) {
+    totalMale += d.male;
+    totalFemale += d.female;
+    totalMissing += d.missing;
+  });
+
+  new Chart(document.getElementById('genderChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Male (' + totalMale + ')', 'Female (' + totalFemale + ')', 'Not recorded (' + totalMissing + ')'],
+      datasets: [{
+        data: [totalMale, totalFemale, totalMissing],
+        backgroundColor: ['#3B82F6', '#EC4899', '#CBD5E1'],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '50%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: { size: 11 } }
+        }
+      }
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
