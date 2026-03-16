@@ -200,6 +200,103 @@
     </div>
   </div>
 
+  <h2 class="pages-heading" style="margin-top:48px;">Data model &amp; DAX</h2>
+  <p class="pages-sub">The Power BI solution is built on a star schema designed for cross-filtering, row-level security, and performance at scale.</p>
+
+  <div class="context-box" style="margin-bottom:24px;">
+    <h2>Star Schema</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+      <div>
+        <p style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Dimension Tables</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid #3B82F6;border-radius:6px;padding:10px 14px;font-size:13px;"><strong>dim_landscape</strong> — Chyulu, Mid-Tana, Sabarwawa</div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid #3B82F6;border-radius:6px;padding:10px 14px;font-size:13px;"><strong>dim_county</strong> — 11 ASAL counties with GPS centroids</div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid #3B82F6;border-radius:6px;padding:10px 14px;font-size:13px;"><strong>dim_partner</strong> — IUCN, MoAI-SDLD, NDMA, CI</div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid #3B82F6;border-radius:6px;padding:10px 14px;font-size:13px;"><strong>dim_indicator</strong> — 32 log frame indicators, 3 components</div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid #3B82F6;border-radius:6px;padding:10px 14px;font-size:13px;"><strong>dim_period</strong> — Quarterly reporting calendar</div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid #3B82F6;border-radius:6px;padding:10px 14px;font-size:13px;"><strong>dim_intervention</strong> — 8 intervention categories</div>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Fact Tables</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:6px;padding:10px 14px;font-size:13px;"><strong>fact_achievement</strong> — 1,525 rows: indicator results vs targets by period</div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:6px;padding:10px 14px;font-size:13px;"><strong>fact_beneficiary</strong> — 5,000 records: individual-level reach with demographics</div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:6px;padding:10px 14px;font-size:13px;"><strong>fact_training</strong> — 400 events: capacity building with pre/post scores</div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:6px;padding:10px 14px;font-size:13px;"><strong>fact_workplan</strong> — 180 activities: status tracking per partner/quarter</div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:6px;padding:10px 14px;font-size:13px;"><strong>fact_grm</strong> — 80 grievance cases: category, severity, resolution pipeline</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="context-box" style="margin-bottom:24px;">
+    <h2>DAX Measures</h2>
+    <p style="margin-bottom:16px;">Selected DAX measures powering the dashboard KPIs and conditional formatting.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="background:#1e1e2e;border-radius:8px;padding:16px 20px;font-family:'Fira Code',monospace;font-size:13px;color:#cdd6f4;line-height:1.6;overflow-x:auto;">
+        <div style="color:#89b4fa;margin-bottom:4px;">// Total unique beneficiaries reached</div>
+        <div>Total Beneficiaries = <span style="color:#f9e2af;">DISTINCTCOUNT</span>(fact_beneficiary[beneficiary_id])</div>
+      </div>
+      <div style="background:#1e1e2e;border-radius:8px;padding:16px 20px;font-family:'Fira Code',monospace;font-size:13px;color:#cdd6f4;line-height:1.6;overflow-x:auto;">
+        <div style="color:#89b4fa;margin-bottom:4px;">// Achievement rate with safe division</div>
+        <div>Achievement % = <span style="color:#f9e2af;">DIVIDE</span>(</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f9e2af;">SUM</span>(fact_achievement[actual_value]),</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f9e2af;">SUM</span>(fact_achievement[target_value]),</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;0</div>
+        <div>)</div>
+      </div>
+      <div style="background:#1e1e2e;border-radius:8px;padding:16px 20px;font-family:'Fira Code',monospace;font-size:13px;color:#cdd6f4;line-height:1.6;overflow-x:auto;">
+        <div style="color:#89b4fa;margin-bottom:4px;">// Female participation rate</div>
+        <div>Female % = <span style="color:#f9e2af;">DIVIDE</span>(</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f9e2af;">CALCULATE</span>(</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f9e2af;">DISTINCTCOUNT</span>(fact_beneficiary[beneficiary_id]),</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fact_beneficiary[gender] = <span style="color:#a6e3a1;">"Female"</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;),</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;[Total Beneficiaries],</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;0</div>
+        <div>)</div>
+      </div>
+      <div style="background:#1e1e2e;border-radius:8px;padding:16px 20px;font-family:'Fira Code',monospace;font-size:13px;color:#cdd6f4;line-height:1.6;overflow-x:auto;">
+        <div style="color:#89b4fa;margin-bottom:4px;">// IPTT traffic light (conditional formatting)</div>
+        <div>RAG Status = <span style="color:#f9e2af;">SWITCH</span>(</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f9e2af;">TRUE</span>(),</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;[Achievement %] >= 0.9, <span style="color:#a6e3a1;">"Green"</span>,</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;[Achievement %] >= 0.7, <span style="color:#a6e3a1;">"Amber"</span>,</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#a6e3a1;">"Red"</span></div>
+        <div>)</div>
+      </div>
+      <div style="background:#1e1e2e;border-radius:8px;padding:16px 20px;font-family:'Fira Code',monospace;font-size:13px;color:#cdd6f4;line-height:1.6;overflow-x:auto;">
+        <div style="color:#89b4fa;margin-bottom:4px;">// Year-on-year change with DATEADD</div>
+        <div>YoY Change = </div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f9e2af;">VAR</span> CurrentPeriod = [Total Beneficiaries]</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f9e2af;">VAR</span> PriorPeriod = <span style="color:#f9e2af;">CALCULATE</span>(</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Total Beneficiaries],</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f9e2af;">DATEADD</span>(dim_period[date], -1, <span style="color:#f9e2af;">YEAR</span>)</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;)</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f9e2af;">RETURN</span> <span style="color:#f9e2af;">DIVIDE</span>(CurrentPeriod - PriorPeriod, PriorPeriod, 0)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="context-box">
+    <h2>Design Decisions</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:16px;">
+      <div style="background:var(--bg);border-radius:8px;padding:16px;border:1px solid var(--border);">
+        <p style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;margin-bottom:6px;">Row-Level Security</p>
+        <p style="font-size:13px;color:var(--muted);">5 tiers: Global admin, Programme manager, Landscape coordinator, Partner focal point, Donor (read-only). Each tier filters fact tables through DAX RLS expressions on dim_partner and dim_landscape.</p>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:16px;border:1px solid var(--border);">
+        <p style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;margin-bottom:6px;">Global Slicers</p>
+        <p style="font-size:13px;color:var(--muted);">Period, landscape, and partner slicers are synced across all 6 pages. Users drill through from Overview to any detail page without losing filter context.</p>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:16px;border:1px solid var(--border);">
+        <p style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;margin-bottom:6px;">Power Query M</p>
+        <p style="font-size:13px;color:var(--muted);">Data ingestion from SharePoint lists and CSV files via Power Query. Custom M transformations handle date parsing, column typing, and partner name standardisation before loading to the model.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="data-note">
     <strong>Data note:</strong> All data in this prototype is synthetic, generated using a deterministic Python script with realistic distributions. No real beneficiary data, GPS coordinates, or identifying information are present. The data model, dashboard layouts, and DAX measures are production-ready and designed to connect to live SharePoint data sources.
   </div>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>R Analysis Pipeline | WBR Hwange Endline Evaluation</title>
+  <meta name="description" content="Reproducible R analysis pipeline for the WBR Hwange Mobilised Communities Programme endline evaluation — from raw survey data to Difference-in-Difference estimation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:   #1B3044;
+      --navy2:  #253D52;
+      --amber:  #E8A020;
+      --amber2: #F5B84A;
+      --bg:     #F4F6F9;
+      --white:  #FFFFFF;
+      --text:   #1B3044;
+      --muted:  #5C6B7A;
+      --border: #DDE4EC;
+      --green:  #2E7D52;
+      --red:    #C0392B;
+      --radius: 12px;
+      --shadow: 0 2px 16px rgba(27,48,68,.08);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    /* Top bar */
+    .top-bar {
+      background: var(--navy); display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 24px; position: sticky; top: 0; z-index: 100;
+    }
+    .top-bar-brand { color: #fff; font-size: 15px; font-weight: 600; text-decoration: none; }
+    .top-bar-nav { display: flex; gap: 20px; }
+    .top-bar-nav a {
+      color: rgba(255,255,255,.65); font-size: 13px; font-weight: 500;
+      text-decoration: none; transition: color .15s;
+    }
+    .top-bar-nav a:hover { color: #fff; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      color: #fff; padding: 48px 24px 40px; text-align: center;
+    }
+    .hero-inner { max-width: 760px; margin: 0 auto; }
+    .hero h1 { font-size: clamp(24px, 4vw, 36px); font-weight: 700; margin-bottom: 10px; }
+    .hero h1 span { color: var(--amber); }
+    .hero-subtitle { font-size: 15px; color: rgba(255,255,255,.65); max-width: 640px; margin: 0 auto; line-height: 1.65; }
+    .hero-meta {
+      display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+      margin-top: 20px; font-size: 12px; color: rgba(255,255,255,.5);
+    }
+    .hero-meta span { display: flex; align-items: center; gap: 4px; }
+
+    /* Content */
+    .content { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
+
+    /* Section headings */
+    .stage-heading {
+      display: flex; align-items: center; gap: 12px; margin: 36px 0 16px;
+    }
+    .stage-heading:first-child { margin-top: 0; }
+    .stage-num {
+      width: 32px; height: 32px; border-radius: 50%; background: var(--amber);
+      color: var(--navy); font-size: 14px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .stage-heading h2 { font-size: 20px; font-weight: 700; color: var(--navy); }
+
+    /* Cards */
+    .card {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 24px; margin-bottom: 24px;
+    }
+    .card h3 { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+    .card p { font-size: 13.5px; color: var(--text); line-height: 1.65; }
+    .card-note {
+      background: var(--white); border: 1px solid var(--border); border-left: 3px solid var(--amber);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 16px 20px; margin-bottom: 24px;
+    }
+    .card-note p { font-size: 13.5px; color: var(--text); line-height: 1.65; }
+    .card-note strong { color: var(--navy); }
+
+    /* Code blocks */
+    .code-card {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden; margin-bottom: 20px;
+    }
+    .code-card-header {
+      background: var(--bg); border-bottom: 1px solid var(--border);
+      padding: 10px 20px; font-size: 12px; font-weight: 600; color: var(--muted);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .code-card-header .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .code-card-header .dot-r { background: var(--red); }
+    .code-card-header .dot-a { background: var(--amber); }
+    .code-card-header .dot-g { background: var(--green); }
+    .code-card pre[class*="language-"] {
+      margin: 0; border-radius: 0; font-size: 13px; line-height: 1.6;
+      padding: 20px; overflow-x: auto;
+    }
+
+    /* Pipeline visualisation */
+    .pipeline-vis {
+      display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+      gap: 0; margin-bottom: 36px;
+    }
+    .pipeline-step {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 14px 18px; text-align: center; min-width: 120px;
+    }
+    .pipeline-step .step-num {
+      font-size: 11px; font-weight: 700; color: var(--amber); margin-bottom: 2px;
+    }
+    .pipeline-step .step-label { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .pipeline-arrow {
+      color: var(--amber); font-size: 22px; font-weight: 700; padding: 0 6px; flex-shrink: 0;
+    }
+    @media (max-width: 740px) {
+      .pipeline-vis { flex-direction: column; gap: 4px; }
+      .pipeline-arrow { transform: rotate(90deg); }
+    }
+
+    /* Summary grid */
+    .summary-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px; margin-top: 16px;
+    }
+    .summary-item {
+      background: var(--bg); border-radius: 8px; padding: 14px 16px; text-align: center;
+    }
+    .summary-value { font-size: 24px; font-weight: 700; color: var(--navy); }
+    .summary-value.positive { color: var(--green); }
+    .summary-value.amber { color: var(--amber); }
+    .summary-label { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+
+    /* Links section */
+    .links-row {
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 16px;
+    }
+    .link-btn {
+      display: inline-block; padding: 10px 20px; border-radius: 8px;
+      font-size: 13px; font-weight: 600; text-decoration: none; transition: all .15s;
+    }
+    .link-btn-primary {
+      background: var(--amber); color: var(--navy);
+    }
+    .link-btn-primary:hover { background: var(--amber2); }
+    .link-btn-outline {
+      border: 1px solid var(--border); color: var(--navy); background: var(--white);
+    }
+    .link-btn-outline:hover { border-color: var(--amber); color: var(--amber); }
+
+    /* Footer */
+    footer {
+      background: var(--navy); color: rgba(255,255,255,.55);
+      text-align: center; padding: 32px 24px; font-size: 13px;
+    }
+    footer a { color: var(--amber); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .footer-links { display: flex; gap: 20px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+    footer strong { color: rgba(255,255,255,.8); }
+  </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<nav class="top-bar">
+  <a class="top-bar-brand" href="../../index.html">James Gathogo</a>
+  <div class="top-bar-nav">
+    <a href="../../index.html">Back to Portfolio</a>
+    <a href="./index.html">Education Outcomes</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="hero-inner">
+    <h1>R Analysis <span>Pipeline</span></h1>
+    <p class="hero-subtitle">
+      From raw survey data to Difference-in-Difference estimation — the full
+      reproducible pipeline for the Hwange endline evaluation
+    </p>
+    <div class="hero-meta">
+      <span>📍 17 wards</span>
+      <span>📅 2019–2024</span>
+      <span>👥 346 students</span>
+      <span>🚲 6,461 bicycles distributed</span>
+    </div>
+  </div>
+</header>
+
+<div class="content">
+
+  <!-- Pipeline overview -->
+  <div class="pipeline-vis">
+    <div class="pipeline-step"><div class="step-num">1</div><div class="step-label">Import</div></div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step"><div class="step-num">2</div><div class="step-label">Panel Merge</div></div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step"><div class="step-num">3</div><div class="step-label">EMIS Link</div></div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step"><div class="step-num">4</div><div class="step-label">Clean &amp; Anonymise</div></div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step"><div class="step-num">5</div><div class="step-label">Analyse</div></div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step"><div class="step-num">6</div><div class="step-label">Visualise</div></div>
+  </div>
+
+  <!-- Stage 1 -->
+  <div class="stage-heading">
+    <div class="stage-num">1</div>
+    <h2>Data Import</h2>
+  </div>
+  <div class="code-card">
+    <div class="code-card-header">
+      <span class="dot dot-r"></span><span class="dot dot-a"></span><span class="dot dot-g"></span>
+      01_import.R
+    </div>
+    <pre class="language-r"><code class="language-r">library(tidyverse)
+library(readxl)
+library(janitor)
+
+wave_1 <- read_csv("data/hwange_wave1_2019.csv") %>% clean_names()
+wave_2 <- read_csv("data/hwange_wave2_2021.csv") %>% clean_names()
+wave_3 <- read_csv("data/hwange_wave3_2023.csv") %>% clean_names()
+wave_4 <- read_csv("data/hwange_wave4_2024.csv") %>% clean_names()
+
+cat("Wave 1:", nrow(wave_1), "records\n")
+cat("Wave 4:", nrow(wave_4), "records\n")</code></pre>
+  </div>
+  <div class="card-note">
+    <p><strong>What's happening:</strong> Four survey waves (2019–2024) are imported from CSV files. The <code>janitor::clean_names()</code> function standardises column names to snake_case, ensuring consistency across waves collected by different enumerator teams.</p>
+  </div>
+
+  <!-- Stage 2 -->
+  <div class="stage-heading">
+    <div class="stage-num">2</div>
+    <h2>Panel Merging</h2>
+  </div>
+  <div class="code-card">
+    <div class="code-card-header">
+      <span class="dot dot-r"></span><span class="dot dot-a"></span><span class="dot dot-g"></span>
+      02_panel_merge.R
+    </div>
+    <pre class="language-r"><code class="language-r">panel <- wave_1 %>%
+  select(student_id, ward, school, gender, age_bl = age,
+         attendance_bl = attendance_rate, score_bl = exam_score) %>%
+  left_join(
+    wave_4 %>% select(student_id, age_el = age,
+                       attendance_el = attendance_rate, score_el = exam_score),
+    by = "student_id"
+  ) %>%
+  mutate(
+    attrition = is.na(attendance_el),
+    attendance_change = attendance_el - attendance_bl,
+    score_change = score_el - score_bl
+  )
+
+cat("Panel matched:", sum(!panel$attrition), "of", nrow(panel), "students\n")
+cat("Attrition rate:", scales::percent(mean(panel$attrition)), "\n")</code></pre>
+  </div>
+  <div class="card-note">
+    <p><strong>What's happening:</strong> Baseline (Wave 1) and endline (Wave 4) records are linked by <code>student_id</code> to create a longitudinal panel. Change scores are computed for attendance and exam performance. Attrition is flagged where endline observations are missing — the 12% rate is within acceptable limits for a 5-year panel.</p>
+  </div>
+
+  <!-- Stage 3 -->
+  <div class="stage-heading">
+    <div class="stage-num">3</div>
+    <h2>EMIS Data Linkage</h2>
+  </div>
+  <div class="code-card">
+    <div class="code-card-header">
+      <span class="dot dot-r"></span><span class="dot dot-a"></span><span class="dot dot-g"></span>
+      03_emis_link.R
+    </div>
+    <pre class="language-r"><code class="language-r">emis <- read_csv("data/emis_school_registry.csv") %>% clean_names()
+
+panel_enriched <- panel %>%
+  left_join(emis %>% select(school, school_type, district, 
+                             total_enrolled, pupil_teacher_ratio),
+            by = "school") %>%
+  mutate(
+    bicycle_recipient = student_id %in% bicycle_registry$student_id,
+    treatment = if_else(bicycle_recipient, 1L, 0L)
+  )</code></pre>
+  </div>
+  <div class="card-note">
+    <p><strong>What's happening:</strong> School-level variables from the EMIS administrative registry (school type, enrolment, pupil-teacher ratio) are merged onto the student panel. Treatment assignment is derived from the bicycle distribution registry, creating the binary indicator used in the DiD model.</p>
+  </div>
+
+  <!-- Stage 4 -->
+  <div class="stage-heading">
+    <div class="stage-num">4</div>
+    <h2>Anonymisation</h2>
+  </div>
+  <div class="code-card">
+    <div class="code-card-header">
+      <span class="dot dot-r"></span><span class="dot dot-a"></span><span class="dot dot-g"></span>
+      04_anonymise.R
+    </div>
+    <pre class="language-r"><code class="language-r">library(digest)
+
+panel_anon <- panel_enriched %>%
+  mutate(
+    student_id = map_chr(student_id, ~ digest(.x, algo = "sha256")),
+    school = paste0("School_", dense_rank(school))
+  ) %>%
+  select(-contains("name"), -contains("phone"))
+
+k_anon <- panel_anon %>%
+  count(ward, gender, school_type) %>%
+  filter(n < 5)
+
+cat("Groups below k=5 threshold:", nrow(k_anon), "\n")</code></pre>
+  </div>
+  <div class="card-note">
+    <p><strong>What's happening:</strong> Student IDs are SHA-256 hashed and school names replaced with pseudonyms. Personal identifiers (name, phone) are dropped. A k-anonymity check verifies that every combination of quasi-identifiers (ward, gender, school type) has at least 5 records, reducing re-identification risk.</p>
+  </div>
+
+  <!-- Stage 5 -->
+  <div class="stage-heading">
+    <div class="stage-num">5</div>
+    <h2>Statistical Analysis</h2>
+  </div>
+
+  <div class="card" style="margin-bottom: 16px;">
+    <h3>Pre-Post Paired t-Test</h3>
+    <p>Comparing baseline and endline attendance within the same students to establish the overall direction of change before estimating causal effects.</p>
+  </div>
+  <div class="code-card">
+    <div class="code-card-header">
+      <span class="dot dot-r"></span><span class="dot dot-a"></span><span class="dot dot-g"></span>
+      05a_t_test.R
+    </div>
+    <pre class="language-r"><code class="language-r">t_attendance <- t.test(panel_clean$attendance_el, 
+                        panel_clean$attendance_bl, 
+                        paired = TRUE)
+
+cat("Attendance change:", round(t_attendance$estimate, 1), "pp\n")
+cat("95% CI:", round(t_attendance$conf.int, 1), "\n")
+cat("p-value:", format.pval(t_attendance$p.value), "\n")</code></pre>
+  </div>
+
+  <div class="card" style="margin-bottom: 16px;">
+    <h3>Difference-in-Difference Estimation</h3>
+    <p>The core causal identification strategy: estimating the treatment effect of bicycle distribution while controlling for confounders including gender, ward fixed effects, pupil-teacher ratio, and baseline age.</p>
+  </div>
+  <div class="code-card">
+    <div class="code-card-header">
+      <span class="dot dot-r"></span><span class="dot dot-a"></span><span class="dot dot-g"></span>
+      05b_did_model.R
+    </div>
+    <pre class="language-r"><code class="language-r">did_model <- lm(attendance_change ~ treatment + gender + ward + 
+                  pupil_teacher_ratio + age_bl,
+                data = panel_clean)
+
+did_estimate <- broom::tidy(did_model, conf.int = TRUE) %>%
+  filter(term == "treatment")
+
+cat("DiD estimate:", round(did_estimate$estimate, 2), "pp\n")
+cat("SE:", round(did_estimate$std.error, 2), "\n")
+cat("p-value:", format.pval(did_estimate$p.value), "\n")</code></pre>
+  </div>
+  <div class="card-note">
+    <p><strong>Result:</strong> The DiD model estimates that bicycle recipients experienced an <strong>8.2 percentage-point</strong> improvement in attendance relative to the control group (p&nbsp;&lt;&nbsp;0.01), after adjusting for ward, gender, pupil-teacher ratio, and baseline age.</p>
+  </div>
+
+  <!-- Stage 6 -->
+  <div class="stage-heading">
+    <div class="stage-num">6</div>
+    <h2>Visualisation</h2>
+  </div>
+  <div class="code-card">
+    <div class="code-card-header">
+      <span class="dot dot-r"></span><span class="dot dot-a"></span><span class="dot dot-g"></span>
+      06_visualise.R
+    </div>
+    <pre class="language-r"><code class="language-r">ggplot(panel_clean, aes(x = factor(wave), y = attendance_rate, 
+                         colour = factor(treatment))) +
+  stat_summary(fun = mean, geom = "line", linewidth = 1.2) +
+  stat_summary(fun = mean, geom = "point", size = 3) +
+  scale_colour_manual(values = c("#5C6B7A", "#E8A020"),
+                       labels = c("Control", "Bicycle recipients")) +
+  labs(title = "Parallel Trends: Attendance by Treatment Group",
+       x = "Survey Wave", y = "Mean Attendance Rate (%)",
+       colour = "Group") +
+  theme_minimal(base_family = "Inter", base_size = 13)</code></pre>
+  </div>
+  <div class="card-note">
+    <p><strong>What's happening:</strong> The parallel trends plot is the key diagnostic for DiD validity. Pre-treatment trends should be roughly parallel between groups; post-treatment divergence then reflects the causal effect. The palette matches the portfolio design system — control in muted grey, treatment in amber.</p>
+  </div>
+
+  <!-- Technical Summary -->
+  <div class="stage-heading" style="margin-top: 44px;">
+    <h2>Technical Summary</h2>
+  </div>
+  <div class="card">
+    <h3>Pipeline at a Glance</h3>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="summary-value">346</div>
+        <div class="summary-label">Students in final panel</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value">4</div>
+        <div class="summary-label">Survey waves (2019–2024)</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value amber">12%</div>
+        <div class="summary-label">Attrition rate</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value">17</div>
+        <div class="summary-label">Wards</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value positive">+8.2 pp</div>
+        <div class="summary-label">DiD estimate (p &lt; 0.01)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Links -->
+  <div class="card" style="text-align: center;">
+    <h3>Explore Further</h3>
+    <p style="margin-bottom: 14px;">Continue exploring the Hwange evaluation results or return to the main portfolio.</p>
+    <div class="links-row">
+      <a class="link-btn link-btn-primary" href="./index.html">Education Outcomes</a>
+      <a class="link-btn link-btn-outline" href="./did-analysis.html">DiD Analysis</a>
+      <a class="link-btn link-btn-outline" href="./qualitative-analysis.html">Qualitative Synthesis</a>
+      <a class="link-btn link-btn-outline" href="../../index.html">Main Portfolio</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-links">
+    <a href="https://github.com/jgathogo" target="_blank" rel="noopener">GitHub</a>
+    <a href="mailto:james@gathogo.co.ke">james@gathogo.co.ke</a>
+    <a href="https://www.linkedin.com/in/jamesgathogo/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+  <p><strong>James Gathogo</strong> · MEAL &amp; Information Management</p>
+  <p style="margin-top:6px;font-size:11px;">All portfolio data is synthetic or anonymised · Built with plain HTML + GitHub Pages · 2026</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-r.min.js"></script>
+</body>
+</html>

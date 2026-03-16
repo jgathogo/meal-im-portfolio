@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Data Collection Design | KoBoToolbox &amp; XLSForm</title>
+  <meta name="description" content="Portfolio showcase of KoBoToolbox, ODK, and XLSForm design capability for humanitarian data collection." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:#1B3044; --navy2:#253D52; --amber:#E8A020; --amber2:#F5B84A;
+      --bg:#F4F6F9; --white:#FFFFFF; --text:#1B3044; --muted:#5C6B7A;
+      --border:#DDE4EC; --green:#2E7D52; --red:#C0392B;
+      --radius:12px; --shadow:0 2px 16px rgba(27,48,68,.08);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    /* Top bar */
+    .top-bar { background: var(--navy); display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; }
+    .top-bar-name { color: var(--white); font-size: 14px; font-weight: 600; }
+    .top-bar a.back { color: rgba(255,255,255,.7); font-size: 13px; text-decoration: none; font-weight: 500; transition: color .15s; }
+    .top-bar a.back:hover { color: #fff; }
+
+    /* Hero */
+    .hero { background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%); color: #fff; padding: 52px 24px 44px; text-align: center; }
+    .hero-inner { max-width: 720px; margin: 0 auto; }
+    .hero h1 { font-size: clamp(24px, 4vw, 38px); font-weight: 700; letter-spacing: -.02em; margin-bottom: 10px; }
+    .hero h1 span { color: var(--amber); }
+    .hero .subtitle { font-size: 15px; color: rgba(255,255,255,.68); max-width: 560px; margin: 0 auto 22px; }
+    .meta-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .meta-badge { background: rgba(232,160,32,.18); color: var(--amber2); border: 1px solid rgba(232,160,32,.35); border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: 4px 14px; }
+
+    /* Sections */
+    .content { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    section { padding: 56px 0; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--amber); margin-bottom: 8px; }
+    .section-title { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
+    .section-desc { font-size: 14px; color: var(--muted); max-width: 580px; margin-bottom: 28px; }
+    .divider { width: 40px; height: 3px; background: var(--amber); border-radius: 2px; margin-bottom: 24px; }
+
+    /* Card */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; margin-bottom: 24px; transition: transform .2s, box-shadow .2s; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(27,48,68,.12); }
+
+    /* XLSForm table */
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; margin-top: 16px; }
+    .xls-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 900px; }
+    .xls-table th { background: var(--navy); color: #fff; font-weight: 600; padding: 8px 10px; text-align: left; white-space: nowrap; position: sticky; top: 0; }
+    .xls-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; font-family: 'Courier New', monospace; font-size: 11.5px; }
+    .xls-table tr:hover td { background: #F8FAFC; }
+    .xls-table .tab-row td { background: var(--amber); color: var(--navy); font-weight: 700; font-family: 'Inter', sans-serif; font-size: 12px; letter-spacing: .04em; }
+    .xls-table .grp td { background: #EEF6FF; font-weight: 600; }
+
+    /* Flowchart */
+    .flow { display: flex; flex-direction: column; align-items: center; gap: 0; padding: 20px 0; }
+    .flow-row { display: flex; align-items: center; gap: 12px; }
+    .flow-box { background: var(--white); border: 2px solid var(--border); border-radius: 10px; padding: 10px 20px; font-size: 13px; font-weight: 600; color: var(--navy); text-align: center; min-width: 180px; transition: border-color .2s, box-shadow .2s; }
+    .flow-box:hover { border-color: var(--amber); box-shadow: 0 4px 16px rgba(232,160,32,.15); }
+    .flow-box.start { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .flow-box.end { background: var(--red); color: #fff; border-color: var(--red); }
+    .flow-box.merge { background: var(--green); color: #fff; border-color: var(--green); }
+    .flow-box.decision { border-color: var(--amber); background: #FFF8EC; }
+    .flow-arrow { width: 2px; height: 24px; background: var(--amber); position: relative; }
+    .flow-arrow::after { content: ''; position: absolute; bottom: -4px; left: -4px; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid var(--amber); }
+    .flow-branch { display: flex; gap: 40px; align-items: flex-start; }
+    .flow-label { font-size: 11px; color: var(--muted); font-weight: 500; text-align: center; margin-top: -4px; }
+    .flow-horiz { width: 40px; height: 2px; background: var(--amber); align-self: center; position: relative; }
+    .flow-horiz::after { content: ''; position: absolute; right: -4px; top: -4px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 6px solid var(--amber); }
+    .flow-side { display: flex; flex-direction: column; align-items: center; gap: 0; }
+
+    /* Validation grid */
+    .val-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .val-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); transition: transform .2s; }
+    .val-card:hover { transform: translateY(-2px); }
+    .val-card h4 { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+    .val-card code { display: block; background: #F0F3F7; border-radius: 6px; padding: 8px 12px; font-size: 11.5px; color: var(--navy); margin-top: 6px; font-family: 'Courier New', monospace; word-break: break-all; white-space: pre-wrap; }
+    .val-card .val-desc { font-size: 12px; color: var(--muted); }
+
+    /* Pipeline steps */
+    .pipeline-steps { display: flex; gap: 0; align-items: stretch; margin: 16px 0; overflow-x: auto; padding-bottom: 4px; }
+    .pipeline-step { flex: 1; min-width: 0; position: relative; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 16px 12px 14px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; box-shadow: var(--shadow); transition: transform .2s; }
+    .pipeline-step:hover { transform: translateY(-2px); }
+    .pipeline-step + .pipeline-step { margin-left: 20px; }
+    .pipeline-step + .pipeline-step::before { content: ''; position: absolute; left: -16px; top: 50%; width: 12px; height: 2px; background: var(--amber); }
+    .step-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .step-icon.collect { background: #E3F2FD; }
+    .step-icon.api { background: #FFF3E0; }
+    .step-icon.clean { background: #E8F5E9; }
+    .step-icon.viz { background: #F3E5F5; }
+    .step-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .step-detail { font-size: 11.5px; color: var(--text); line-height: 1.35; }
+    @media (max-width: 700px) {
+      .pipeline-steps { flex-direction: column; gap: 8px; }
+      .pipeline-step + .pipeline-step { margin-left: 0; }
+      .pipeline-step + .pipeline-step::before { display: none; }
+    }
+
+    /* Multilingual table */
+    .lang-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 12px; }
+    .lang-table th { background: var(--navy); color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; }
+    .lang-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    .lang-table tr:hover td { background: #F8FAFC; }
+    .lang-flag { margin-right: 4px; }
+
+    /* Stats grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-top: 16px; }
+    .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; text-align: center; box-shadow: var(--shadow); }
+    .stat-value { font-size: 28px; font-weight: 700; color: var(--navy); }
+    .stat-value.amber { color: var(--amber); }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 500; }
+
+    /* Footer */
+    footer { background: var(--navy); color: rgba(255,255,255,.55); text-align: center; padding: 32px 24px; font-size: 13px; }
+    footer a { color: var(--amber); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    footer .footer-links { display: flex; gap: 20px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+    footer strong { color: rgba(255,255,255,.8); }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .hero { padding: 40px 20px 36px; }
+      section { padding: 40px 0; }
+      .val-grid { grid-template-columns: 1fr; }
+      .flow-branch { flex-direction: column; gap: 12px; }
+    }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+    .fade-up { animation: fadeUp .45s ease forwards; }
+  </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <span class="top-bar-name">James Gathogo</span>
+  <a class="back" href="../../index.html">Back to Portfolio</a>
+</div>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="hero-inner">
+    <h1>Digital Data Collection <span>Design</span></h1>
+    <p class="subtitle">XLSForm architecture, skip logic, validation, and multilingual deployment on KoBoToolbox/ODK for large-scale education and disability inclusion programmes.</p>
+    <div class="meta-badges">
+      <span class="meta-badge">KoBoToolbox</span>
+      <span class="meta-badge">XLSForm / ODK</span>
+      <span class="meta-badge">GEC-T Programme</span>
+      <span class="meta-badge">FCDO-funded</span>
+    </div>
+  </div>
+</header>
+
+<div class="content">
+
+  <!-- 1. XLSForm Architecture -->
+  <section id="xlsform">
+    <div class="section-label">Form Architecture</div>
+    <h2 class="section-title">XLSForm Structure</h2>
+    <div class="divider"></div>
+    <p class="section-desc">A realistic GEC-T inclusive education form: consent, demographics, Washington Group disability screening, cascading geography, repeat groups, and GPS capture.</p>
+
+    <div class="card fade-up">
+      <div class="section-label">Survey Sheet</div>
+      <div class="table-wrap">
+        <table class="xls-table">
+          <thead><tr><th>type</th><th>name</th><th>label</th><th>relevant</th><th>constraint</th><th>constraint_message</th><th>required</th><th>appearance</th></tr></thead>
+          <tbody>
+            <tr class="tab-row"><td colspan="8">survey</td></tr>
+            <tr><td>select_one yes_no</td><td>consent</td><td>Do you give informed consent to participate?</td><td></td><td></td><td></td><td>yes</td><td></td></tr>
+            <tr><td>text</td><td>student_id</td><td>Student unique ID</td><td>${consent} = 'yes'</td><td>regex(., '^GEC-[0-9]{4}$')</td><td>Format: GEC-0001</td><td>yes</td><td></td></tr>
+            <tr><td>select_one schools</td><td>school_name</td><td>Name of institution</td><td>${consent} = 'yes'</td><td></td><td></td><td>yes</td><td>autocomplete</td></tr>
+            <tr><td>select_one counties</td><td>county</td><td>County</td><td>${consent} = 'yes'</td><td></td><td></td><td>yes</td><td>minimal</td></tr>
+            <tr><td>select_one sub_counties</td><td>sub_county</td><td>Sub-county</td><td>${consent} = 'yes'</td><td></td><td></td><td>yes</td><td>minimal</td></tr>
+            <tr><td>select_one wards</td><td>ward</td><td>Ward</td><td>${consent} = 'yes'</td><td></td><td></td><td>yes</td><td>minimal</td></tr>
+            <tr><td>integer</td><td>age</td><td>Age of student (years)</td><td>${consent} = 'yes'</td><td>. &gt;= 5 and . &lt;= 25</td><td>Age must be between 5 and 25</td><td>yes</td><td></td></tr>
+            <tr><td>select_multiple disability_list</td><td>disability_type</td><td>Disability domain (WG-SS)</td><td>${consent} = 'yes'</td><td></td><td></td><td>yes</td><td></td></tr>
+            <tr><td>select_one aid_types</td><td>visual_aid_type</td><td>Type of visual assistive device</td><td>selected(${disability_type}, 'visual')</td><td></td><td></td><td>yes</td><td></td></tr>
+            <tr class="grp"><td>begin_repeat</td><td>household_members</td><td>Household member details</td><td>${consent} = 'yes'</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>text</td><td>hh_name</td><td>Name of household member</td><td></td><td></td><td></td><td>yes</td><td></td></tr>
+            <tr><td>select_one relationship</td><td>hh_relation</td><td>Relationship to student</td><td></td><td></td><td></td><td>yes</td><td></td></tr>
+            <tr class="grp"><td>end_repeat</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>select_one grades</td><td>grade</td><td>Current grade/class</td><td>${consent} = 'yes'</td><td></td><td></td><td>yes</td><td>minimal</td></tr>
+            <tr><td>select_one school_types</td><td>school_type</td><td>Type of institution</td><td>${consent} = 'yes'</td><td>if(${grade} &gt; 8, . = 'secondary', true)</td><td>Grade 9+ requires secondary school</td><td>yes</td><td></td></tr>
+            <tr><td>date</td><td>enrollment_date</td><td>Date of enrolment</td><td>${consent} = 'yes'</td><td>. &lt;= today()</td><td>Enrolment date cannot be in the future</td><td>yes</td><td></td></tr>
+            <tr><td>text</td><td>caregiver_phone</td><td>Caregiver phone number</td><td>${consent} = 'yes'</td><td>regex(., '^\+254[0-9]{9}$')</td><td>Use format +254XXXXXXXXX</td><td>no</td><td></td></tr>
+            <tr><td>image</td><td>school_photo</td><td>Photo of school entrance</td><td>${consent} = 'yes'</td><td></td><td></td><td>no</td><td></td></tr>
+            <tr><td>geopoint</td><td>gps_location</td><td>GPS coordinates of institution</td><td>${consent} = 'yes'</td><td></td><td></td><td>yes</td><td>placement-map</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="section-label">Choices Sheet (excerpt)</div>
+        <div class="table-wrap">
+          <table class="xls-table">
+            <thead><tr><th>list_name</th><th>name</th><th>label</th><th>county (filter)</th></tr></thead>
+            <tbody>
+              <tr class="tab-row"><td colspan="4">choices</td></tr>
+              <tr><td>yes_no</td><td>yes</td><td>Yes</td><td></td></tr>
+              <tr><td>yes_no</td><td>no</td><td>No</td><td></td></tr>
+              <tr><td>disability_list</td><td>visual</td><td>Seeing — even with glasses</td><td></td></tr>
+              <tr><td>disability_list</td><td>hearing</td><td>Hearing — even with hearing aid</td><td></td></tr>
+              <tr><td>disability_list</td><td>mobility</td><td>Walking or climbing steps</td><td></td></tr>
+              <tr><td>disability_list</td><td>cognitive</td><td>Remembering or concentrating</td><td></td></tr>
+              <tr><td>disability_list</td><td>selfcare</td><td>Self-care (washing, dressing)</td><td></td></tr>
+              <tr><td>disability_list</td><td>communication</td><td>Communicating in usual language</td><td></td></tr>
+              <tr><td>counties</td><td>nairobi</td><td>Nairobi</td><td></td></tr>
+              <tr><td>counties</td><td>kisumu</td><td>Kisumu</td><td></td></tr>
+              <tr><td>counties</td><td>mombasa</td><td>Mombasa</td><td></td></tr>
+              <tr><td>sub_counties</td><td>westlands</td><td>Westlands</td><td>nairobi</td></tr>
+              <tr><td>sub_counties</td><td>kasarani</td><td>Kasarani</td><td>nairobi</td></tr>
+              <tr><td>sub_counties</td><td>kisumu_central</td><td>Kisumu Central</td><td>kisumu</td></tr>
+              <tr><td>sub_counties</td><td>changamwe</td><td>Changamwe</td><td>mombasa</td></tr>
+              <tr><td>schools</td><td>sch_001</td><td>Moi Avenue Primary</td><td></td></tr>
+              <tr><td>schools</td><td>sch_002</td><td>Uhuru Gardens Special School</td><td></td></tr>
+              <tr><td>aid_types</td><td>spectacles</td><td>Spectacles / glasses</td><td></td></tr>
+              <tr><td>aid_types</td><td>magnifier</td><td>Magnifying device</td><td></td></tr>
+              <tr><td>aid_types</td><td>braille</td><td>Braille materials</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="section-label">Settings Sheet</div>
+        <div class="table-wrap">
+          <table class="xls-table">
+            <thead><tr><th>form_title</th><th>form_id</th><th>version</th><th>default_language</th><th>style</th></tr></thead>
+            <tbody>
+              <tr class="tab-row"><td colspan="5">settings</td></tr>
+              <tr><td>GEC-T Inclusive Education Endline 2024</td><td>gect_ie_endline_v3</td><td>2024.03.1</td><td>English (en)</td><td>pages</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Skip Logic Visualisation -->
+  <section id="skip-logic">
+    <div class="section-label">Skip Logic</div>
+    <h2 class="section-title">Form Routing Visualisation</h2>
+    <div class="divider"></div>
+    <p class="section-desc">Branching logic ensures enumerators only see relevant questions, reducing survey fatigue and data errors.</p>
+
+    <div class="card fade-up">
+      <div class="flow">
+        <div class="flow-box start">Start Survey</div>
+        <div class="flow-arrow"></div>
+        <div class="flow-box decision">Informed Consent?</div>
+        <div style="display:flex;gap:60px;align-items:flex-start;">
+          <div class="flow-side">
+            <div class="flow-label">Yes</div>
+            <div class="flow-arrow"></div>
+            <div class="flow-box">Demographics &amp; Geography</div>
+            <div class="flow-arrow"></div>
+            <div class="flow-box decision">Washington Group Questions</div>
+            <div style="display:flex;gap:40px;align-items:flex-start;margin-top:0;">
+              <div class="flow-side">
+                <div class="flow-label">Disability detected</div>
+                <div class="flow-arrow"></div>
+                <div class="flow-box" style="border-color:var(--amber);">Disability-Specific Module</div>
+              </div>
+              <div class="flow-side">
+                <div class="flow-label">No disability</div>
+                <div class="flow-arrow"></div>
+                <div class="flow-box">General Education Module</div>
+              </div>
+            </div>
+            <div class="flow-arrow" style="margin-top:8px;"></div>
+            <div class="flow-box merge">School Performance</div>
+            <div class="flow-arrow"></div>
+            <div class="flow-box">GPS + Photo Capture</div>
+            <div class="flow-arrow"></div>
+            <div class="flow-box start">End &amp; Submit</div>
+          </div>
+          <div class="flow-side">
+            <div class="flow-label">No</div>
+            <div class="flow-arrow"></div>
+            <div class="flow-box end">End (No Data Collected)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Validation Rules -->
+  <section id="validation">
+    <div class="section-label">Data Quality</div>
+    <h2 class="section-title">Validation Rules</h2>
+    <div class="divider"></div>
+    <p class="section-desc">Built-in constraints that catch errors at the point of collection, not after data cleaning.</p>
+
+    <div class="val-grid">
+      <div class="val-card fade-up">
+        <h4>Age Range</h4>
+        <p class="val-desc">Student age must fall within programme eligibility criteria.</p>
+        <code>. >= 5 and . <= 25</code>
+      </div>
+      <div class="val-card fade-up">
+        <h4>Date Logic</h4>
+        <p class="val-desc">Enrolment date cannot be in the future.</p>
+        <code>. <= today()</code>
+      </div>
+      <div class="val-card fade-up">
+        <h4>Cross-Field Validation</h4>
+        <p class="val-desc">If student is in grade 9+, school type must be secondary.</p>
+        <code>if(${grade} > 8, ${school_type} = 'secondary', true)</code>
+      </div>
+      <div class="val-card fade-up">
+        <h4>Phone Number Regex</h4>
+        <p class="val-desc">Kenyan mobile format: +254 7XX XXX XXX.</p>
+        <code>regex(., '^\+254[0-9]{9}$')</code>
+      </div>
+      <div class="val-card fade-up">
+        <h4>Conditional Required</h4>
+        <p class="val-desc">Disability module only required when consent is granted.</p>
+        <code>required: ${consent} = 'yes'</code>
+      </div>
+      <div class="val-card fade-up">
+        <h4>GPS Accuracy Threshold</h4>
+        <p class="val-desc">Reject GPS readings with accuracy worse than 10 metres.</p>
+        <code>distance(., .) = 0 and
+selected-at(., 3) &lt; 10</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Data Pipeline -->
+  <section id="pipeline">
+    <div class="section-label">Data Pipeline</div>
+    <h2 class="section-title">From Collection to Dashboard</h2>
+    <div class="divider"></div>
+    <p class="section-desc">End-to-end flow from KoBoToolbox field data to actionable programme dashboards.</p>
+
+    <div class="pipeline-steps fade-up">
+      <div class="pipeline-step">
+        <div class="step-icon collect">📱</div>
+        <div class="step-label">Collect</div>
+        <div class="step-detail">KoBoToolbox / ODK Collect on Android tablets with offline capability</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-icon api">🔌</div>
+        <div class="step-label">API / Export</div>
+        <div class="step-detail">KoBo REST API v2 or scheduled CSV/XLSX exports with token auth</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-icon clean">🧹</div>
+        <div class="step-label">Clean &amp; Transform</div>
+        <div class="step-detail">Python / R scripts: deduplication, recoding, WG-SS scoring, PII removal</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-icon viz">📊</div>
+        <div class="step-label">Dashboard</div>
+        <div class="step-detail">Power BI (donor/HQ) or Google Sheets (field teams) with live refresh</div>
+      </div>
+    </div>
+
+    <div class="card fade-up" style="margin-top:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <div class="section-label">Automated Checks</div>
+          <ul style="font-size:13px;color:var(--muted);padding-left:18px;line-height:1.9;">
+            <li>Duplicate submission detection via student_id</li>
+            <li>GPS outlier flagging (&gt; 50 km from expected county centroid)</li>
+            <li>Completeness threshold: reject forms below 80% field coverage</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Outputs</div>
+          <ul style="font-size:13px;color:var(--muted);padding-left:18px;line-height:1.9;">
+            <li>Weekly data quality report (Python-generated PDF)</li>
+            <li>Real-time submission tracker (Google Sheets)</li>
+            <li>Quarterly indicator dashboard (Power BI, 6 pages)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Multilingual Support -->
+  <section id="multilingual">
+    <div class="section-label">Multilingual</div>
+    <h2 class="section-title">Multi-Language Form Deployment</h2>
+    <div class="divider"></div>
+    <p class="section-desc">Forms deployed in multiple languages allow enumerators to switch between English, Kiswahili, and Amharic during interviews.</p>
+
+    <div class="card fade-up">
+      <table class="lang-table">
+        <thead><tr><th>name</th><th>label::English (en)</th><th>label::Kiswahili (sw)</th><th>label::Amharic (am)</th></tr></thead>
+        <tbody>
+          <tr><td>consent</td><td>Do you give informed consent to participate?</td><td>Je, unatoa idhini yako kushiriki?</td><td>ለመሳተፍ ፈቃደኛ ነዎት?</td></tr>
+          <tr><td>student_id</td><td>Student unique ID</td><td>Nambari ya kipekee ya mwanafunzi</td><td>የተማሪ ልዩ መለያ ቁጥር</td></tr>
+          <tr><td>age</td><td>Age of student (years)</td><td>Umri wa mwanafunzi (miaka)</td><td>የተማሪ ዕድሜ (ዓመት)</td></tr>
+          <tr><td>disability_type</td><td>Disability domain (WG-SS)</td><td>Aina ya ulemavu (WG-SS)</td><td>የአካል ጉዳት ዓይነት (WG-SS)</td></tr>
+          <tr><td>school_name</td><td>Name of institution</td><td>Jina la shule</td><td>የትምህርት ቤት ስም</td></tr>
+          <tr><td>gps_location</td><td>GPS coordinates of institution</td><td>Kuratibu za GPS za shule</td><td>የትምህርት ቤት GPS መጋጠሚያ</td></tr>
+          <tr><td>grade</td><td>Current grade/class</td><td>Darasa la sasa</td><td>የአሁኑ ክፍል</td></tr>
+          <tr><td>caregiver_phone</td><td>Caregiver phone number</td><td>Nambari ya simu ya mlezi</td><td>የአሳዳጊ ስልክ ቁጥር</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 6. Technical Specs -->
+  <section id="specs">
+    <div class="section-label">Programme Context</div>
+    <h2 class="section-title">Technical Specifications</h2>
+    <div class="divider"></div>
+    <p class="section-desc">GEC-T Inclusive Education Programme — Leonard Cheshire, Kenya. FCDO-funded external evaluation across three data collection rounds.</p>
+
+    <div class="stats-grid fade-up">
+      <div class="stat-card">
+        <div class="stat-value">83</div>
+        <div class="stat-label">Institutions surveyed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value amber">2,100+</div>
+        <div class="stat-label">Girls with disabilities tracked</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Rounds (BL / ML / EL)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">4</div>
+        <div class="stat-label">Languages supported</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value amber">WG-SS</div>
+        <div class="stat-label">Washington Group integrated</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="font-size:20px;">NACOSTI</div>
+        <div class="stat-label">Ethics approval obtained</div>
+      </div>
+    </div>
+
+    <div class="card fade-up" style="margin-top:24px;">
+      <div class="section-label">Design Notes</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.75;">
+        <strong style="color:var(--navy);">Cascading selects:</strong> County → Sub-county → Ward geography uses <code style="background:#F0F3F7;padding:2px 6px;border-radius:4px;font-size:12px;">choice_filter</code> to dynamically filter options based on prior selection, reducing enumerator error in field conditions.<br>
+        <strong style="color:var(--navy);">Washington Group Short Set:</strong> Six functional difficulty domains aligned to the WG-SS standard, enabling international comparability of disability prevalence data across GEC programmes.<br>
+        <strong style="color:var(--navy);">Repeat groups:</strong> Household member module uses <code style="background:#F0F3F7;padding:2px 6px;border-radius:4px;font-size:12px;">repeat_count</code> to capture variable-length household rosters without duplicating form sections.<br>
+        <strong style="color:var(--navy);">Offline-first:</strong> All forms are deployed via ODK Collect / KoBo Collect with full offline capability; submissions queue and sync when connectivity is restored.
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-links">
+    <a href="https://github.com/jgathogo" target="_blank" rel="noopener">GitHub</a>
+    <a href="mailto:james@gathogo.co.ke">james@gathogo.co.ke</a>
+    <a href="https://www.linkedin.com/in/jamesgathogo/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+  <p><strong>James Gathogo</strong> &middot; MEAL &amp; Information Management</p>
+  <p style="margin-top:6px;font-size:11px;">All portfolio data is synthetic or anonymised &middot; Built with plain HTML &middot; 2026</p>
+</footer>
+
+</body>
+</html>

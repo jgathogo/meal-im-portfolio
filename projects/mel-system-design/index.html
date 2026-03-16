@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MEL System Design & Evaluation Methodology | James Gathogo</title>
+  <meta name="description" content="MEL system architecture for multi-country harmonised reporting and evaluation methodology showcase featuring OECD DAC, contribution analysis, and stepped-wedge designs." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:#1B3044; --navy2:#253D52; --amber:#E8A020; --amber2:#F5B84A;
+      --bg:#F4F6F9; --white:#FFFFFF; --text:#1B3044; --muted:#5C6B7A;
+      --border:#DDE4EC; --green:#2E7D52; --red:#C0392B;
+      --radius:12px; --shadow:0 2px 16px rgba(27,48,68,.08);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    /* ── TOP BAR ── */
+    .topbar { background: var(--navy); padding: 14px 32px; display: flex; justify-content: space-between; align-items: center; }
+    .topbar .name { color: var(--white); font-weight: 600; font-size: .95rem; letter-spacing: .3px; }
+    .topbar a { color: var(--amber); text-decoration: none; font-size: .85rem; font-weight: 500; }
+    .topbar a:hover { text-decoration: underline; }
+
+    /* ── HERO ── */
+    .hero { background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%); color: var(--white); padding: 64px 24px 56px; text-align: center; }
+    .hero h1 { font-size: 2.1rem; font-weight: 700; margin-bottom: 12px; }
+    .hero h1 span { color: var(--amber); }
+    .hero p { max-width: 720px; margin: 0 auto; font-size: 1.05rem; font-weight: 300; color: rgba(255,255,255,.82); line-height: 1.7; }
+    .hero .tags { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .hero .tag { background: rgba(232,160,32,.15); border: 1px solid rgba(232,160,32,.35); color: var(--amber2); padding: 5px 14px; border-radius: 20px; font-size: .78rem; font-weight: 500; }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .section { padding: 56px 0; }
+    .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+    .section-sub { color: var(--muted); font-size: .92rem; margin-bottom: 32px; max-width: 700px; }
+
+    /* ── CARDS ── */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; margin-bottom: 28px; }
+    .card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; }
+
+    /* ── ARCHITECTURE DIAGRAM ── */
+    .arch-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
+    .arch-box { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; text-align: center; min-width: 180px; flex: 1; max-width: 240px; }
+    .arch-box .label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 4px; }
+    .arch-box .value { font-size: .88rem; font-weight: 500; }
+    .arch-box.source { border-top: 3px solid var(--amber); }
+    .arch-box.integration { border-top: 3px solid #3B82F6; }
+    .arch-box.store { border-top: 3px solid var(--green); }
+    .arch-box.output { border-top: 3px solid #8B5CF6; }
+    .arch-arrow { text-align: center; font-size: 1.4rem; color: var(--muted); padding: 6px 0; }
+    .arch-section-label { text-align: center; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    th { background: var(--navy); color: var(--white); padding: 10px 12px; text-align: left; font-weight: 600; font-size: .75rem; text-transform: uppercase; letter-spacing: .4px; }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:hover td { background: rgba(232,160,32,.04); }
+    .code-cell { font-family: monospace; font-weight: 600; color: var(--navy); white-space: nowrap; }
+
+    /* ── GRID ── */
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    /* ── DAC CARDS ── */
+    .dac-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px; }
+    .dac-card h4 { font-size: .95rem; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .dac-icon { width: 28px; height: 28px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; color: var(--white); flex-shrink: 0; }
+    .dac-card p { font-size: .82rem; color: var(--muted); margin-bottom: 6px; }
+    .dac-card .detail { font-size: .78rem; color: var(--text); }
+    .dac-card .detail strong { color: var(--navy); }
+
+    /* ── GOV CARDS ── */
+    .gov-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px; }
+    .gov-card h4 { font-size: .95rem; font-weight: 600; margin-bottom: 10px; }
+    .gov-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: .82rem; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── FUNNEL ── */
+    .funnel { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 20px 0; }
+    .funnel-stage { text-align: center; padding: 14px; border-radius: 8px; color: var(--white); font-weight: 500; font-size: .85rem; }
+    .funnel-arrow { color: var(--muted); font-size: 1.2rem; }
+    .funnel-detail { font-size: .75rem; font-weight: 300; opacity: .85; }
+
+    /* ── LOGIC MODEL ── */
+    .logic-row { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; justify-content: center; }
+    .logic-box { flex: 1; min-width: 140px; max-width: 180px; padding: 14px; border-radius: 8px; text-align: center; font-size: .8rem; }
+    .logic-box h5 { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .logic-arrow { display: flex; align-items: center; color: var(--muted); font-size: 1.2rem; padding: 0 2px; }
+    .assumption-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+    .assumption-box { background: #FFF7E6; border: 1px dashed var(--amber); border-radius: 6px; padding: 8px 12px; font-size: .72rem; color: var(--navy); max-width: 200px; text-align: center; }
+
+    /* ── STEPPED WEDGE ── */
+    .sw-grid { display: grid; gap: 2px; }
+    .sw-cell { padding: 10px; text-align: center; font-size: .78rem; font-weight: 500; border-radius: 4px; }
+    .sw-header { background: var(--navy); color: var(--white); font-weight: 600; font-size: .72rem; }
+    .sw-label { background: var(--navy2); color: var(--white); font-weight: 600; font-size: .78rem; }
+    .sw-control { background: #EEF2F7; color: var(--muted); }
+    .sw-intervention { background: var(--green); color: var(--white); }
+
+    /* ── METHODS LIST ── */
+    .methods-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+    .method-chip { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-size: .85rem; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+    .method-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); flex-shrink: 0; }
+
+    /* ── FOOTER ── */
+    footer { background: var(--navy); color: rgba(255,255,255,.7); padding: 40px 24px; text-align: center; font-size: .85rem; }
+    footer a { color: var(--amber); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    footer .links { display: flex; gap: 24px; justify-content: center; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="name">James Gathogo</div>
+  <a href="../../index.html">← Back to Portfolio</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <h1>MEL System Design &amp; <span>Evaluation Methodology</span></h1>
+  <p>Harmonised monitoring architecture for a global alliance of 1,100+ member organisations across 70+ countries, paired with rigorous evaluation frameworks for measuring programme impact.</p>
+  <div class="tags">
+    <span class="tag">System Architecture</span>
+    <span class="tag">Indicator Harmonisation</span>
+    <span class="tag">OECD DAC</span>
+    <span class="tag">Contribution Analysis</span>
+    <span class="tag">Stepped-Wedge Design</span>
+  </div>
+</section>
+
+<div class="container">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION A: MEL SYSTEM ARCHITECTURE                       -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <h2 class="section-title">A. MEL System Architecture</h2>
+    <p class="section-sub">A centralised data architecture designed to harmonise reporting from diverse member organisations using different tools, languages, and formats.</p>
+
+    <!-- 1. System Architecture Diagram -->
+    <div class="card">
+      <h3>System Architecture — Data Flow</h3>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:20px">
+        The architecture below illustrates how data flows from 1,100+ member organisations
+        through validation, harmonisation, and governance layers into a unified indicator
+        database powering multilingual dashboards and automated reporting.
+      </p>
+      <div class="arch-section-label">Data Sources</div>
+      <div class="arch-row">
+        <div class="arch-box source">
+          <div class="label">KoBoToolbox</div>
+          <div class="value">Mobile data collection<br>
+            <small style="color:var(--muted)">30+ countries</small>
+          </div>
+        </div>
+        <div class="arch-box source">
+          <div class="label">SurveyCTO</div>
+          <div class="value">Regional partner surveys<br>
+            <small style="color:var(--muted)">8 regional offices</small>
+          </div>
+        </div>
+        <div class="arch-box source">
+          <div class="label">Excel / CSV</div>
+          <div class="value">Manual uploads<br>
+            <small style="color:var(--muted)">Smaller orgs</small>
+          </div>
+        </div>
+        <div class="arch-box source">
+          <div class="label">DHIS2 Feeds</div>
+          <div class="value">Health information<br>
+            <small style="color:var(--muted)">Routine HIS</small>
+          </div>
+        </div>
+      </div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-section-label">Integration Layer</div>
+      <div class="arch-row">
+        <div class="arch-box integration"><div class="label">API Connectors</div><div class="value">REST APIs &amp; Power Query ETL pipelines</div></div>
+        <div class="arch-box integration"><div class="label">Validation Rules</div><div class="value">Range checks, skip logic, deduplication</div></div>
+        <div class="arch-box integration"><div class="label">Indicator Mapping</div><div class="value">Maps local indicators to global framework</div></div>
+      </div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-section-label">Central Data Store</div>
+      <div class="arch-row">
+        <div class="arch-box store"><div class="label">Indicator Database</div><div class="value">Harmonised indicator values across members</div></div>
+        <div class="arch-box store"><div class="label">Master Dictionary</div><div class="value">Standardised definitions &amp; metadata</div></div>
+        <div class="arch-box store"><div class="label">Governance Layer</div><div class="value">PII rules, access control, audit trail</div></div>
+      </div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-section-label">Outputs &amp; Products</div>
+      <div class="arch-row">
+        <div class="arch-box output"><div class="label">Power BI</div><div class="value">Dashboards<br><small style="color:var(--muted)">EN/FR/PT/ES</small></div></div>
+        <div class="arch-box output"><div class="label">Donor Reports</div><div class="value">Automated narrative + data exports</div></div>
+        <div class="arch-box output"><div class="label">Scorecards</div><div class="value">Partner performance benchmarking</div></div>
+        <div class="arch-box output"><div class="label">Global Results</div><div class="value">Aggregated reach &amp; outcome figures</div></div>
+      </div>
+    </div>
+
+    <!-- Design Considerations -->
+    <div class="card" style="background:linear-gradient(135deg,#F8FAFC,#F0F4F8);border-left:4px solid var(--amber)">
+      <h3>Key Design Considerations</h3>
+      <div class="grid-3">
+        <div>
+          <h4 style="font-size:.85rem;font-weight:600;margin-bottom:6px;color:var(--navy)">Language Diversity</h4>
+          <p style="font-size:.82rem;color:var(--muted)">
+            Member orgs operate in 40+ languages. The integration layer normalises
+            indicator labels and definitions into four official languages (EN, FR, PT, ES)
+            with fallback mappings for local variants.
+          </p>
+        </div>
+        <div>
+          <h4 style="font-size:.85rem;font-weight:600;margin-bottom:6px;color:var(--navy)">Tool Heterogeneity</h4>
+          <p style="font-size:.82rem;color:var(--muted)">
+            Members use KoBoToolbox, SurveyCTO, ODK, CommCare, and bespoke Excel
+            templates. API connectors handle structured feeds; Power Query transformations
+            standardise flat-file uploads.
+          </p>
+        </div>
+        <div>
+          <h4 style="font-size:.85rem;font-weight:600;margin-bottom:6px;color:var(--navy)">Progressive Onboarding</h4>
+          <p style="font-size:.82rem;color:var(--muted)">
+            Not all members can report on all indicators at once. The system supports
+            tiered reporting: a core set of 8 mandatory indicators and 24 optional
+            indicators phased in over three years.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Indicator Dictionary -->
+    <div class="card">
+      <h3>Indicator Dictionary — Sample Extract</h3>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">
+        The master indicator dictionary standardises definitions, disaggregation
+        requirements, and reporting frequencies across all member organisations.
+        Below is an extract of the core mandatory indicators.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Code</th><th>Indicator</th><th>Definition</th><th>Disaggregation</th><th>Source</th><th>Frequency</th><th>Target</th><th>Baseline</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="code-cell">IND-001</td>
+              <td>Organisations reporting against harmonised indicators</td>
+              <td>Count of member orgs that submitted at least one complete dataset in the reporting period</td>
+              <td>By region, org size</td>
+              <td>KoBoToolbox</td>
+              <td>Quarterly</td>
+              <td>850</td>
+              <td>312</td>
+            </tr>
+            <tr>
+              <td class="code-cell">IND-002</td>
+              <td>Members meeting governance threshold</td>
+              <td>% of member orgs scoring ≥70% on the governance self-assessment tool</td>
+              <td>By region</td>
+              <td>Self-assessment</td>
+              <td>Annual</td>
+              <td>65%</td>
+              <td>41%</td>
+            </tr>
+            <tr>
+              <td class="code-cell">IND-003</td>
+              <td>Children reached through member programmes</td>
+              <td>Cumulative unique children directly benefiting from member-delivered services</td>
+              <td>Sex, age (0–5, 6–11, 12–17), disability status</td>
+              <td>Partner reports</td>
+              <td>Semi-annual</td>
+              <td>14.2M</td>
+              <td>9.8M</td>
+            </tr>
+            <tr>
+              <td class="code-cell">IND-004</td>
+              <td>Members with functional M&amp;E systems</td>
+              <td>% of members with dedicated M&amp;E staff, documented plan, and evidence of data use</td>
+              <td>By region, org size</td>
+              <td>Capacity assessment</td>
+              <td>Annual</td>
+              <td>55%</td>
+              <td>28%</td>
+            </tr>
+            <tr>
+              <td class="code-cell">IND-005</td>
+              <td>Gender-transformative practice score</td>
+              <td>Average score on the 5-point Gender Integration Continuum Scale</td>
+              <td>By programme type</td>
+              <td>Self-assessment</td>
+              <td>Annual</td>
+              <td>3.5</td>
+              <td>2.1</td>
+            </tr>
+            <tr>
+              <td class="code-cell">IND-006</td>
+              <td>Advocacy actions taken</td>
+              <td>Number of documented advocacy events, statements, or policy submissions by members</td>
+              <td>By type (event, statement, submission)</td>
+              <td>Event tracking</td>
+              <td>Quarterly</td>
+              <td>240</td>
+              <td>87</td>
+            </tr>
+            <tr>
+              <td class="code-cell">IND-007</td>
+              <td>Community feedback response rate</td>
+              <td>% of community feedback cases acknowledged and responded to within 30 days</td>
+              <td>By feedback channel (hotline, suggestion box, digital)</td>
+              <td>CRM system</td>
+              <td>Quarterly</td>
+              <td>85%</td>
+              <td>52%</td>
+            </tr>
+            <tr>
+              <td class="code-cell">IND-008</td>
+              <td>Data quality assessment score</td>
+              <td>Average DQA score across all reporting members (composite of completeness, timeliness, accuracy, consistency)</td>
+              <td>By region, org size</td>
+              <td>DQA tool</td>
+              <td>Annual</td>
+              <td>80%</td>
+              <td>54%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. Data Governance Framework -->
+    <div class="card">
+      <h3>Data Governance Framework</h3>
+      <div class="grid-2">
+        <div class="gov-card">
+          <h4>Data Classification</h4>
+          <div class="gov-item"><span class="dot" style="background:var(--green)"></span> Public — aggregated results, published reports</div>
+          <div class="gov-item"><span class="dot" style="background:#3B82F6"></span> Internal — operational data, partner scorecards</div>
+          <div class="gov-item"><span class="dot" style="background:var(--amber)"></span> Confidential — individual programme data, staff records</div>
+          <div class="gov-item"><span class="dot" style="background:var(--red)"></span> Restricted — PII, child protection data, GPS coordinates</div>
+        </div>
+        <div class="gov-card">
+          <h4>Access Control Tiers</h4>
+          <div class="gov-item"><span class="dot" style="background:var(--navy)"></span> Tier 1: Global administrator — full read/write</div>
+          <div class="gov-item"><span class="dot" style="background:var(--navy2)"></span> Tier 2: Regional coordinator — regional data read/write</div>
+          <div class="gov-item"><span class="dot" style="background:#3B82F6"></span> Tier 3: Country focal point — country-level data</div>
+          <div class="gov-item"><span class="dot" style="background:var(--green)"></span> Tier 4: Member organisation — own data only</div>
+          <div class="gov-item"><span class="dot" style="background:var(--muted)"></span> Tier 5: External / donor — aggregated dashboards only</div>
+        </div>
+        <div class="gov-card">
+          <h4>PII Handling</h4>
+          <div class="gov-item"><span class="dot" style="background:var(--red)"></span> Anonymisation: k-anonymity (k≥5) on all individual records</div>
+          <div class="gov-item"><span class="dot" style="background:var(--amber)"></span> Consent: digital consent tracked per data subject</div>
+          <div class="gov-item"><span class="dot" style="background:#3B82F6"></span> Retention: 5 years post-programme, then secure deletion</div>
+          <div class="gov-item"><span class="dot" style="background:var(--green)"></span> Transfer: encrypted at rest (AES-256) and in transit (TLS 1.3)</div>
+        </div>
+        <div class="gov-card">
+          <h4>Quality Assurance — DQA Checklist</h4>
+          <div class="gov-item"><span class="dot" style="background:var(--green)"></span> Completeness — all required fields populated (≥95%)</div>
+          <div class="gov-item"><span class="dot" style="background:#3B82F6"></span> Timeliness — data submitted within 15 days of period close</div>
+          <div class="gov-item"><span class="dot" style="background:var(--amber)"></span> Accuracy — cross-checked against source documents (5% sample)</div>
+          <div class="gov-item"><span class="dot" style="background:var(--navy)"></span> Consistency — no contradictions between related indicators</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION B: EVALUATION METHODOLOGY SHOWCASE               -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="section" style="padding-top:0">
+    <h2 class="section-title">B. Evaluation Methodology Showcase</h2>
+    <p class="section-sub">Rigorous evaluation designs applied to education and development programmes, drawing on OECD DAC criteria and mixed-methods approaches.</p>
+
+    <!-- 4. OECD DAC Criteria -->
+    <div class="card">
+      <h3>OECD DAC Evaluation Criteria</h3>
+      <div class="grid-3">
+        <div class="dac-card">
+          <h4><span class="dac-icon" style="background:#3B82F6">R</span> Relevance</h4>
+          <p>Was the intervention aligned with the needs and priorities of beneficiaries?</p>
+          <div class="detail">
+            <strong>Key question:</strong> To what extent did the education programme
+            address girls' barriers to school attendance?<br>
+            <strong>Source:</strong> Baseline survey, community FGDs<br>
+            <strong>Method:</strong> Needs-alignment matrix, stakeholder interviews
+          </div>
+        </div>
+        <div class="dac-card">
+          <h4><span class="dac-icon" style="background:#6366F1">C</span> Coherence</h4>
+          <p>Does the intervention fit with other policies and programmes in the context?</p>
+          <div class="detail">
+            <strong>Key question:</strong> How well did the programme complement
+            the national education sector plan?<br>
+            <strong>Source:</strong> Policy documents, coordination minutes<br>
+            <strong>Method:</strong> Policy mapping, key informant interviews
+          </div>
+        </div>
+        <div class="dac-card">
+          <h4><span class="dac-icon" style="background:var(--green)">E</span> Effectiveness</h4>
+          <p>Did the intervention achieve its intended objectives and results?</p>
+          <div class="detail">
+            <strong>Key question:</strong> Did girls' learning outcomes improve by
+            the target 15% in literacy and numeracy?<br>
+            <strong>Source:</strong> EGRA/EGMA assessments<br>
+            <strong>Method:</strong> Pre-post comparison, difference-in-difference
+          </div>
+        </div>
+        <div class="dac-card">
+          <h4><span class="dac-icon" style="background:var(--amber)">E</span> Efficiency</h4>
+          <p>Were resources used optimally to deliver results?</p>
+          <div class="detail">
+            <strong>Key question:</strong> What was the cost per learning-adjusted
+            year of schooling gained?<br>
+            <strong>Source:</strong> Financial records, output data<br>
+            <strong>Method:</strong> Cost-effectiveness analysis, unit cost benchmarking
+          </div>
+        </div>
+        <div class="dac-card">
+          <h4><span class="dac-icon" style="background:var(--navy)">I</span> Impact</h4>
+          <p>What broader changes — positive and negative — did the intervention produce?</p>
+          <div class="detail">
+            <strong>Key question:</strong> Did the programme contribute to reduced
+            child marriage rates in target communities?<br>
+            <strong>Source:</strong> DHS data, longitudinal cohort<br>
+            <strong>Method:</strong> Contribution analysis, quasi-experimental comparison
+          </div>
+        </div>
+        <div class="dac-card">
+          <h4><span class="dac-icon" style="background:#8B5CF6">S</span> Sustainability</h4>
+          <p>Will the benefits and systems continue after funding ends?</p>
+          <div class="detail">
+            <strong>Key question:</strong> Have county education offices institutionalised
+            teacher mentoring practices?<br>
+            <strong>Source:</strong> Government budgets, institutional assessments<br>
+            <strong>Method:</strong> Sustainability scorecard, exit interviews
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Sampling Strategy -->
+    <div class="card">
+      <h3>Sampling Strategy — Multi-stage Cluster Sampling</h3>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:20px">GEC endline evaluation: estimating learning outcomes for marginalised girls</p>
+      <div class="funnel">
+        <div class="funnel-stage" style="background:var(--navy);width:90%;max-width:600px">
+          <strong>Stage 1: Purposive selection</strong><br>
+          4 counties selected (from 12) based on programme footprint &amp; ecological diversity<br>
+          <span class="funnel-detail">Criteria: ≥500 beneficiaries, urban/rural mix, conflict sensitivity</span>
+        </div>
+        <div class="funnel-arrow">▼</div>
+        <div class="funnel-stage" style="background:var(--navy2);width:75%;max-width:500px">
+          <strong>Stage 2: Random selection</strong><br>
+          21 schools per county (84 total from a frame of 332 schools)<br>
+          <span class="funnel-detail">Simple random sample using randomised school list</span>
+        </div>
+        <div class="funnel-arrow">▼</div>
+        <div class="funnel-stage" style="background:var(--green);width:60%;max-width:400px">
+          <strong>Stage 3: Systematic random sampling</strong><br>
+          25 students per school — every k-th student from attendance register<br>
+          <span class="funnel-detail">k = (enrolled ÷ 25), random start point</span>
+        </div>
+        <div class="funnel-arrow">▼</div>
+        <div class="funnel-stage" style="background:var(--amber);width:45%;max-width:320px;color:var(--navy)">
+          <strong>Total Sample: 2,100 students</strong>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:16px;max-width:600px;margin-left:auto;margin-right:auto">
+        <div class="gov-card" style="text-align:center">
+          <div style="font-size:1.6rem;font-weight:700;color:var(--navy)">95%</div>
+          <div style="font-size:.78rem;color:var(--muted)">Confidence Level</div>
+        </div>
+        <div class="gov-card" style="text-align:center">
+          <div style="font-size:1.6rem;font-weight:700;color:var(--navy)">±5%</div>
+          <div style="font-size:.78rem;color:var(--muted)">Margin of Error</div>
+        </div>
+        <div class="gov-card" style="text-align:center">
+          <div style="font-size:1.6rem;font-weight:700;color:var(--navy)">1.5</div>
+          <div style="font-size:.78rem;color:var(--muted)">Design Effect (DEFF)</div>
+        </div>
+        <div class="gov-card" style="text-align:center">
+          <div style="font-size:1.6rem;font-weight:700;color:var(--navy)">+10%</div>
+          <div style="font-size:.78rem;color:var(--muted)">Non-response Adjustment</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Contribution Analysis Logic Model -->
+    <div class="card">
+      <h3>Contribution Analysis — Logic Model</h3>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:20px">Education &amp; bicycle mobility programme: mapping causal pathways from inputs to impact</p>
+      <div class="logic-row">
+        <div class="logic-box" style="background:var(--navy);color:var(--white)">
+          <h5>Inputs</h5>
+          Funding ($2.4M), bicycles (3,200), trained mentors (84), school materials
+        </div>
+        <div class="logic-arrow">→</div>
+        <div class="logic-box" style="background:var(--navy2);color:var(--white)">
+          <h5>Activities</h5>
+          Bicycle distribution, teacher training, community dialogues, bursary payments
+        </div>
+        <div class="logic-arrow">→</div>
+        <div class="logic-box" style="background:#3B82F6;color:var(--white)">
+          <h5>Outputs</h5>
+          3,200 girls with bicycles, 84 mentors active, 42 community groups formed
+        </div>
+        <div class="logic-arrow">→</div>
+        <div class="logic-box" style="background:var(--green);color:var(--white)">
+          <h5>Outcomes</h5>
+          ↑ Attendance (+22%), ↑ Literacy scores (+15%), ↓ Dropout (−8pp)
+        </div>
+        <div class="logic-arrow">→</div>
+        <div class="logic-box" style="background:var(--amber);color:var(--navy)">
+          <h5>Impact</h5>
+          Reduced child marriage, improved livelihoods, community norm change
+        </div>
+      </div>
+      <div class="assumption-row">
+        <div class="assumption-box"><strong>A1:</strong> Bicycles reduce travel time sufficiently to enable daily attendance</div>
+        <div class="assumption-box"><strong>A2:</strong> Trained mentors remain in post and apply new pedagogies</div>
+        <div class="assumption-box"><strong>A3:</strong> Improved attendance translates to improved learning</div>
+        <div class="assumption-box"><strong>A4:</strong> Education gains delay marriage and improve economic outcomes</div>
+      </div>
+      <div style="margin-top:20px;padding:16px;background:#F8FAFC;border-radius:8px;border:1px solid var(--border)">
+        <h4 style="font-size:.85rem;font-weight:600;margin-bottom:10px">Evidence Mapping by Results Level</h4>
+        <div class="grid-2" style="gap:10px">
+          <div style="font-size:.78rem;color:var(--muted)">
+            <strong style="color:var(--navy)">Outputs → Quantitative:</strong>
+            Distribution records, training attendance registers, monitoring visit checklists
+          </div>
+          <div style="font-size:.78rem;color:var(--muted)">
+            <strong style="color:var(--navy)">Outcomes → Mixed:</strong>
+            EGRA/EGMA scores (quant), most significant change stories (qual), attendance registers (admin)
+          </div>
+          <div style="font-size:.78rem;color:var(--muted)">
+            <strong style="color:var(--navy)">Impact → Quasi-experimental:</strong>
+            DHS secondary data analysis, longitudinal cohort tracking, community FGDs
+          </div>
+          <div style="font-size:.78rem;color:var(--muted)">
+            <strong style="color:var(--navy)">Assumptions → Participatory:</strong>
+            Community perception surveys, teacher interviews, programme implementation fidelity audits
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Stepped-Wedge Design -->
+    <div class="card">
+      <h3>Stepped-Wedge Cluster Randomised Design</h3>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:20px">Youth economic empowerment programme — ethical rollout with built-in counterfactual</p>
+      <div class="sw-grid" style="grid-template-columns: 120px repeat(6, 1fr); max-width:700px; margin:0 auto 20px">
+        <div class="sw-cell sw-header"></div>
+        <div class="sw-cell sw-header">T1</div>
+        <div class="sw-cell sw-header">T2</div>
+        <div class="sw-cell sw-header">T3</div>
+        <div class="sw-cell sw-header">T4</div>
+        <div class="sw-cell sw-header">T5</div>
+        <div class="sw-cell sw-header">T6</div>
+
+        <div class="sw-cell sw-label">Cluster A</div>
+        <div class="sw-cell sw-control">Control</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+
+        <div class="sw-cell sw-label">Cluster B</div>
+        <div class="sw-cell sw-control">Control</div>
+        <div class="sw-cell sw-control">Control</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+
+        <div class="sw-cell sw-label">Cluster C</div>
+        <div class="sw-cell sw-control">Control</div>
+        <div class="sw-cell sw-control">Control</div>
+        <div class="sw-cell sw-control">Control</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+
+        <div class="sw-cell sw-label">Cluster D</div>
+        <div class="sw-cell sw-control">Control</div>
+        <div class="sw-cell sw-control">Control</div>
+        <div class="sw-cell sw-control">Control</div>
+        <div class="sw-cell sw-control">Control</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+        <div class="sw-cell sw-intervention">Intervention</div>
+      </div>
+      <div style="max-width:700px;margin:0 auto;font-size:.84rem;color:var(--muted);line-height:1.7">
+        <strong style="color:var(--text)">Why stepped-wedge?</strong> All clusters eventually receive the
+        intervention (ethical requirement), while the staggered rollout creates a within-cluster
+        counterfactual. Each cluster serves as its own control before crossover, strengthening
+        causal inference. Practical for programmes where simultaneous rollout is logistically
+        infeasible and withholding treatment indefinitely is unacceptable.
+      </div>
+      <div class="grid-2" style="margin-top:20px;max-width:700px;margin-left:auto;margin-right:auto">
+        <div class="gov-card">
+          <h4 style="font-size:.85rem">Design Parameters</h4>
+          <div class="gov-item">
+            <span class="dot" style="background:var(--green)"></span>
+            Clusters: 4 districts (8–12 communities each)
+          </div>
+          <div class="gov-item">
+            <span class="dot" style="background:#3B82F6"></span>
+            Time periods: 6 quarters (18 months total)
+          </div>
+          <div class="gov-item">
+            <span class="dot" style="background:var(--amber)"></span>
+            Primary outcome: youth employment rate at 6 months post-training
+          </div>
+          <div class="gov-item">
+            <span class="dot" style="background:var(--navy)"></span>
+            Analysis: mixed-effects regression with cluster random effects
+          </div>
+        </div>
+        <div class="gov-card">
+          <h4 style="font-size:.85rem">Ethical Advantages</h4>
+          <div class="gov-item">
+            <span class="dot" style="background:var(--green)"></span>
+            No community permanently denied the intervention
+          </div>
+          <div class="gov-item">
+            <span class="dot" style="background:#3B82F6"></span>
+            Phased rollout matches operational capacity constraints
+          </div>
+          <div class="gov-item">
+            <span class="dot" style="background:var(--amber)"></span>
+            Learning from early clusters can improve later rollout
+          </div>
+          <div class="gov-item">
+            <span class="dot" style="background:var(--navy)"></span>
+            Within-cluster comparison reduces confounding bias
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Technical Summary -->
+    <div class="card">
+      <h3>Technical Methods Summary</h3>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:18px">
+        Core methodological competencies applied across programme evaluations and
+        MEL system design engagements.
+      </p>
+      <div class="methods-grid">
+        <div class="method-chip"><span class="method-dot"></span> Mixed methods (OECD DAC)</div>
+        <div class="method-chip"><span class="method-dot"></span> Contribution analysis</div>
+        <div class="method-chip"><span class="method-dot"></span> Difference-in-Difference</div>
+        <div class="method-chip"><span class="method-dot"></span> Stepped-wedge designs</div>
+        <div class="method-chip"><span class="method-dot"></span> Pre-post analysis</div>
+        <div class="method-chip"><span class="method-dot"></span> Qualitative synthesis (thematic coding)</div>
+        <div class="method-chip"><span class="method-dot"></span> Sampling frameworks</div>
+        <div class="method-chip"><span class="method-dot"></span> Data quality assurance</div>
+        <div class="method-chip"><span class="method-dot"></span> Theory of change development</div>
+        <div class="method-chip"><span class="method-dot"></span> Cost-effectiveness analysis</div>
+        <div class="method-chip"><span class="method-dot"></span> Indicator harmonisation</div>
+        <div class="method-chip"><span class="method-dot"></span> Ethical review &amp; safeguarding</div>
+      </div>
+      <div style="margin-top:20px;padding:16px;background:#F8FAFC;border-radius:8px;border:1px solid var(--border)">
+        <div class="grid-3" style="gap:16px">
+          <div style="text-align:center">
+            <div style="font-size:1.8rem;font-weight:700;color:var(--navy)">12+</div>
+            <div style="font-size:.78rem;color:var(--muted)">Evaluation designs led</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:1.8rem;font-weight:700;color:var(--navy)">70+</div>
+            <div style="font-size:.78rem;color:var(--muted)">Countries covered by MEL systems</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:1.8rem;font-weight:700;color:var(--navy)">1,100+</div>
+            <div style="font-size:.78rem;color:var(--muted)">Member organisations supported</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="links">
+    <a href="https://github.com/jamesgathogo" target="_blank">GitHub</a>
+    <a href="mailto:james@gathogo.org">Email</a>
+    <a href="https://www.linkedin.com/in/jamesgathogo/" target="_blank">LinkedIn</a>
+  </div>
+  <p>&copy; 2026 James Gathogo. All data on this page is synthetic and illustrative.</p>
+</footer>
+
+</body>
+</html>
