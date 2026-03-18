@@ -102,6 +102,34 @@
     .nav-links a { font-size: 13px; color: var(--muted); text-decoration: none; font-weight: 500; transition: color .15s; }
     .nav-links a:hover { color: var(--navy); }
 
+    /* ── PROJECT JUMP DROPDOWN ── */
+    .nav-jump {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-jump select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 32px 6px 12px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--navy);
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s;
+      max-width: 280px;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%235C6B7A' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+    .nav-jump select:hover { border-color: var(--navy); }
+    .nav-jump select:focus { outline: none; border-color: var(--amber); box-shadow: 0 0 0 3px rgba(232,160,32,.2); }
+
     /* ── SECTIONS ── */
     section { padding: 64px 24px; }
     .section-inner { max-width: 1100px; margin: 0 auto; }
@@ -296,6 +324,109 @@
     .fade-up { animation: fadeUp .5s ease forwards; }
     .fade-up:nth-child(2) { animation-delay: .1s; }
     .fade-up:nth-child(3) { animation-delay: .2s; }
+
+    /* ── RESPONSIVE: DROPDOWN ON MOBILE ── */
+    @media (max-width: 600px) {
+      .nav-jump select { max-width: 200px; font-size: 11.5px; }
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       PRINT STYLES
+       ══════════════════════════════════════════════════════════════════════ */
+    @media print {
+      *, *::before, *::after { box-shadow: none !important; text-shadow: none !important; }
+      body { background: #fff !important; color: #1B3044 !important; font-size: 11pt; line-height: 1.5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      .sticky-nav { display: none !important; }
+
+      .hero {
+        background: #1B3044 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        padding: 36px 24px 28px;
+        page-break-after: avoid;
+      }
+      .hero h1 { font-size: 28pt; }
+      .hero .subtitle { font-size: 12pt; }
+      .hero-tagline { font-size: 14pt; margin-bottom: 16px; }
+      .hero-links { display: none; }
+      .tools-bar { display: none; }
+
+      .hero::after {
+        content: "GitHub: github.com/jgathogo  ·  Email: james@gathogo.co.ke  ·  LinkedIn: linkedin.com/in/jamesgathogo";
+        display: block;
+        margin-top: 16px;
+        font-size: 9pt;
+        color: rgba(255,255,255,.7);
+        text-align: center;
+      }
+
+      section { padding: 28px 0 !important; }
+      .section-inner { max-width: 100% !important; }
+
+      .project-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        border: 1px solid #ccc !important;
+        margin-bottom: 16px;
+        grid-template-columns: 1fr !important;
+      }
+      .project-card:hover { transform: none !important; }
+
+      .card-screenshot { max-height: 220px; overflow: hidden; }
+      .card-screenshot img { object-fit: cover; max-height: 220px; }
+
+      .card-actions { display: none !important; }
+      .card-body { padding: 20px !important; }
+
+      .card-problem {
+        background: #FFF9F2 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        border-left: 3px solid #E8A020 !important;
+      }
+
+      .stack-pills { margin-top: 8px; }
+      .stack-pill {
+        background: #F4F6F9 !important;
+        border: 1px solid #ccc !important;
+        font-size: 9pt;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .pipeline-steps { flex-wrap: wrap; gap: 6px; }
+      .pipeline-step { min-width: 120px; padding: 8px; font-size: 9pt; }
+      .pipeline-step + .pipeline-step::before { display: none; }
+
+      #competencies {
+        background: #1B3044 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        page-break-before: always;
+      }
+      .comp-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 12px; }
+      .comp-card {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        padding: 14px;
+      }
+      .comp-title { font-size: 10pt; }
+      .comp-items { font-size: 9pt; }
+
+      #about { page-break-before: always; }
+      .about-grid { grid-template-columns: 1fr !important; gap: 20px; }
+
+      footer {
+        background: #1B3044 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        padding: 16px 24px;
+        page-break-inside: avoid;
+      }
+
+      a[href]::after { content: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -339,6 +470,18 @@
 <nav class="sticky-nav">
   <div class="nav-inner">
     <span class="nav-name">James Gathogo · MEAL &amp; IM</span>
+    <div class="nav-jump">
+      <select id="project-jump" aria-label="Jump to a project">
+        <option value="">Jump to project...</option>
+        <option value="#proj-pmeal">PMEAL System — Climate Adaptation (TWENDE)</option>
+        <option value="#proj-scorecard">Self-Assessment Scorecard (GNB)</option>
+        <option value="#proj-beneficiary">Beneficiary Registration Dashboard</option>
+        <option value="#proj-humanitarian">Humanitarian Assessment — Sudan</option>
+        <option value="#proj-kobo">XLSForm &amp; KoBoToolbox Design</option>
+        <option value="#proj-mel">MEL System &amp; Evaluation Design</option>
+        <option value="#proj-evaluation">Evaluation Pipeline — Bicycle Mobility</option>
+      </select>
+    </div>
     <div class="nav-links">
       <a href="#portfolio">Portfolio</a>
       <a href="#competencies">Competencies</a>
@@ -358,7 +501,7 @@
     <div class="projects-grid">
 
       <!-- ── PROJECT 4: TWENDE PMEAL ── -->
-      <article class="project-card has-screenshot fade-up">
+      <article id="proj-pmeal" class="project-card has-screenshot fade-up">
         <div class="card-screenshot">
           <img src="assets/twende/overview.png" alt="TWENDE PMEAL Dashboard overview page" loading="lazy" />
         </div>
@@ -407,7 +550,7 @@
       </article>
 
       <!-- ── PROJECT 2: GNB ── -->
-      <article class="project-card has-screenshot fade-up">
+      <article id="proj-scorecard" class="project-card has-screenshot fade-up">
         <div class="card-screenshot">
           <img src="assets/gnb_dashboard.png" alt="GNB Self-Assessment Scorecard Dashboard screenshot" loading="lazy" />
         </div>
@@ -455,7 +598,7 @@
       </article>
 
       <!-- ── PROJECT 1: Power BI ── -->
-      <article class="project-card has-screenshot reverse fade-up">
+      <article id="proj-beneficiary" class="project-card has-screenshot reverse fade-up">
         <div class="card-screenshot placeholder">
           <span class="placeholder-icon">📊</span>
           <p class="placeholder-text">Power BI Dashboard<br/><strong>4 pages · 10,000+ records</strong><br/>Open .pbix in Power BI Desktop to explore</p>
@@ -503,7 +646,7 @@
       </article>
 
       <!-- ── PROJECT 5: Humanitarian Assessment Dashboard ── -->
-      <article class="project-card fade-up">
+      <article id="proj-humanitarian" class="project-card fade-up">
         <div class="card-body" style="padding: 28px 32px;">
           <div class="card-header">
             <span class="card-num">Project 05</span>
@@ -547,7 +690,7 @@
       </article>
 
       <!-- ── PROJECT 06: KoBoToolbox Form Design ── -->
-      <article class="project-card fade-up">
+      <article id="proj-kobo" class="project-card fade-up">
         <div class="card-body" style="padding: 28px 32px;">
           <div class="card-header">
             <span class="card-num">Project 06</span>
@@ -587,7 +730,7 @@
       </article>
 
       <!-- ── PROJECT 07: MEL System Design & Evaluation Methodology ── -->
-      <article class="project-card fade-up">
+      <article id="proj-mel" class="project-card fade-up">
         <div class="card-body" style="padding: 28px 32px;">
           <div class="card-header">
             <span class="card-num">Project 07</span>
@@ -627,7 +770,7 @@
       </article>
 
       <!-- ── PROJECT 3: WBR Hwange Endline ── -->
-      <article class="project-card fade-up">
+      <article id="proj-evaluation" class="project-card fade-up">
         <div class="card-body" style="padding: 28px 32px;">
           <div class="card-header">
             <span class="card-num">Project 03</span>
@@ -809,6 +952,20 @@
   <p><strong>James Gathogo</strong> · MEAL &amp; Information Management</p>
   <p style="margin-top:6px;font-size:11px;">All portfolio data is synthetic or anonymised · Built with plain HTML + GitHub Pages · 2026</p>
 </footer>
+
+<script>
+  document.getElementById('project-jump').addEventListener('change', function () {
+    var target = this.value;
+    if (!target) return;
+    var el = document.querySelector(target);
+    if (el) {
+      var navHeight = document.querySelector('.sticky-nav').offsetHeight;
+      var top = el.getBoundingClientRect().top + window.pageYOffset - navHeight - 12;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    }
+    this.value = '';
+  });
+</script>
 
 </body>
 </html>
