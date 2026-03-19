@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>James Gathogo | MEAL & IM Portfolio</title>
   <meta name="description" content="MEAL & Information Management portfolio: live dashboards, reproducible pipelines, and data governance artefacts for humanitarian and development programmes." />
+  <script>
+    if (window.location.hostname === 'jgathogo.github.io') {
+      var p = window.location.pathname.replace('/meal-im-portfolio', '') || '/';
+      window.location.replace('https://gathogo.co.ke' + p + window.location.search + window.location.hash);
+    }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -473,6 +479,7 @@
     <div class="nav-jump">
       <select id="project-jump" aria-label="Jump to a project">
         <option value="">Jump to project...</option>
+        <option value="#proj-hbcc">Membership Database — HBCC (Live App)</option>
         <option value="#proj-pmeal">PMEAL System — Climate Adaptation (TWENDE)</option>
         <option value="#proj-scorecard">Self-Assessment Scorecard (GNB)</option>
         <option value="#proj-beneficiary">Beneficiary Registration Dashboard</option>
@@ -499,6 +506,55 @@
     <div class="divider"></div>
 
     <div class="projects-grid">
+
+      <!-- ── PROJECT 8: HBCC MEMBERSHIP DATABASE ── -->
+      <article id="proj-hbcc" class="project-card fade-up">
+        <div class="card-body" style="padding: 28px 32px;">
+          <div class="card-header">
+            <span class="card-num">Project 08</span>
+            <span class="status-badge status-live">Live</span>
+          </div>
+          <h3 class="card-title">Membership Management System: Amani Childcare Network</h3>
+          <p class="card-org" style="margin-top:6px;">Context: National childcare network · 47 counties · 1,500+ members · role-based access · public registration portal</p>
+          <div class="card-problem" style="margin-top:12px;">
+            <strong>The problem:</strong> A national childcare network managing 1,500+ members across 47 counties relies on paper forms, WhatsApp messages, and fragmented spreadsheets. No single system exists for registration, approval workflows, membership status tracking, or county-level reporting. Staff at different levels need different views of the same data.
+          </div>
+          <div class="card-what">
+            <strong style="font-size:13px;color:var(--navy);">What was built:</strong>
+            <ul>
+              <li>Full-stack Django web application with PostgreSQL, deployed on a VPS with Docker and automatic SSL</li>
+              <li>Public self-registration portal with photo upload, cascading county/sub-county selects, and validation</li>
+              <li>Staff portal with approval/rejection workflow, member search, filtering, and sorting</li>
+              <li>Role-based access control: Admin, Secretariat, County Coordinator (county-scoped), View-Only (PII masked)</li>
+              <li>Dashboard with 4 KPI cards and 4 Chart.js visualisations (by county, trend, status, channel)</li>
+              <li>Full audit trail logging every action by user, entity, and IP address</li>
+            </ul>
+          </div>
+          <div class="stack-pills" style="margin-top:16px;">
+            <span class="stack-pill">Django</span>
+            <span class="stack-pill">PostgreSQL</span>
+            <span class="stack-pill">HTMX</span>
+            <span class="stack-pill">Alpine.js</span>
+            <span class="stack-pill">Tailwind CSS</span>
+            <span class="stack-pill">Chart.js</span>
+            <span class="stack-pill">Docker</span>
+            <span class="stack-pill">Caddy</span>
+          </div>
+          <div class="card-actions" style="margin-top:16px;">
+            <a class="btn btn-amber" href="https://hbcc.gathogo.co.ke" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Open Live App
+            </a>
+            <a class="btn btn-secondary" href="https://github.com/jgathogo/amani-hbcc-db" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              View Code
+            </a>
+          </div>
+          <p style="margin-top:12px;font-size:12px;color:var(--muted);">
+            Demo credentials — Admin: <code>admin</code> / <code>admin123</code> · View-Only: <code>viewer</code> / <code>viewer123</code>
+          </p>
+        </div>
+      </article>
 
       <!-- ── PROJECT 4: TWENDE PMEAL ── -->
       <article id="proj-pmeal" class="project-card has-screenshot fade-up">
@@ -950,7 +1006,7 @@
     <a href="https://www.linkedin.com/in/jamesgathogo/" target="_blank" rel="noopener">LinkedIn</a>
   </div>
   <p><strong>James Gathogo</strong> · MEAL &amp; Information Management</p>
-  <p style="margin-top:6px;font-size:11px;">All portfolio data is synthetic or anonymised · Built with plain HTML + GitHub Pages · 2026</p>
+  <p style="margin-top:6px;font-size:11px;">All portfolio data is synthetic or anonymised · 2026</p>
 </footer>
 
 <script>
