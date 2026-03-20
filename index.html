@@ -490,9 +490,9 @@
       </select>
     </div>
     <div class="nav-links">
-      <a href="#portfolio">Portfolio</a>
-      <a href="#competencies">Competencies</a>
-      <a href="#about">About</a>
+      <a href="javascript:void(0)" data-scroll="portfolio">Portfolio</a>
+      <a href="javascript:void(0)" data-scroll="competencies">Competencies</a>
+      <a href="javascript:void(0)" data-scroll="about">About</a>
     </div>
   </div>
 </nav>
@@ -1006,16 +1006,25 @@
 </footer>
 
 <script>
+  function scrollToEl(el) {
+    var navHeight = document.querySelector('.sticky-nav').offsetHeight;
+    var top = el.getBoundingClientRect().top + window.pageYOffset - navHeight - 12;
+    window.scrollTo({ top: top, behavior: 'smooth' });
+  }
+
   document.getElementById('project-jump').addEventListener('change', function () {
     var target = this.value;
     if (!target) return;
     var el = document.querySelector(target);
-    if (el) {
-      var navHeight = document.querySelector('.sticky-nav').offsetHeight;
-      var top = el.getBoundingClientRect().top + window.pageYOffset - navHeight - 12;
-      window.scrollTo({ top: top, behavior: 'smooth' });
-    }
+    if (el) scrollToEl(el);
     this.value = '';
+  });
+
+  document.querySelectorAll('[data-scroll]').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      var el = document.getElementById(this.getAttribute('data-scroll'));
+      if (el) scrollToEl(el);
+    });
   });
 </script>
 
