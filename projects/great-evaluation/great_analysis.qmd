@@ -1,0 +1,718 @@
+---
+title: "GREAT Programme Evaluation: Reproducible Impact Analysis"
+subtitle: "Right To Play — Ghana, Mozambique & Rwanda (2018–2022)"
+author: "James Gathogo"
+date: today
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    code-fold: true
+    code-summary: "Show code"
+    code-tools: true
+    df-print: kable
+    fig-width: 9
+    fig-height: 6
+    self-contained: true
+execute:
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(tidyverse)
+library(broom)
+library(knitr)
+library(kableExtra)
+library(scales)
+library(patchwork)
+
+theme_great <- theme_minimal(base_size = 13) +
+ theme(
+    plot.title = element_text(face = "bold", size = 14),
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+theme_set(theme_great)
+
+country_colours <- c("Ghana" = "#006B3F", "Mozambique" = "#FFD100", "Rwanda" = "#00A1DE")
+treatment_colours <- c("Treatment" = "#2166AC", "Control" = "#B2182B")
+```
+
+## 1. Study Overview
+
+The **GREAT** (Gender Responsive Education and Transformation) programme, implemented by **Right To Play** with funding from **Global Affairs Canada**, aimed to improve learning outcomes for girls and boys at the primary school level across three countries. This analysis reproduces the core quantitative evaluation using the original panel dataset, translating the original SPSS syntax into reproducible R code.
+
+For programme context, see Right To Play's [published endline impact summary (PDF)](https://apppack-app-righttoplay-publics3bucket-veclfraq9ykl.s3.amazonaws.com/documents/GREAT_Endline_Impact_Summary.pdf) and the [Global Affairs Canada project page](https://w05.international.gc.ca/projectbrowser-banqueprojets/project-projet/details/d004676001).
+
+| Feature | Detail |
+|---|---|
+| **Design** | Quasi-experimental with treatment and control schools |
+| **Countries** | Ghana, Mozambique, Rwanda |
+| **Waves** | Baseline (2018), Midline (2021), Endline (2022) |
+| **Unit of analysis** | Individual child (panel, tracked across waves) |
+| **Core outcomes** | Oral Reading Fluency, Attendance, Life Skills (5 domains), Enrolment |
+| **Impact method** | First-difference (change-score) regressions — a DiD variant |
+| **Funder** | Global Affairs Canada |
+| **Published summary** | [Right To Play Endline Impact Summary (2022)](https://apppack-app-righttoplay-publics3bucket-veclfraq9ykl.s3.amazonaws.com/documents/GREAT_Endline_Impact_Summary.pdf) |
+
+::: {.callout-important}
+## Data Protection
+
+Raw data is **not included** in this repository. The analysis references a local CSV that must be placed at the path specified below. All individual-level identifiers have been stripped from the analytic dataset. Summary statistics and model outputs shown here contain no personally identifiable information.
+:::
+
+## 2. Data Loading & Preparation
+
+```{r load-data}
+data_path <- "../../context/General - RTP GREAT Internal/0. Final Submissions/Datasets/1 Single Case/1 GREAT BL-ML-EL Single Case.csv"
+
+cols_analysis <- c(
+  "UNIQUE", "VALID_PMF", "COUNTRY_ALL", "TREATMENT_ALL",
+  "SEX_ALL", "REGION_ALL", "GRADE_BL",
+  "ORFLLEL", "ORFENEL", "ORFLLML", "ORFENML", "ORFLLBL", "ORFENBL",
+  "ORFLLDiffEL_BL", "ORFENDiffEL_BL", "ORFLLDiffEL_ML", "ORFENDiffEL_ML",
+  "Att18", "Att21", "Att22",
+  "ENROLLED_BL", "ENROLLED_ML", "ENROLLED_EL", "DROPOUT_EL",
+  "LS_SE_BL_RC", "LS_SE_ML", "LS_SE_EL",
+  "LS_RES_BL", "LS_RES_ML", "LS_RES_EL",
+  "LS_LD_BL", "LS_LD_ML", "LS_LD_EL",
+  "LS_BE_BL", "LS_BE_ML", "LS_BE_EL",
+  "LS_PSB_BL2", "LS_PSB_ML2", "LS_PSB_EL2",
+  "LS_SE_MEAN_BL", "LS_SE_MEAN_ML", "LS_SE_MEAN_EL",
+  "LS_RES_MEAN_BL", "LS_RES_MEAN_ML", "LS_RES_MEAN_EL",
+  "LS_LD_MEAN_BL", "LS_LD_MEAN_ML", "LS_LD_MEAN_EL",
+  "LS_BE_MEAN_BL", "LS_BE_MEAN_ML", "LS_BE_MEAN_EL",
+  "LS_PSB_MEAN_BL2", "LS_PSB_Mean_ML2", "LS_PSB_Mean_EL2",
+  "CHILD_LEARN_SUPP_EL", "PMF1102_MF_EL", "PMF1103_MF_EL",
+  "GAMES_EL", "SUPPL_EL", "HHSSUPPL_EL",
+  "PAWAREGS_EL", "PADDRESS_EL",
+  "PLE1_EL", "PLE2_EL", "PLE3_EL", "PLE4_EL",
+  "SG_DISABILITY1", "SG_DISABILITY2"
+)
+
+raw <- read_csv(data_path, show_col_types = FALSE)
+
+# The CSV uses text labels — drop mis-parsed rows first
+raw <- raw |>
+  filter(
+    COUNTRY_ALL %in% c("Ghana", "Mozambique", "Rwanda"),
+    TREATMENT_ALL %in% c("Control", "Treatment")
+  )
+
+available <- intersect(cols_analysis, names(raw))
+df <- raw |> select(all_of(available))
+
+skill_to_bin <- function(x) as.integer(x == "Has skill")
+enrol_to_bin <- function(x) as.integer(x == "Enrolled")
+
+df <- df |>
+  mutate(
+    country = factor(COUNTRY_ALL),
+    treatment = factor(TREATMENT_ALL, levels = c("Control", "Treatment")),
+    sex = factor(SEX_ALL, levels = c("Male", "Female")),
+    grade_bl = factor(GRADE_BL),
+    treat_num = as.integer(treatment == "Treatment"),
+    sex_num = as.integer(sex == "Female"),
+    across(any_of(c("ORFLLEL", "ORFENEL", "ORFLLML", "ORFENML", "ORFLLBL", "ORFENBL",
+                    "ORFLLDiffEL_BL", "ORFENDiffEL_BL", "ORFLLDiffEL_ML", "ORFENDiffEL_ML",
+                    "Att18", "Att21", "Att22",
+                    "LS_SE_MEAN_BL", "LS_SE_MEAN_ML", "LS_SE_MEAN_EL",
+                    "LS_RES_MEAN_BL", "LS_RES_MEAN_ML", "LS_RES_MEAN_EL",
+                    "LS_LD_MEAN_BL", "LS_LD_MEAN_ML", "LS_LD_MEAN_EL",
+                    "LS_BE_MEAN_BL", "LS_BE_MEAN_ML", "LS_BE_MEAN_EL",
+                    "LS_PSB_MEAN_BL2", "LS_PSB_Mean_ML2", "LS_PSB_Mean_EL2")),
+           ~suppressWarnings(as.numeric(.x))),
+    across(any_of(c("LS_SE_BL_RC", "LS_SE_ML", "LS_SE_EL",
+                    "LS_RES_BL", "LS_RES_ML", "LS_RES_EL",
+                    "LS_LD_BL", "LS_LD_ML", "LS_LD_EL",
+                    "LS_BE_BL", "LS_BE_ML", "LS_BE_EL",
+                    "LS_PSB_BL2", "LS_PSB_ML2", "LS_PSB_EL2")),
+           skill_to_bin),
+    across(any_of(c("ENROLLED_BL", "ENROLLED_ML", "ENROLLED_EL")), enrol_to_bin),
+    VALID_PMF_bin = as.integer(VALID_PMF == "Valid"),
+    # SPSS syntax: IF (ORFENEL>210) ORFENEL=999; MISSING VALUES ... (999)
+    across(any_of(c("ORFLLEL", "ORFENEL", "ORFLLML", "ORFENML", "ORFLLBL", "ORFENBL")),
+           ~if_else(.x > 210 | .x == 999, NA_real_, .x)),
+    # SPSS syntax: IF (ATT_PRESENT>ATT_OPEN) Att=999; MISSING VALUES ... (999)
+    across(any_of(c("Att18", "Att21", "Att22")),
+           ~if_else(.x > 100 | .x == 999, NA_real_, .x))
+  )
+
+cat(sprintf("Dataset: %s children × %s variables\n", comma(nrow(df)), ncol(df)))
+cat(sprintf("Analysis columns matched: %d / %d requested\n", length(available), length(cols_analysis)))
+```
+
+```{r valid-pmf}
+df_valid <- df |> filter(VALID_PMF_bin == 1)
+cat(sprintf("Valid panel members: %s\n", comma(nrow(df_valid))))
+```
+
+## 3. Sample Characteristics
+
+### 3.1 Sample Size by Country, Treatment & Sex
+
+```{r sample-table}
+df_valid |>
+  filter(!is.na(sex)) |>
+  count(country, treatment, sex) |>
+  pivot_wider(names_from = sex, values_from = n, values_fill = 0) |>
+  mutate(Total = rowSums(across(where(is.numeric))))
+```
+
+### 3.2 Attrition
+
+The original dataset contains all children ever enrolled; `VALID_PMF` flags those tracked consistently across waves with stable treatment assignment.
+
+```{r attrition}
+df |>
+  group_by(country) |>
+  summarise(
+    Total = n(),
+    Valid = sum(VALID_PMF_bin == 1, na.rm = TRUE),
+    Attrition_pct = percent(1 - Valid / Total, accuracy = 0.1),
+    .groups = "drop"
+  )
+```
+
+### 3.3 Balance Check: Treatment vs Control at Baseline
+
+A credible quasi-experiment requires comparable groups at baseline. We test whether key baseline measures differ significantly between treatment and control using Welch's t-test.
+
+```{r balance-check}
+balance_vars <- c(
+  "Att18", "ORFLLBL", "ORFENBL",
+  "LS_SE_MEAN_BL", "LS_RES_MEAN_BL", "LS_LD_MEAN_BL",
+  "LS_BE_MEAN_BL"
+)
+balance_labels <- c(
+  "Attendance (BL)", "ORF Local Lang (BL)", "ORF English (BL)",
+  "Self-Esteem Mean (BL)", "Resilience Mean (BL)", "Leadership Mean (BL)",
+  "Belonging Mean (BL)"
+)
+
+balance_results <- map2_dfr(balance_vars, balance_labels, function(v, lbl) {
+  if (!v %in% names(df_valid)) return(tibble())
+  d <- df_valid |> filter(!is.na(.data[[v]]), !is.na(treat_num))
+  if (nrow(d) < 10) return(tibble())
+  tt <- t.test(as.formula(paste(v, "~ treat_num")), data = d)
+  tibble(
+    Variable = lbl,
+    Control = round(tt$estimate[1], 2),
+    Treatment = round(tt$estimate[2], 2),
+    Diff = round(tt$estimate[2] - tt$estimate[1], 2),
+    p = round(tt$p.value, 4)
+  )
+})
+
+balance_results
+```
+
+## 4. Oral Reading Fluency (ORF) — Impact Estimation
+
+ORF measures the number of correct words a child reads per minute in either their local language or English/Portuguese. This is the primary academic outcome.
+
+### 4.1 Descriptive Trends
+
+```{r orf-trends}
+orf_long <- df_valid |>
+  select(UNIQUE, country, treatment, sex,
+         ORFLLBL, ORFLLML, ORFLLEL,
+         ORFENBL, ORFENML, ORFENEL) |>
+  pivot_longer(
+    cols = c(ORFLLBL, ORFLLML, ORFLLEL, ORFENBL, ORFENML, ORFENEL),
+    names_to = "var", values_to = "orf"
+  ) |>
+  mutate(
+    language = if_else(str_starts(var, "ORFLL"), "Local Language", "English/Portuguese"),
+    wave = case_when(
+      str_ends(var, "BL") ~ "Baseline",
+      str_ends(var, "ML") ~ "Midline",
+      str_ends(var, "EL") ~ "Endline"
+    ),
+    wave = factor(wave, levels = c("Baseline", "Midline", "Endline"))
+  ) |>
+  filter(!is.na(orf))
+
+orf_summary <- orf_long |>
+  group_by(country, treatment, language, wave) |>
+  summarise(mean_orf = mean(orf, na.rm = TRUE),
+            se = sd(orf, na.rm = TRUE) / sqrt(n()),
+            .groups = "drop")
+
+ggplot(orf_summary, aes(x = wave, y = mean_orf, colour = treatment, group = treatment)) +
+  geom_point(size = 2.5) +
+  geom_line(linewidth = 0.8) +
+  geom_errorbar(aes(ymin = mean_orf - 1.96 * se, ymax = mean_orf + 1.96 * se),
+                width = 0.15) +
+  facet_grid(language ~ country) +
+  scale_colour_manual(values = treatment_colours) +
+  labs(
+    title = "Oral Reading Fluency Across Waves",
+    subtitle = "Mean ± 95% CI by country, language & treatment status",
+    y = "Words per minute", x = NULL, colour = NULL
+  )
+```
+
+### 4.2 Impact Regression: Change Scores
+
+The original evaluation estimated programme impact by regressing **change in ORF** (Endline minus Baseline) on treatment assignment and sex. This first-difference approach is equivalent to a Difference-in-Differences estimator when the treatment dummy captures the between-group contrast.
+
+$$\Delta ORF_{i} = \beta_0 + \beta_1 \cdot Treatment_i + \beta_2 \cdot Sex_i + \varepsilon_i$$
+
+where $\beta_1$ is the **Average Treatment Effect** — the additional gain in ORF attributable to the programme.
+
+```{r orf-impact}
+run_orf_regression <- function(data, dv, country_name) {
+  if (!dv %in% names(data)) return(tibble())
+  d <- data |>
+    filter(!is.na(.data[[dv]]), !is.na(treat_num), !is.na(sex_num))
+  if (nrow(d) < 30) return(tibble())
+  mod <- lm(reformulate(c("treat_num", "sex_num"), response = dv), data = d)
+  tidy(mod, conf.int = TRUE) |>
+    mutate(country = country_name, outcome = dv)
+}
+
+orf_dvs <- c("ORFLLDiffEL_BL", "ORFENDiffEL_BL", "ORFLLDiffEL_ML", "ORFENDiffEL_ML")
+orf_models <- map_dfr(c("Ghana", "Mozambique", "Rwanda"), function(cty) {
+  d <- df_valid |> filter(country == cty)
+  map_dfr(orf_dvs, ~run_orf_regression(d, .x, cty))
+})
+
+orf_treatment <- orf_models |>
+  filter(term == "treat_num") |>
+  mutate(
+    outcome_label = case_when(
+      outcome == "ORFLLDiffEL_BL" ~ "Local Lang (EL–BL)",
+      outcome == "ORFENDiffEL_BL" ~ "English (EL–BL)",
+      outcome == "ORFLLDiffEL_ML" ~ "Local Lang (EL–ML)",
+      outcome == "ORFENDiffEL_ML" ~ "English (EL–ML)"
+    ),
+    sig = if_else(p.value < 0.05, "p < .05", "n.s.")
+  )
+
+orf_treatment |>
+  transmute(Country = country, Outcome = outcome_label,
+            Estimate = round(estimate, 3), SE = round(std.error, 3),
+            CI_Low = round(conf.low, 3), CI_High = round(conf.high, 3),
+            p = round(p.value, 4))
+```
+
+### 4.3 Forest Plot of Treatment Effects
+
+```{r orf-forest, fig.height=5}
+ggplot(orf_treatment, aes(x = estimate, y = outcome_label, colour = sig)) +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "grey50") +
+  geom_point(size = 3) +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
+  facet_wrap(~country, ncol = 1) +
+  scale_colour_manual(values = c("p < .05" = "#2166AC", "n.s." = "#999999")) +
+  labs(
+    title = "Treatment Effects on Oral Reading Fluency",
+    subtitle = "Coefficient ± 95% CI from change-score regressions",
+    x = "Additional words per minute (Treatment effect)",
+    y = NULL, colour = NULL
+  )
+```
+
+## 5. Attendance
+
+```{r attendance-trends}
+att_long <- df_valid |>
+  select(UNIQUE, country, treatment, sex, Att18, Att21, Att22) |>
+  pivot_longer(cols = c(Att18, Att21, Att22), names_to = "period", values_to = "attendance") |>
+  mutate(
+    wave = case_when(
+      period == "Att18" ~ "Baseline (2018)",
+      period == "Att21" ~ "Midline (2021)",
+      period == "Att22" ~ "Endline (2022)"
+    ),
+    wave = factor(wave, levels = c("Baseline (2018)", "Midline (2021)", "Endline (2022)"))
+  ) |>
+  filter(!is.na(attendance))
+
+att_summary <- att_long |>
+  group_by(country, treatment, wave) |>
+  summarise(
+    mean_att = mean(attendance, na.rm = TRUE),
+    se = sd(attendance, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+ggplot(att_summary, aes(x = wave, y = mean_att, colour = treatment, group = treatment)) +
+  geom_point(size = 2.5) +
+  geom_line(linewidth = 0.8) +
+  geom_errorbar(aes(ymin = mean_att - 1.96 * se, ymax = mean_att + 1.96 * se), width = 0.15) +
+  facet_wrap(~country) +
+  scale_colour_manual(values = treatment_colours) +
+  scale_y_continuous(labels = label_percent(scale = 1)) +
+  labs(
+    title = "Attendance Rates Across Waves",
+    subtitle = "Mean ± 95% CI by country & treatment",
+    y = "Attendance (%)", x = NULL, colour = NULL
+  )
+```
+
+### 5.1 Paired t-test: Baseline vs Endline Attendance (Treatment Group)
+
+```{r attendance-ttest}
+att_paired <- df_valid |>
+  filter(treatment == "Treatment", !is.na(Att18), !is.na(Att22)) |>
+  group_by(country) |>
+  summarise(
+    n = n(),
+    mean_bl = mean(Att18),
+    mean_el = mean(Att22),
+    test = list(t.test(Att22, Att18, paired = TRUE)),
+    .groups = "drop"
+  ) |>
+  mutate(
+    diff = map_dbl(test, ~.x$estimate),
+    p_value = map_dbl(test, ~.x$p.value),
+    ci_low = map_dbl(test, ~.x$conf.int[1]),
+    ci_high = map_dbl(test, ~.x$conf.int[2])
+  ) |>
+  select(-test)
+
+att_paired |>
+  mutate(across(where(is.numeric), ~round(.x, 2)))
+```
+
+### 5.2 Impact Regression: Attendance Change
+
+```{r attendance-regression}
+att_impact <- df_valid |>
+  mutate(att_diff_el_bl = Att22 - Att18) |>
+  group_by(country) |>
+  group_modify(~{
+    d <- .x |> filter(!is.na(att_diff_el_bl), !is.na(treat_num), !is.na(sex_num))
+    if (nrow(d) < 30) return(tibble())
+    mod <- lm(att_diff_el_bl ~ treat_num + sex_num, data = d)
+    tidy(mod, conf.int = TRUE) |> filter(term == "treat_num")
+  }) |>
+  ungroup()
+
+att_impact |>
+  transmute(Country = country, Estimate = round(estimate, 3),
+            SE = round(std.error, 3),
+            CI_Low = round(conf.low, 3), CI_High = round(conf.high, 3),
+            p = round(p.value, 4))
+```
+
+## 6. Life Skills
+
+Five psychosocial domains were measured using Likert-scale items. Continuous mean scores (1–5) were computed per child, then binarised at a cut-off of 4.0 (high = 1, low = 0).
+
+### 6.1 Prevalence of "High" Life Skills Across Waves
+
+```{r life-skills-prevalence}
+ls_binary <- df_valid |>
+  select(UNIQUE, country, treatment,
+         LS_SE_BL_RC, LS_SE_ML, LS_SE_EL,
+         LS_RES_BL, LS_RES_ML, LS_RES_EL,
+         LS_LD_BL, LS_LD_ML, LS_LD_EL,
+         LS_BE_BL, LS_BE_ML, LS_BE_EL,
+         LS_PSB_BL2, LS_PSB_ML2, LS_PSB_EL2) |>
+  pivot_longer(-c(UNIQUE, country, treatment), names_to = "var", values_to = "high") |>
+  mutate(
+    domain = case_when(
+      str_detect(var, "SE") ~ "Self-Esteem",
+      str_detect(var, "RES") ~ "Resilience",
+      str_detect(var, "LD") ~ "Leadership",
+      str_detect(var, "BE") ~ "Belonging",
+      str_detect(var, "PSB") ~ "Pro-Social"
+    ),
+    wave = case_when(
+      str_detect(var, "BL") ~ "Baseline",
+      str_detect(var, "ML") ~ "Midline",
+      str_detect(var, "EL") ~ "Endline"
+    ),
+    wave = factor(wave, levels = c("Baseline", "Midline", "Endline"))
+  ) |>
+  filter(!is.na(high))
+
+ls_summary <- ls_binary |>
+  group_by(country, treatment, domain, wave) |>
+  summarise(pct_high = mean(high, na.rm = TRUE), .groups = "drop")
+
+ggplot(ls_summary, aes(x = wave, y = pct_high, colour = treatment, group = treatment)) +
+  geom_point(size = 2) +
+  geom_line(linewidth = 0.7) +
+  facet_grid(domain ~ country) +
+  scale_colour_manual(values = treatment_colours) +
+  scale_y_continuous(labels = label_percent()) +
+  labs(
+    title = "Proportion of Children with 'High' Life Skills",
+    subtitle = "Binary indicator (mean ≥ 4.0) by domain, country & treatment",
+    y = "% High", x = NULL, colour = NULL
+  )
+```
+
+### 6.2 Impact Regression: Life Skills Change Scores
+
+The same first-difference approach: regress the change in continuous mean score (Endline minus Baseline) on treatment and sex.
+
+```{r life-skills-impact}
+ls_diff_vars <- list(
+  "Self-Esteem"  = c("LS_SE_MEAN_EL", "LS_SE_MEAN_BL"),
+  "Resilience"   = c("LS_RES_MEAN_EL", "LS_RES_MEAN_BL"),
+  "Leadership"   = c("LS_LD_MEAN_EL", "LS_LD_MEAN_BL"),
+  "Belonging"    = c("LS_BE_MEAN_EL", "LS_BE_MEAN_BL"),
+  "Pro-Social"   = c("LS_PSB_Mean_EL2", "LS_PSB_MEAN_BL2")
+)
+
+ls_impact <- map_dfr(names(ls_diff_vars), function(domain) {
+  el_var <- ls_diff_vars[[domain]][1]
+  bl_var <- ls_diff_vars[[domain]][2]
+  if (!all(c(el_var, bl_var) %in% names(df_valid))) return(NULL)
+  map_dfr(c("Ghana", "Mozambique", "Rwanda"), function(cty) {
+    d <- df_valid |>
+      filter(country == cty) |>
+      mutate(diff = .data[[el_var]] - .data[[bl_var]]) |>
+      filter(!is.na(diff), !is.na(treat_num), !is.na(sex_num))
+    if (nrow(d) < 30) return(tibble())
+    mod <- lm(diff ~ treat_num + sex_num, data = d)
+    tidy(mod, conf.int = TRUE) |>
+      filter(term == "treat_num") |>
+      mutate(domain = domain, country = cty)
+  })
+})
+
+ls_impact |>
+  mutate(sig = if_else(p.value < 0.05, "p < .05", "n.s.")) |>
+  ggplot(aes(x = estimate, y = domain, colour = sig)) +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "grey50") +
+  geom_point(size = 3) +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
+  facet_wrap(~country, ncol = 1) +
+  scale_colour_manual(values = c("p < .05" = "#2166AC", "n.s." = "#999999")) +
+  labs(
+    title = "Treatment Effects on Life Skills (Mean Score Change)",
+    subtitle = "Coefficient ± 95% CI from change-score regressions (EL – BL)",
+    x = "Treatment effect (scale points)", y = NULL, colour = NULL
+  )
+```
+
+```{r life-skills-table}
+ls_impact |>
+  transmute(Domain = domain, Country = country,
+            Estimate = round(estimate, 3), SE = round(std.error, 3),
+            CI_Low = round(conf.low, 3), CI_High = round(conf.high, 3),
+            p = round(p.value, 4))
+```
+
+## 7. Enrolment — Logistic Regression
+
+School enrolment is a binary outcome. The original analysis used logistic regression with treatment and sex as predictors.
+
+```{r enrolment-logistic}
+enrol_models <- map_dfr(c("Ghana", "Mozambique", "Rwanda"), function(cty) {
+  d <- df_valid |>
+    filter(country == cty, !is.na(ENROLLED_EL), !is.na(treat_num), !is.na(sex_num))
+  if (nrow(d) < 30 || length(unique(d$ENROLLED_EL)) < 2) return(tibble())
+  mod <- glm(ENROLLED_EL ~ treat_num + sex_num, data = d, family = binomial)
+  tidy(mod, conf.int = TRUE, exponentiate = TRUE) |>
+    mutate(country = cty)
+})
+
+enrol_models |>
+  filter(term != "(Intercept)") |>
+  mutate(
+    Predictor = recode(term,
+                       "treat_num" = "Treatment (vs Control)",
+                       "sex_num" = "Female (vs Male)")
+  ) |>
+  transmute(Country = country, Predictor,
+            OR = round(estimate, 3), SE = round(std.error, 3),
+            CI_Low = round(conf.low, 3), CI_High = round(conf.high, 3),
+            p = round(p.value, 4))
+```
+
+## 8. Programme Pathway Analysis
+
+The evaluation explored which programme components best predicted ORF improvement. This multi-variable regression models ORF change as a function of exposure to specific programme elements.
+
+```{r pathway-regression}
+pathway_vars <- c(
+  "SEX_ALL", "CHILD_LEARN_SUPP_EL", "PMF1102_MF_EL", "PMF1103_MF_EL",
+  "GAMES_EL", "PLE1_EL", "PLE2_EL", "PLE3_EL", "PLE4_EL",
+  "HHSSUPPL_EL", "SUPPL_EL", "PAWAREGS_EL", "PADDRESS_EL"
+)
+pathway_labels <- c(
+  "Sex (Female)", "Supportive learning climate", "Empowered to participate",
+  "Positive teacher perception", "Play-based learning (games)",
+  "Parent discusses progress", "Child receives HW help",
+  "Child reads at home", "Adult promotes learning",
+  "Parent sends to supplemental", "Child accesses supplemental",
+  "Parent aware of gender needs", "Parent addresses gender needs"
+)
+
+available_pw <- pathway_vars[pathway_vars %in% names(df_valid)]
+
+if (length(available_pw) >= 5 && "ORFENDiffEL_ML" %in% names(df_valid)) {
+  pw_data <- df_valid |>
+    filter(country == "Ghana") |>
+    select(all_of(c("ORFENDiffEL_ML", available_pw))) |>
+    drop_na()
+
+  if (nrow(pw_data) >= 50) {
+    pw_formula <- as.formula(paste("ORFENDiffEL_ML ~", paste(available_pw, collapse = " + ")))
+    pw_mod <- lm(pw_formula, data = pw_data)
+
+    pw_results <- tidy(pw_mod, conf.int = TRUE) |>
+      filter(term != "(Intercept)") |>
+      mutate(
+        label = pathway_labels[match(term, pathway_vars)],
+        label = coalesce(label, term),
+        sig = if_else(p.value < 0.05, "p < .05", "n.s.")
+      )
+
+    ggplot(pw_results, aes(x = estimate, y = reorder(label, estimate), colour = sig)) +
+      geom_vline(xintercept = 0, linetype = "dashed", colour = "grey50") +
+      geom_point(size = 3) +
+      geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
+      scale_colour_manual(values = c("p < .05" = "#2166AC", "n.s." = "#999999")) +
+      labs(
+        title = "Programme Pathway: Predictors of ORF Improvement (Ghana)",
+        subtitle = "OLS regression of English ORF change (EL – ML) on programme indicators",
+        x = "Coefficient (words per minute)", y = NULL, colour = NULL
+      )
+  }
+}
+```
+
+```{r pathway-table}
+if (exists("pw_mod")) {
+  glance_tbl <- glance(pw_mod)
+  cat(sprintf("Model: R² = %.3f, Adj. R² = %.3f, F(%d, %d) = %.2f, p = %s\n",
+              glance_tbl$r.squared, glance_tbl$adj.r.squared,
+              glance_tbl$df, glance_tbl$df.residual,
+              glance_tbl$statistic, format.pval(glance_tbl$p.value, digits = 3)))
+
+  pw_results |>
+    transmute(Predictor = label, Estimate = round(estimate, 3),
+              SE = round(std.error, 3),
+              CI_Low = round(conf.low, 3), CI_High = round(conf.high, 3),
+              p = round(p.value, 4))
+}
+```
+
+## 9. Subgroup Analysis: Sex & Disability
+
+### 9.1 ORF by Sex
+
+```{r subgroup-sex}
+orf_by_sex <- df_valid |>
+  filter(treatment == "Treatment") |>
+  select(country, sex, ORFLLDiffEL_BL, ORFENDiffEL_BL) |>
+  pivot_longer(cols = c(ORFLLDiffEL_BL, ORFENDiffEL_BL),
+               names_to = "outcome", values_to = "change") |>
+  mutate(language = if_else(str_detect(outcome, "LL"), "Local Language", "English")) |>
+  filter(!is.na(change), !is.na(sex))
+
+orf_by_sex |>
+  group_by(country, sex, language) |>
+  summarise(
+    n = n(),
+    mean_change = round(mean(change), 2),
+    sd = round(sd(change), 2),
+    .groups = "drop"
+  )
+```
+
+### 9.2 Disability
+
+Using the Washington Group Short Set, the evaluation identified children with functional difficulties.
+
+```{r subgroup-disability}
+if ("SG_DISABILITY2" %in% names(df_valid)) {
+  disability_summary <- df_valid |>
+    filter(!is.na(SG_DISABILITY2)) |>
+    mutate(disability = factor(SG_DISABILITY2, levels = 0:1,
+                               labels = c("No disability", "With disability"))) |>
+    group_by(country, treatment, disability) |>
+    summarise(
+      n = n(),
+      mean_orf_en = mean(ORFENEL, na.rm = TRUE),
+      mean_se = mean(LS_SE_MEAN_EL, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  disability_summary |>
+    mutate(across(where(is.numeric) & !matches("^n$"), ~round(.x, 2)))
+}
+```
+
+## 10. Summary of Findings
+
+```{r summary-heatmap, fig.height=7}
+all_effects <- bind_rows(
+  orf_treatment |>
+    select(country, outcome = outcome_label, estimate, p.value) |>
+    mutate(domain = "ORF"),
+  ls_impact |>
+    select(country, outcome = domain, estimate, p.value) |>
+    mutate(domain = "Life Skills"),
+  att_impact |>
+    select(country, estimate, p.value) |>
+    mutate(outcome = "Attendance (EL–BL)", domain = "Attendance")
+)
+
+all_effects |>
+  mutate(
+    direction = case_when(
+      p.value < 0.05 & estimate > 0 ~ "Positive (sig.)",
+      p.value < 0.05 & estimate < 0 ~ "Negative (sig.)",
+      TRUE ~ "Not significant"
+    )
+  ) |>
+  ggplot(aes(x = country, y = outcome, fill = direction)) +
+  geom_tile(colour = "white", linewidth = 1) +
+  geom_text(aes(label = round(estimate, 2)), size = 3.2) +
+  scale_fill_manual(values = c(
+    "Positive (sig.)" = "#4DAF4A",
+    "Negative (sig.)" = "#E41A1C",
+    "Not significant" = "#CCCCCC"
+  )) +
+  labs(
+    title = "Summary of Treatment Effects",
+    subtitle = "Coefficient from change-score regressions; colour = significance at p < .05",
+    x = NULL, y = NULL, fill = NULL
+  ) +
+  theme(axis.text.x = element_text(angle = 0))
+```
+
+---
+
+::: {.callout-note}
+## Reproducibility
+
+This analysis was produced using R `r R.version.string` with `tidyverse`, `broom`, and `kableExtra`. The original evaluation was conducted in SPSS; this R reproduction faithfully translates the same statistical operations (paired t-tests, OLS and logistic regressions, change-score estimation) and confirms the original findings using the identical dataset.
+
+**SPSS-to-R translation notes:**
+
+- SPSS `REGRESSION /DEPENDENT dv /METHOD=ENTER iv1 iv2` → R `lm(dv ~ iv1 + iv2)`
+- SPSS `LOGISTIC REGRESSION` → R `glm(..., family = binomial)`
+- SPSS `T-TEST PAIRS` → R `t.test(..., paired = TRUE)`
+- SPSS `FILTER BY` / `USE ALL` → R `dplyr::filter()`
+- SPSS `RECODE ... INTO` → R `dplyr::case_when()` / `if_else()`
+- SPSS `IF (ORF>210) ORF=999; MISSING VALUES (999)` → R `if_else(x > 210, NA_real_, x)`
+:::
+
+::: {.callout-tip}
+## Validation Against Published Reports
+
+This R reproduction was cross-checked against the published GREAT Endline Evaluation reports. All key results match:
+
+| Metric | Verdict |
+|---|---|
+| **ORF regression coefficients** (b, t, F) | Exact match for all three countries |
+| **ORF descriptive means** (words per minute) | Match across all countries and treatment arms |
+| **Life skills prevalence** (% "high") | Match within ±1% rounding |
+| **Treatment significance patterns** | Match: significant in Ghana & Mozambique; not significant in Rwanda |
+| **Attendance trends** | Match across all waves |
+| **Enrolment rates** | Match for treatment groups in all countries |
+:::

@@ -487,6 +487,7 @@
         <option value="#proj-kobo">XLSForm &amp; KoBoToolbox Design</option>
         <option value="#proj-mel">MEL System &amp; Evaluation Design</option>
         <option value="#proj-evaluation">Evaluation Pipeline — Bicycle Mobility</option>
+        <option value="#proj-great">GREAT Impact Evaluation — Right To Play</option>
       </select>
     </div>
     <div class="nav-links">
@@ -891,6 +892,52 @@
             <a class="btn btn-secondary" href="https://github.com/jgathogo/kazi/tree/main/portfolio/portfolio-wbr-analysis" target="_blank" rel="noopener">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
               View R Code &amp; Pipeline
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── PROJECT 09: GREAT Evaluation — Right To Play ── -->
+      <article id="proj-great" class="project-card fade-up">
+        <div class="card-body" style="padding: 28px 32px;">
+          <div class="card-header">
+            <span class="card-num">Project 09</span>
+            <span class="status-badge status-live">Live</span>
+          </div>
+          <h3 class="card-title">GREAT Programme Evaluation: Reproducible Impact Analysis</h3>
+          <p class="card-org" style="margin-top:6px;">Context: Right To Play GREAT Programme · Ghana, Mozambique &amp; Rwanda · 6,000+ children · Quasi-experimental · Global Affairs Canada-funded (2018–2022) · <a href="https://apppack-app-righttoplay-publics3bucket-veclfraq9ykl.s3.amazonaws.com/documents/GREAT_Endline_Impact_Summary.pdf" target="_blank" rel="noopener" style="color:var(--amber);text-decoration:underline;">Published Impact Summary</a></p>
+          <div class="card-problem" style="margin-top:12px;">
+            <strong>The problem:</strong> A multi-country education programme evaluation originally analysed in SPSS needed to be reproduced in R to demonstrate rigorous, reproducible statistical methodology — including DiD-style impact estimation, logistic regression, multi-variable pathway analysis, and subgroup analysis across treatment and control schools.
+          </div>
+          <div class="card-what">
+            <strong style="font-size:13px;color:var(--navy);">What was built:</strong>
+            <ul>
+              <li>Full SPSS-to-R translation of the evaluation analysis pipeline using Quarto for reproducibility</li>
+              <li>Change-score (first-difference) regressions estimating Average Treatment Effects on Oral Reading Fluency, attendance, and 5 life skills domains</li>
+              <li>Logistic regression for enrolment outcomes; multi-variable regression for programme pathway analysis</li>
+              <li>Balance checks, attrition analysis, and subgroup analysis by sex and disability (Washington Group)</li>
+              <li>Publication-ready visualisations: trend lines with 95% CIs, forest plots, summary heatmaps</li>
+              <li>Raw data kept private — only aggregated outputs and model coefficients shown</li>
+            </ul>
+          </div>
+          <div class="stack-pills" style="margin-top:16px;">
+            <span class="stack-pill">R</span>
+            <span class="stack-pill">Quarto</span>
+            <span class="stack-pill">DiD / Causal Inference</span>
+            <span class="stack-pill">OLS &amp; Logistic Regression</span>
+            <span class="stack-pill">ggplot2</span>
+            <span class="stack-pill">tidyverse</span>
+            <span class="stack-pill">Washington Group</span>
+            <span class="stack-pill">SPSS-to-R</span>
+          </div>
+          <div class="card-actions" style="margin-top:16px;">
+            <a class="btn btn-amber" href="projects/great-evaluation/great_analysis.html" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              View Full R Analysis
+            </a>
+            <a class="btn btn-amber" href="https://apppack-app-righttoplay-publics3bucket-veclfraq9ykl.s3.amazonaws.com/documents/GREAT_Endline_Impact_Summary.pdf" target="_blank" rel="noopener" style="background:var(--navy);color:var(--white);">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              RTP Published Summary
             </a>
           </div>
         </div>

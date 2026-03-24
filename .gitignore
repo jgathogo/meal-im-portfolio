@@ -1,0 +1,18 @@
+# Raw evaluation data — NEVER commit
+context/
+*.sav
+*.sps
+*.dta
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# R / Quarto intermediates
+*.knit.md
+*_cache/
+*_files/
+.Rhistory
+.RData
+.Rproj.user
