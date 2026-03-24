@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>R Analysis Pipeline | WBR Hwange Endline Evaluation</title>
-  <meta name="description" content="Reproducible R analysis pipeline for the WBR Hwange Mobilised Communities Programme endline evaluation — from raw survey data to Difference-in-Difference estimation." />
+  <meta name="description" content="Reproducible R analysis pipeline for the WBR Hwange Mobilised Communities Programme endline evaluation  - from raw survey data to Difference-in-Difference estimation." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
@@ -183,7 +183,7 @@
   <div class="hero-inner">
     <h1>R Analysis <span>Pipeline</span></h1>
     <p class="hero-subtitle">
-      From raw survey data to Difference-in-Difference estimation — the full
+      From raw survey data to Difference-in-Difference estimation  - the full
       reproducible pipeline for the Hwange endline evaluation
     </p>
     <div class="hero-meta">
@@ -266,7 +266,7 @@ cat("Panel matched:", sum(!panel$attrition), "of", nrow(panel), "students\n")
 cat("Attrition rate:", scales::percent(mean(panel$attrition)), "\n")</code></pre>
   </div>
   <div class="card-note">
-    <p><strong>What's happening:</strong> Baseline (Wave 1) and endline (Wave 4) records are linked by <code>student_id</code> to create a longitudinal panel. Change scores are computed for attendance and exam performance. Attrition is flagged where endline observations are missing — the 12% rate is within acceptable limits for a 5-year panel.</p>
+    <p><strong>What's happening:</strong> Baseline (Wave 1) and endline (Wave 4) records are linked by <code>student_id</code> to create a longitudinal panel. Change scores are computed for attendance and exam performance. Attrition is flagged where endline observations are missing  - the 12% rate is within acceptable limits for a 5-year panel.</p>
   </div>
 
   <!-- Stage 3 -->
@@ -393,7 +393,7 @@ cat("p-value:", format.pval(did_estimate$p.value), "\n")</code></pre>
   theme_minimal(base_family = "Inter", base_size = 13)</code></pre>
   </div>
   <div class="card-note">
-    <p><strong>What's happening:</strong> The parallel trends plot is the key diagnostic for DiD validity. Pre-treatment trends should be roughly parallel between groups; post-treatment divergence then reflects the causal effect. The palette matches the portfolio design system — control in muted grey, treatment in amber.</p>
+    <p><strong>What's happening:</strong> The parallel trends plot is the key diagnostic for DiD validity. Pre-treatment trends should be roughly parallel between groups; post-treatment divergence then reflects the causal effect. The palette matches the portfolio design system  - control in muted grey, treatment in amber.</p>
   </div>
 
   <!-- Technical Summary -->

@@ -1,6 +1,6 @@
 ---
 title: "GREAT Programme Evaluation: Reproducible Impact Analysis"
-subtitle: "Right To Play — Ghana, Mozambique & Rwanda (2018–2022)"
+subtitle: "Right To Play | Ghana, Mozambique & Rwanda (2018-2022)"
 author: "James Gathogo"
 date: today
 format:
@@ -55,7 +55,7 @@ For programme context, see Right To Play's [published endline impact summary (PD
 | **Waves** | Baseline (2018), Midline (2021), Endline (2022) |
 | **Unit of analysis** | Individual child (panel, tracked across waves) |
 | **Core outcomes** | Oral Reading Fluency, Attendance, Life Skills (5 domains), Enrolment |
-| **Impact method** | First-difference (change-score) regressions — a DiD variant |
+| **Impact method** | First-difference (change-score) regressions, a DiD variant |
 | **Funder** | Global Affairs Canada |
 | **Published summary** | [Right To Play Endline Impact Summary (2022)](https://apppack-app-righttoplay-publics3bucket-veclfraq9ykl.s3.amazonaws.com/documents/GREAT_Endline_Impact_Summary.pdf) |
 
@@ -96,7 +96,7 @@ cols_analysis <- c(
 
 raw <- read_csv(data_path, show_col_types = FALSE)
 
-# The CSV uses text labels — drop mis-parsed rows first
+# The CSV uses text labels - drop mis-parsed rows first
 raw <- raw |>
   filter(
     COUNTRY_ALL %in% c("Ghana", "Mozambique", "Rwanda"),
@@ -211,7 +211,7 @@ balance_results <- map2_dfr(balance_vars, balance_labels, function(v, lbl) {
 balance_results
 ```
 
-## 4. Oral Reading Fluency (ORF) — Impact Estimation
+## 4. Oral Reading Fluency (ORF): Impact Estimation
 
 ORF measures the number of correct words a child reads per minute in either their local language or English/Portuguese. This is the primary academic outcome.
 
@@ -263,7 +263,7 @@ The original evaluation estimated programme impact by regressing **change in ORF
 
 $$\Delta ORF_{i} = \beta_0 + \beta_1 \cdot Treatment_i + \beta_2 \cdot Sex_i + \varepsilon_i$$
 
-where $\beta_1$ is the **Average Treatment Effect** — the additional gain in ORF attributable to the programme.
+where $\beta_1$ is the **Average Treatment Effect**, the additional gain in ORF attributable to the programme.
 
 ```{r orf-impact}
 run_orf_regression <- function(data, dv, country_name) {
@@ -504,7 +504,7 @@ ls_impact |>
             p = round(p.value, 4))
 ```
 
-## 7. Enrolment — Logistic Regression
+## 7. Enrolment: Logistic Regression
 
 School enrolment is a binary outcome. The original analysis used logistic regression with treatment and sex as predictors.
 
