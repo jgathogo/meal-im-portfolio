@@ -399,8 +399,8 @@ button.secondary { background:var(--surface); color:var(--text); border:1px soli
 <span class="comment">Creative Commons BY 4.0 | Mortality Estimation Initiative</span>
 
 <span class="keyword">0_Sampling_Tools/</span>
-    Sample_Size_Calculator.R
-    Sample_Size_Calculator.xlsx
+    Sample_Size_Calculator.R   <span class="comment"># incl. fieldwork team planner</span>
+    Sample_Size_Calculator.xlsx <span class="comment"># incl. fieldwork team planner</span>
     PPS_Cluster_Selection.R
     PPS_Cluster_Selection.xlsx
 
@@ -743,7 +743,7 @@ button.secondary { background:var(--surface); color:var(--text); border:1px soli
       </table>
       <div style="margin-top:16px;display:flex;gap:12px;">
         <a href="downloads/CDR_U5DR_Calculator.xlsx" download class="primary" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;padding:10px 24px;background:var(--accent);color:#fff;border-radius:6px;font-weight:600;font-size:14px;">&#11015; Download CDR/U5DR Calculator</a>
-        <a href="downloads/Sample_Size_Calculator.xlsx" download class="primary" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;padding:10px 24px;background:#1c1917;color:#fff;border-radius:6px;font-weight:600;font-size:14px;">&#11015; Download Sample Size Calculator</a>
+        <a href="downloads/Sample_Size_Calculator.xlsx" download class="primary" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;padding:10px 24px;background:#1c1917;color:#fff;border-radius:6px;font-weight:600;font-size:14px;">&#11015; Download Sample Size + Fieldwork Planner</a>
       </div>
     </div>
   </div>
@@ -1092,6 +1092,7 @@ cdr_mean <- <span class="keyword">svymean</span>(~death_rate_10k, design)
         </tr>
       </tbody>
     </table>
+    <p style="font-size:14px;margin-top:16px;margin-bottom:0;"><strong>Fieldwork Team Planning</strong> (below the calculator) converts your sample size into an operational staffing plan: how many enumerators, supervisors, teams, and days you need - accounting for travel between clusters, training time, and buffer days.</p>
   </div>
 
   <div class="grid-2">
@@ -1120,6 +1121,28 @@ cdr_mean <- <span class="keyword">svymean</span>(~death_rate_10k, design)
     <p style="font-size:13px;margin-bottom:8px;"><strong>After non-response</strong> - inflated to account for households you cannot interview.</p>
     <p style="font-size:13px;margin-bottom:8px;"><strong>Households</strong> - persons divided by average household size. This is what your field teams actually count.</p>
     <p style="font-size:13px;margin-bottom:8px;"><strong>Per cluster / Total</strong> - households distributed evenly across clusters, rounded up to a whole number per cluster, then multiplied back. The final total is always a round number (clusters x households per cluster).</p>
+  </div>
+
+  <div class="card" style="margin-top:20px;border-left:4px solid var(--info);">
+    <h3>Fieldwork Team Planning</h3>
+    <p style="font-size:14px;margin-bottom:12px;">Once you know the sample size, you need to plan the field team. How many enumerators? How many supervisors? How long will fieldwork take? This section converts your sample size into an operational staffing and logistics plan.</p>
+    <div class="grid-2">
+      <div>
+        <div class="form-group"><label>Interviews per enumerator per day</label><input type="number" id="fw-interviews" value="5" min="1" max="15"><div class="hint">Mortality surveys typically achieve 4-6 per day. Depends on terrain, household density, and interview length (~30-45 min each).</div></div>
+        <div class="form-group"><label>Travel days between clusters</label><input type="number" id="fw-travel" value="1" step="0.5" min="0" max="5"><div class="hint">Days needed to move the team from one cluster to the next. 0.5 if clusters are close; 1-2 in dispersed, conflict-affected or mountainous settings.</div></div>
+        <div class="form-group"><label>Enumerators per team</label><input type="number" id="fw-enum-team" value="4" min="2" max="10"><div class="hint">Typically 4-6 enumerators per team. Larger teams finish faster but are harder to supervise and transport.</div></div>
+        <div class="form-group"><label>Supervisor ratio (enumerators per supervisor)</label><input type="number" id="fw-ratio" value="4" min="2" max="8"><div class="hint">1 supervisor per 4-6 enumerators is standard. Supervisors run quality checks, manage logistics, and handle community entry.</div></div>
+      </div>
+      <div>
+        <div class="form-group"><label>Number of field teams</label><input type="number" id="fw-teams" value="2" min="1" max="10"><div class="hint">More teams = shorter fieldwork but higher cost (vehicles, supervisors, coordination). 2-3 teams is typical.</div></div>
+        <div class="form-group"><label>Training days</label><input type="number" id="fw-training" value="3" min="1" max="7"><div class="hint">3 days for enumerator training is standard. Add 1-2 days for pilot testing in the field.</div></div>
+        <div class="form-group"><label>Buffer days (weather, access, rest)</label><input type="number" id="fw-buffer" value="2" min="0" max="10"><div class="hint">Allow for unexpected delays: rain, road closures, security incidents, rest days. 1-3 days depending on context.</div></div>
+      </div>
+    </div>
+    <div class="card" id="fw-results" style="margin-top:16px;background:var(--surface);border:1px solid var(--border);">
+      <h4>Fieldwork Plan</h4>
+      <p style="color:var(--text-secondary);">Results will update automatically based on sample size and fieldwork parameters.</p>
+    </div>
   </div>
 </div>
 
@@ -1269,6 +1292,9 @@ function calcSampleSize() {
         U5DR: 2.0 / 10,000 / day (double baseline)
       </div>
     </div>`;
+
+  _lastSample = { hhPerCluster: hhPerCluster, totalHH: finalTotal, clusters: clusters };
+  if (typeof calcFieldwork === 'function') calcFieldwork();
 }
 
 // PPS Cluster Selection
@@ -1435,10 +1461,85 @@ function loadDemoData() {
   calcCDR();
 }
 
+// Fieldwork Team Planner - stores last computed sample to link sections
+var _lastSample = { hhPerCluster: 20, totalHH: 500, clusters: 25 };
+
+function calcFieldwork() {
+  const clusters = _lastSample.clusters;
+  const hhPC = _lastSample.hhPerCluster;
+  const totalHH = _lastSample.totalHH;
+
+  const interviewsPerDay = parseInt(document.getElementById('fw-interviews').value) || 5;
+  const travelDays = parseFloat(document.getElementById('fw-travel').value) || 1;
+  const enumPerTeam = parseInt(document.getElementById('fw-enum-team').value) || 4;
+  const ratio = parseInt(document.getElementById('fw-ratio').value) || 4;
+  const numTeams = parseInt(document.getElementById('fw-teams').value) || 2;
+  const trainingDays = parseInt(document.getElementById('fw-training').value) || 3;
+  const bufferDays = parseInt(document.getElementById('fw-buffer').value) || 2;
+
+  const daysPerCluster = Math.ceil(hhPC / (enumPerTeam * interviewsPerDay));
+  const clustersPerTeam = Math.ceil(clusters / numTeams);
+  const fieldDaysPerTeam = (daysPerCluster * clustersPerTeam) + (travelDays * (clustersPerTeam - 1));
+  const totalFieldDays = Math.ceil(fieldDaysPerTeam);
+
+  const totalEnumerators = enumPerTeam * numTeams;
+  const supervisors = Math.ceil(totalEnumerators / ratio);
+  const totalFieldStaff = totalEnumerators + supervisors;
+  const totalDuration = trainingDays + totalFieldDays + bufferDays;
+
+  const el = document.getElementById('fw-results');
+  el.innerHTML = `
+    <h4>Fieldwork Plan</h4>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px;">
+      <div class="result-box info" style="padding:12px;">
+        <div class="result-label" style="font-size:11px;">Total Duration</div>
+        <div class="result-value" style="font-size:22px;">${totalDuration} days</div>
+      </div>
+      <div class="result-box" style="padding:12px;background:var(--accent-light);border:1px solid var(--accent);">
+        <div class="result-label" style="font-size:11px;">Enumerators Needed</div>
+        <div class="result-value" style="font-size:22px;">${totalEnumerators}</div>
+      </div>
+      <div class="result-box" style="padding:12px;background:#dbeafe;border:1px solid var(--info);">
+        <div class="result-label" style="font-size:11px;">Supervisors</div>
+        <div class="result-value" style="font-size:22px;">${supervisors}</div>
+      </div>
+      <div class="result-box" style="padding:12px;background:#dcfce7;border:1px solid #16a34a;">
+        <div class="result-label" style="font-size:11px;">Total Field Staff</div>
+        <div class="result-value" style="font-size:22px;">${totalFieldStaff}</div>
+      </div>
+    </div>
+    <table>
+      <tbody>
+        <tr><td>Households per cluster</td><td><strong>${hhPC}</strong></td></tr>
+        <tr><td>Data collection days per cluster</td><td><strong>${daysPerCluster}</strong> (${hhPC} HH / ${enumPerTeam} enumerators x ${interviewsPerDay} interviews/day)</td></tr>
+        <tr><td>Clusters per team</td><td><strong>${clustersPerTeam}</strong> (${clusters} clusters / ${numTeams} teams)</td></tr>
+        <tr><td>Travel days per team</td><td><strong>${Math.round(travelDays * (clustersPerTeam - 1))}</strong> (${clustersPerTeam - 1} moves x ${travelDays} day${travelDays > 1 ? 's' : ''} each)</td></tr>
+        <tr><td style="border-top:2px solid var(--border);">Field data collection</td><td style="border-top:2px solid var(--border);"><strong>${totalFieldDays} days</strong></td></tr>
+        <tr><td>Training</td><td><strong>${trainingDays} days</strong></td></tr>
+        <tr><td>Buffer</td><td><strong>${bufferDays} days</strong></td></tr>
+        <tr style="background:var(--info-bg);"><td><strong>Total fieldwork duration</strong></td><td><strong>${totalDuration} days (~${Math.ceil(totalDuration / 7)} weeks)</strong></td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:16px;padding:12px;background:var(--surface);border-radius:var(--radius);font-size:13px;">
+      <strong>Logistics checklist:</strong>
+      <ul style="margin:8px 0 0 16px;line-height:1.6;">
+        <li>${numTeams} vehicle${numTeams > 1 ? 's' : ''} (one per team) with drivers</li>
+        <li>${totalEnumerators} tablets/phones loaded with XLSForm</li>
+        <li>${supervisors} supervisor${supervisors > 1 ? 's' : ''} managing daily data quality checks</li>
+        <li>${totalEnumerators} enumerator kits (ID badge, consent forms, referral cards)</li>
+        <li>Per diem for ${totalFieldStaff} staff x ${totalFieldDays} field days</li>
+      </ul>
+    </div>`;
+}
+
 // Live recalculation on input change
 ['ss-cdr','ss-precision','ss-recall','ss-hhsize','ss-deff','ss-nonresponse','ss-clusters'].forEach(id => {
   const el = document.getElementById(id);
-  if (el) el.addEventListener('input', calcSampleSize);
+  if (el) el.addEventListener('input', () => { calcSampleSize(); calcFieldwork(); });
+});
+['fw-interviews','fw-travel','fw-enum-team','fw-ratio','fw-teams','fw-training','fw-buffer'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', calcFieldwork);
 });
 ['cdr-pop','cdr-recall','cdr-deaths','cdr-u5pop','cdr-u5deaths','cdr-clusters'].forEach(id => {
   const el = document.getElementById(id);
@@ -1448,6 +1549,7 @@ function loadDemoData() {
 // Initialize
 initPPS();
 calcSampleSize();
+calcFieldwork();
 calcCDR();
 </script>
 </body>
