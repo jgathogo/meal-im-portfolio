@@ -983,22 +983,79 @@ cdr_mean <- <span class="keyword">svymean</span>(~death_rate_10k, design)
     <h2>Sample Size Calculator</h2>
     <p class="subtitle">Interactive tool for mortality survey sample size determination</p>
   </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <h3>How this works</h3>
+    <p style="font-size:14px;margin-bottom:12px;">Before a mortality survey, you need to know how many households to visit. Too few and your estimate is too imprecise to tell whether the population is in crisis. Too many and you waste time and resources in an emergency. This calculator determines the minimum sample size needed to produce a CDR estimate with enough precision to compare against the emergency threshold (1.0/10,000/day).</p>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">The formula starts with the number of person-days of observation needed for a given precision, then adjusts upward for cluster sampling (design effect) and non-response, and finally converts from persons to households.</p>
+    <table style="font-size:13px;">
+      <thead><tr><th style="width:180px;">Parameter</th><th>What it means</th><th style="width:160px;">How to decide</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Expected CDR</strong></td>
+          <td>Your best guess of the death rate before the survey. This is the rate you are designing the survey to detect. Lower expected rates require larger samples because deaths are rarer events.</td>
+          <td>Use 0.5 (sub-Saharan Africa baseline) if no prior data. Use a higher value if you suspect a crisis.</td>
+        </tr>
+        <tr>
+          <td><strong>Desired precision</strong></td>
+          <td>How close your estimate needs to be to the true rate. A precision of +/-0.3 means if the true CDR is 1.0, your survey result will fall between 0.7 and 1.3. Tighter precision = larger sample.</td>
+          <td>0.3 is standard. Use 0.5 for rapid assessments when speed matters more than precision.</td>
+        </tr>
+        <tr>
+          <td><strong>Recall period</strong></td>
+          <td>How far back you ask households about deaths. Longer recall captures more deaths (reducing the sample needed) but introduces recall bias - people forget or misdate events.</td>
+          <td>90 days is the standard for SMART surveys. Use 60 days in acute emergencies; up to 120 if population is stable.</td>
+        </tr>
+        <tr>
+          <td><strong>Household size</strong></td>
+          <td>Average number of people per household. This converts the number of persons needed into a number of households to visit.</td>
+          <td>Obtain from census data, prior surveys, or humanitarian registration. Typically 4-7 in sub-Saharan Africa.</td>
+        </tr>
+        <tr>
+          <td><strong>Design effect (DEFF)</strong></td>
+          <td>A multiplier that accounts for cluster sampling. Households within the same village tend to have similar mortality (shared exposures, same health facility, same conflict events). This correlation means you need more households than simple random sampling would require.</td>
+          <td>Use 2.0 as default. If prior surveys in similar settings report DEFF, use that. Range: 1.5 (low correlation) to 3.0 (high, e.g. famine pockets).</td>
+        </tr>
+        <tr>
+          <td><strong>Non-response rate</strong></td>
+          <td>Percentage of selected households you expect to be unable to interview - absent, refused, inaccessible. The sample is inflated to compensate.</td>
+          <td>5% in stable settings, 10% standard, up to 20% in active conflict or displacement.</td>
+        </tr>
+        <tr>
+          <td><strong>Number of clusters</strong></td>
+          <td>How many geographic locations (villages, camps, wards) you visit. More clusters with fewer households per cluster is statistically better than fewer clusters with more households, because it reduces the design effect's impact on your confidence interval.</td>
+          <td>25-30 is the accepted standard (SMART, EPI). Fewer than 20 produces unreliable confidence intervals. Go higher if logistically feasible.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
   <div class="grid-2">
     <div class="card">
       <h3>Parameters</h3>
-      <div class="form-group"><label>Expected CDR (/10,000/day)</label><input type="number" id="ss-cdr" value="0.5" step="0.1" min="0.1"><div class="hint">Baseline sub-Saharan Africa: ~0.5</div></div>
-      <div class="form-group"><label>Desired precision (+/-)</label><input type="number" id="ss-precision" value="0.3" step="0.05" min="0.05"><div class="hint">Typically 0.3-0.5 deaths/10,000/day</div></div>
-      <div class="form-group"><label>Recall period (days)</label><input type="number" id="ss-recall" value="90" min="30" max="365"></div>
-      <div class="form-group"><label>Average household size</label><input type="number" id="ss-hhsize" value="5" step="0.5" min="2"></div>
-      <div class="form-group"><label>Design effect (DEFF)</label><input type="number" id="ss-deff" value="2.0" step="0.1" min="1.0"><div class="hint">Typical: 1.5-2.0 for mortality</div></div>
-      <div class="form-group"><label>Non-response rate (%)</label><input type="number" id="ss-nonresponse" value="10" min="0" max="30"></div>
-      <div class="form-group"><label>Number of clusters</label><input type="number" id="ss-clusters" value="25" min="10" max="50"></div>
+      <div class="form-group"><label>Expected CDR (/10,000/day)</label><input type="number" id="ss-cdr" value="0.5" step="0.1" min="0.1"><div class="hint">Your best estimate of the current death rate. Baseline sub-Saharan Africa: ~0.5</div></div>
+      <div class="form-group"><label>Desired precision (+/-)</label><input type="number" id="ss-precision" value="0.3" step="0.05" min="0.05"><div class="hint">How narrow the confidence interval should be. Standard: 0.3</div></div>
+      <div class="form-group"><label>Recall period (days)</label><input type="number" id="ss-recall" value="90" min="30" max="365"><div class="hint">How far back you ask about deaths. Standard: 90 days</div></div>
+      <div class="form-group"><label>Average household size</label><input type="number" id="ss-hhsize" value="5" step="0.5" min="2"><div class="hint">Persons per household. Obtain from census or prior surveys</div></div>
+      <div class="form-group"><label>Design effect (DEFF)</label><input type="number" id="ss-deff" value="2.0" step="0.1" min="1.0"><div class="hint">Cluster sampling multiplier. Default 2.0, range 1.5-3.0</div></div>
+      <div class="form-group"><label>Non-response rate (%)</label><input type="number" id="ss-nonresponse" value="10" min="0" max="30"><div class="hint">Expected % of households you cannot interview. Standard: 10%</div></div>
+      <div class="form-group"><label>Number of clusters</label><input type="number" id="ss-clusters" value="25" min="10" max="50"><div class="hint">Geographic locations to visit. Standard: 25-30 (SMART/EPI)</div></div>
       <button class="primary" onclick="calcSampleSize()">Calculate</button>
     </div>
     <div class="card" id="ss-results">
       <h3>Results</h3>
       <p style="color:var(--text-secondary);">Adjust parameters and click Calculate.</p>
     </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3>Reading the results</h3>
+    <p style="font-size:13px;margin-bottom:8px;"><strong>SRS person-days needed</strong> - the theoretical number of person-days of observation required under simple random sampling. This is the statistical starting point.</p>
+    <p style="font-size:13px;margin-bottom:8px;"><strong>SRS persons needed</strong> - person-days divided by the recall period. The number of individuals you would need if you could randomly select from the entire population.</p>
+    <p style="font-size:13px;margin-bottom:8px;"><strong>After DEFF adjustment</strong> - multiplied by the design effect because cluster sampling is less efficient than simple random sampling. This is the real number of persons you need.</p>
+    <p style="font-size:13px;margin-bottom:8px;"><strong>After non-response</strong> - inflated to account for households you cannot interview.</p>
+    <p style="font-size:13px;margin-bottom:8px;"><strong>Households</strong> - persons divided by average household size. This is what your field teams actually count.</p>
+    <p style="font-size:13px;margin-bottom:8px;"><strong>Per cluster / Total</strong> - households distributed evenly across clusters, rounded up to a whole number per cluster, then multiplied back. The final total is always a round number (clusters x households per cluster).</p>
   </div>
 </div>
 
