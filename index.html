@@ -488,6 +488,7 @@
         <option value="#proj-mel">MEL System &amp; Evaluation Design</option>
         <option value="#proj-evaluation">Evaluation Pipeline: Bicycle Mobility</option>
         <option value="#proj-great">GREAT Impact Evaluation: Right To Play</option>
+        <option value="#proj-mortality">Mortality Survey &amp; Surveillance Toolkit</option>
       </select>
     </div>
     <div class="nav-links">
@@ -938,6 +939,52 @@
             <a class="btn btn-amber" href="https://apppack-app-righttoplay-publics3bucket-veclfraq9ykl.s3.amazonaws.com/documents/GREAT_Endline_Impact_Summary.pdf" target="_blank" rel="noopener" style="background:var(--navy);color:var(--white);">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               RTP Published Summary
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── PROJECT 10: MORTALITY TOOLKIT ── -->
+      <article id="proj-mortality" class="project-card fade-up">
+        <div class="card-body" style="padding: 28px 32px;">
+          <div class="card-header">
+            <span class="card-num">Project 10</span>
+            <span class="status-badge status-live">Live</span>
+          </div>
+          <h3 class="card-title">Mortality Survey and Surveillance Toolkit: Interactive Prototype</h3>
+          <p class="card-org" style="margin-top:6px;">Context: IMPACT Initiatives / Save the Children / E4C Mortality Estimation Initiative - 10 toolkit deliverables - KoBoToolbox-to-dashboard pipeline</p>
+          <div class="card-problem" style="margin-top:12px;">
+            <strong>The problem:</strong> Humanitarian organisations need to estimate mortality rates in crisis settings but lack standardised, field-ready tools. Existing methods require specialist statistical knowledge, and no single toolkit covers the full pipeline from survey design and sampling through data collection, analysis, and reporting.
+          </div>
+          <div class="card-what">
+            <strong style="font-size:13px;color:var(--navy);">What was built:</strong>
+            <ul>
+              <li>Interactive web-based prototype covering all 10 toolkit deliverables: guidance, protocols, XLSForms, analysis tools, reporting templates, and training materials</li>
+              <li>End-to-end data pipeline: KoBoToolbox collection through CSV export, data cleaning, CDR/U5DR analysis, to factsheet and dashboard output</li>
+              <li>Three working calculators: sample size (two-stage cluster with PPS), PPS cluster selection with population weighting, and CDR/U5DR with threshold comparison</li>
+              <li>Downloadable Excel workbooks: CDR/U5DR Calculator with named ranges and conditional formatting, Sample Size Calculator with parameter guidance</li>
+              <li>Survey vs Surveillance analysis mode toggle demonstrating converged CDR formula with different denominator sources</li>
+              <li>Simulated 28-cluster, 676-household KoBoToolbox export as demo data for the full pipeline walkthrough</li>
+            </ul>
+          </div>
+          <div class="stack-pills" style="margin-top:16px;">
+            <span class="stack-pill">HTML/CSS/JS</span>
+            <span class="stack-pill">XLSForm Design</span>
+            <span class="stack-pill">KoBoToolbox</span>
+            <span class="stack-pill">openpyxl</span>
+            <span class="stack-pill">R Shiny</span>
+            <span class="stack-pill">Two-Stage Cluster Sampling</span>
+            <span class="stack-pill">CDR/U5DR</span>
+            <span class="stack-pill">Verbal Autopsy</span>
+          </div>
+          <div class="card-actions" style="margin-top:16px;">
+            <a class="btn btn-amber" href="projects/mortality-toolkit/index.html" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Explore Toolkit
+            </a>
+            <a class="btn btn-secondary" href="https://github.com/jgathogo/meal-im-portfolio" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              View Code
             </a>
           </div>
         </div>

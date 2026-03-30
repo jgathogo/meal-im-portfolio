@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortality Survey &amp; Surveillance Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --border: #e7e5e4;
+  --text: #1c1917;
+  --text-secondary: #57534e;
+  --accent: #b45309;
+  --accent-light: #fef3c7;
+  --accent-dark: #92400e;
+  --success: #166534;
+  --success-bg: #dcfce7;
+  --danger: #991b1b;
+  --danger-bg: #fee2e2;
+  --info: #1e40af;
+  --info-bg: #dbeafe;
+  --nav-bg: #1c1917;
+  --nav-text: #e7e5e4;
+  --nav-active: #f59e0b;
+  --radius: 6px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Source Sans 3',system-ui,sans-serif; background:var(--bg); color:var(--text); font-size:15px; line-height:1.6; }
+
+/* Layout */
+.app { display:flex; min-height:100vh; }
+nav { width:260px; background:var(--nav-bg); color:var(--nav-text); padding:0; position:fixed; top:0; left:0; bottom:0; overflow-y:auto; z-index:100; }
+nav .logo { padding:24px 20px 16px; border-bottom:1px solid #333; }
+nav .logo h1 { font-family:'Source Serif 4',Georgia,serif; font-size:16px; font-weight:600; color:#fff; line-height:1.3; }
+nav .logo p { font-size:12px; color:#a8a29e; margin-top:4px; }
+nav .nav-section { padding:12px 0 4px; }
+nav .nav-section-title { font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:#78716c; padding:0 20px; margin-bottom:4px; }
+nav a { display:flex; align-items:center; gap:10px; padding:8px 20px; color:var(--nav-text); text-decoration:none; font-size:13px; transition:all .15s; border-left:3px solid transparent; }
+nav a:hover { background:rgba(255,255,255,0.06); }
+nav a.active { background:rgba(245,158,11,0.1); color:var(--nav-active); border-left-color:var(--nav-active); font-weight:600; }
+nav a .num { display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:rgba(255,255,255,0.1); font-size:10px; font-weight:600; flex-shrink:0; }
+nav a.active .num { background:var(--nav-active); color:var(--nav-bg); }
+nav .nav-footer { padding:16px 20px; border-top:1px solid #333; margin-top:12px; }
+nav .nav-footer p { font-size:11px; color:#78716c; }
+
+main { flex:1; margin-left:260px; padding:0; }
+.page { display:none; padding:32px 40px 60px; max-width:1100px; }
+.page.active { display:block; }
+.page-header { margin-bottom:28px; }
+.page-header h2 { font-family:'Source Serif 4',Georgia,serif; font-size:26px; font-weight:600; color:var(--text); }
+.page-header .subtitle { color:var(--text-secondary); margin-top:4px; font-size:14px; }
+.page-header .deliverable-tag { display:inline-block; background:var(--accent-light); color:var(--accent-dark); font-size:11px; font-weight:600; padding:2px 10px; border-radius:12px; margin-top:8px; }
+
+/* Cards */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:20px; box-shadow:var(--shadow); }
+.card h3 { font-size:16px; font-weight:600; margin-bottom:12px; }
+.card h4 { font-size:14px; font-weight:600; margin:16px 0 8px; color:var(--text-secondary); }
+.card p { margin-bottom:8px; }
+
+/* Grid */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+
+/* Stat cards */
+.stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; text-align:center; box-shadow:var(--shadow); }
+.stat-card .value { font-size:32px; font-weight:700; font-family:'Source Serif 4',Georgia,serif; }
+.stat-card .label { font-size:12px; color:var(--text-secondary); margin-top:4px; text-transform:uppercase; letter-spacing:0.5px; }
+.stat-card.success .value { color:var(--success); }
+.stat-card.danger .value { color:var(--danger); }
+.stat-card.accent .value { color:var(--accent); }
+
+/* Tables */
+table { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0; }
+th { background:#f5f5f4; font-weight:600; text-align:left; padding:8px 12px; border-bottom:2px solid var(--border); font-size:12px; text-transform:uppercase; letter-spacing:0.3px; color:var(--text-secondary); }
+td { padding:8px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:hover td { background:#fafaf9; }
+
+/* Forms */
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.3px; }
+.form-group input, .form-group select { width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:var(--radius); font-size:14px; font-family:inherit; }
+.form-group input:focus, .form-group select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 2px rgba(180,83,9,0.15); }
+.form-group .hint { font-size:11px; color:#a8a29e; margin-top:2px; }
+button.primary { background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:var(--radius); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+button.primary:hover { background:var(--accent-dark); }
+button.secondary { background:var(--surface); color:var(--text); border:1px solid var(--border); padding:8px 20px; border-radius:var(--radius); font-size:13px; cursor:pointer; font-family:inherit; }
+
+/* Result box */
+.result-box { padding:16px 20px; border-radius:var(--radius); margin:16px 0; }
+.result-box.success { background:var(--success-bg); border:1px solid #86efac; }
+.result-box.danger { background:var(--danger-bg); border:1px solid #fca5a5; }
+.result-box.info { background:var(--info-bg); border:1px solid #93c5fd; }
+.result-box .result-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+.result-box .result-value { font-size:28px; font-weight:700; font-family:'Source Serif 4',Georgia,serif; }
+.result-box .result-detail { font-size:13px; margin-top:4px; }
+
+/* Threshold bar */
+.threshold-bar { height:8px; background:#e5e7eb; border-radius:4px; position:relative; margin:8px 0 4px; }
+.threshold-bar .fill { height:100%; border-radius:4px; transition:width .5s; }
+.threshold-bar .marker { position:absolute; top:-4px; width:2px; height:16px; background:#1c1917; }
+.threshold-text { font-size:11px; color:var(--text-secondary); }
+
+/* Code block */
+.code-block { background:#1c1917; color:#d6d3d1; padding:16px 20px; border-radius:var(--radius); font-family:'Courier New',monospace; font-size:12px; line-height:1.7; overflow-x:auto; white-space:pre; margin:12px 0; }
+.code-block .comment { color:#78716c; }
+.code-block .keyword { color:#f59e0b; }
+.code-block .string { color:#86efac; }
+.code-block .number { color:#93c5fd; }
+
+/* XLSForm preview */
+.xlsform-preview { overflow-x:auto; }
+.xlsform-preview table { font-size:12px; }
+.xlsform-preview th { background:var(--nav-bg); color:#fff; font-size:10px; padding:6px 8px; white-space:nowrap; }
+.xlsform-preview td { padding:5px 8px; font-size:11px; white-space:nowrap; }
+.xlsform-preview .type-col { color:var(--accent); font-weight:600; }
+.xlsform-preview .relevant-col { color:var(--info); font-family:monospace; font-size:10px; }
+.xlsform-preview .constraint-col { color:var(--danger); font-family:monospace; font-size:10px; }
+
+/* Factsheet */
+.factsheet { border:2px solid var(--border); border-radius:var(--radius); padding:28px; background:#fff; max-width:700px; }
+.factsheet .fs-header { text-align:center; margin-bottom:20px; padding-bottom:16px; border-bottom:3px solid var(--accent); }
+.factsheet .fs-header h2 { font-family:'Source Serif 4',Georgia,serif; font-size:22px; }
+.factsheet .fs-header p { font-size:13px; color:var(--text-secondary); }
+.factsheet .fs-kpi { display:flex; gap:16px; margin-bottom:20px; }
+.factsheet .fs-kpi-card { flex:1; text-align:center; padding:12px; border-radius:var(--radius); }
+.factsheet .fs-kpi-card .kpi-value { font-size:28px; font-weight:700; font-family:'Source Serif 4',Georgia,serif; }
+.factsheet .fs-kpi-card .kpi-label { font-size:11px; color:var(--text-secondary); }
+.factsheet .fs-section { margin-bottom:16px; }
+.factsheet .fs-section h4 { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); margin-bottom:6px; }
+.factsheet .fs-section p { font-size:13px; }
+.factsheet .cause-bar { display:flex; align-items:center; gap:8px; margin:4px 0; font-size:12px; }
+.factsheet .cause-bar .bar { height:14px; border-radius:2px; background:var(--accent); }
+.factsheet .cause-bar .bar-label { min-width:120px; }
+
+/* Training timeline */
+.timeline { position:relative; padding-left:28px; }
+.timeline::before { content:''; position:absolute; left:8px; top:4px; bottom:4px; width:2px; background:var(--border); }
+.timeline-item { position:relative; margin-bottom:20px; }
+.timeline-item::before { content:''; position:absolute; left:-24px; top:4px; width:12px; height:12px; border-radius:50%; background:var(--accent); border:2px solid #fff; box-shadow:0 0 0 2px var(--accent); }
+.timeline-item h4 { font-size:14px; font-weight:600; }
+.timeline-item p { font-size:13px; color:var(--text-secondary); margin-top:2px; }
+
+/* Stage pipeline */
+.pipeline { display:flex; gap:4px; margin:20px 0; }
+.pipeline-stage { flex:1; text-align:center; padding:12px 8px; border-radius:var(--radius); background:#f5f5f4; border:1px solid var(--border); transition:all .2s; cursor:default; }
+.pipeline-stage:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.pipeline-stage .stage-num { font-size:10px; font-weight:600; color:var(--accent); text-transform:uppercase; letter-spacing:1px; }
+.pipeline-stage .stage-name { font-size:14px; font-weight:700; margin:4px 0 2px; }
+.pipeline-stage .stage-week { font-size:11px; color:var(--text-secondary); }
+.pipeline-stage.highlight { background:var(--accent-light); border-color:var(--accent); }
+
+/* Deliverable list */
+.deliverable-item { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
+.deliverable-item:last-child { border-bottom:none; }
+.deliverable-item .d-num { width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+.deliverable-item .d-content h4 { font-size:14px; font-weight:600; }
+.deliverable-item .d-content p { font-size:13px; color:var(--text-secondary); margin-top:2px; }
+.deliverable-item .d-stage { font-size:11px; color:var(--accent); font-weight:600; }
+
+/* Tabs */
+.tabs { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:20px; }
+.tab { padding:8px 20px; font-size:13px; font-weight:600; color:var(--text-secondary); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .15s; }
+.tab:hover { color:var(--text); }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* Chart */
+.bar-chart { margin:16px 0; }
+.bar-row { display:flex; align-items:center; gap:8px; margin:6px 0; }
+.bar-row .bar-label { width:100px; font-size:12px; text-align:right; flex-shrink:0; }
+.bar-row .bar-track { flex:1; height:20px; background:#f5f5f4; border-radius:3px; position:relative; }
+.bar-row .bar-fill { height:100%; border-radius:3px; background:var(--accent); transition:width .6s; }
+.bar-row .bar-value { width:50px; font-size:12px; font-weight:600; }
+.bar-row .bar-fill.danger { background:#dc2626; }
+.bar-row .bar-fill.success { background:#16a34a; }
+
+/* Badge */
+.badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; }
+.badge.stage-1 { background:#dbeafe; color:#1e40af; }
+.badge.stage-2 { background:#fef3c7; color:#92400e; }
+.badge.stage-3 { background:#dcfce7; color:#166534; }
+.badge.stage-4 { background:#e0e7ff; color:#3730a3; }
+.badge.stage-5 { background:#fce7f3; color:#9d174d; }
+
+/* Flow pipeline (Data Pipeline page) */
+.flow-pipeline { display:flex; align-items:center; gap:0; margin:24px 0; flex-wrap:wrap; }
+.flow-stage { flex:1; min-width:140px; text-align:center; padding:16px 12px; background:var(--surface); border:2px solid var(--border); border-radius:var(--radius); cursor:pointer; transition:all .2s; position:relative; }
+.flow-stage:hover, .flow-stage.active { border-color:var(--accent); background:var(--accent-light); }
+.flow-stage .flow-icon { font-size:24px; margin-bottom:4px; }
+.flow-stage .flow-name { font-size:13px; font-weight:600; }
+.flow-arrow { font-size:20px; color:var(--accent); padding:0 4px; flex-shrink:0; }
+.flow-detail { display:none; padding:16px 20px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin:0 0 20px; font-size:14px; line-height:1.6; }
+.flow-detail.active { display:block; }
+
+@media (max-width:900px) {
+  nav { width:200px; }
+  main { margin-left:200px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns:1fr; }
+  .pipeline { flex-wrap:wrap; }
+  .flow-pipeline { flex-direction:column; }
+  .flow-arrow { transform:rotate(90deg); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+<nav>
+  <div class="logo">
+    <h1>Mortality Survey &amp; Surveillance Toolkit</h1>
+    <p>Prototype - Interview Demo</p>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Overview</div>
+    <a href="#" data-page="dashboard" class="active"><span class="num">0</span> Dashboard</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Deliverables</div>
+    <a href="#" data-page="d1"><span class="num">1</span> Toolkit Outline</a>
+    <a href="#" data-page="d2"><span class="num">2</span> Technical Guidance</a>
+    <a href="#" data-page="d3"><span class="num">3</span> Concept Note &amp; Protocols</a>
+    <a href="#" data-page="d4"><span class="num">4</span> Data Collection Tools</a>
+    <a href="#" data-page="d5"><span class="num">5</span> Analysis Resources</a>
+    <a href="#" data-page="d6"><span class="num">6</span> Reporting Templates</a>
+    <a href="#" data-page="d7"><span class="num">7</span> Manager Training</a>
+    <a href="#" data-page="d8"><span class="num">8</span> Enumerator Training</a>
+    <a href="#" data-page="d9"><span class="num">9</span> Community Engagement</a>
+    <a href="#" data-page="d10"><span class="num">10</span> Final Package</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Data Pipeline</div>
+    <a href="#" data-page="pipeline"><span class="num">&rarr;</span> KoBoToolbox to Dashboard</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Interactive Tools</div>
+    <a href="#" data-page="sampling"><span class="num">S</span> Sample Size Calculator</a>
+    <a href="#" data-page="pps"><span class="num">P</span> PPS Cluster Selection</a>
+    <a href="#" data-page="analysis"><span class="num">A</span> CDR/U5DR Calculator</a>
+  </div>
+  <div class="nav-footer">
+    <p>Mortality Estimation and Surveillance Initiative</p>
+    <p style="margin-top:4px;">Save the Children / IMPACT / E4C</p>
+    <p style="margin-top:8px;color:#a8a29e;">Creative Commons BY 4.0</p>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="page active" id="page-dashboard">
+  <div class="page-header">
+    <h2>Toolkit Dashboard</h2>
+    <p class="subtitle">Mortality Survey and Surveillance Toolkit - Prototype Overview</p>
+  </div>
+
+  <div class="pipeline" id="pipeline">
+    <div class="pipeline-stage highlight" data-stage="1"><div class="stage-num">Stage 1</div><div class="stage-name">Listen</div><div class="stage-week">Week 1</div></div>
+    <div class="pipeline-stage" data-stage="2"><div class="stage-num">Stage 2</div><div class="stage-name">Build</div><div class="stage-week">Weeks 2-3</div></div>
+    <div class="pipeline-stage" data-stage="3"><div class="stage-num">Stage 3</div><div class="stage-name">Test</div><div class="stage-week">Week 3</div></div>
+    <div class="pipeline-stage" data-stage="4"><div class="stage-num">Stage 4</div><div class="stage-name">Listen</div><div class="stage-week">Week 4</div></div>
+    <div class="pipeline-stage" data-stage="5"><div class="stage-num">Stage 5</div><div class="stage-name">Train</div><div class="stage-week">Weeks 4-5</div></div>
+    <div class="pipeline-stage" data-stage="6"><div class="stage-num">Stage 6</div><div class="stage-name">Deliver</div><div class="stage-week">Week 5</div></div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:24px;">
+    <div class="stat-card accent"><div class="value">51</div><div class="label">Consulting Days</div></div>
+    <div class="stat-card"><div class="value">10+</div><div class="label">Deliverables</div></div>
+    <div class="stat-card"><div class="value">6</div><div class="label">Toolkit Components</div></div>
+    <div class="stat-card"><div class="value">$29.2k</div><div class="label">Total Budget</div></div>
+  </div>
+
+  <div class="card">
+    <h3>The 10 Deliverables</h3>
+    <div class="deliverable-item"><div class="d-num">1</div><div class="d-content"><h4>Finalised Toolkit Outline</h4><p>Structure and scope agreed with TAG co-chairs before production begins.</p><span class="d-stage badge stage-1">Stage 1: Listen</span></div></div>
+    <div class="deliverable-item"><div class="d-num">2</div><div class="d-content"><h4>Technical Guidance Document</h4><p>60-80 page practitioner-facing reference. Survey design, sampling, analysis, surveillance, ethics. Three drafts across stages.</p><span class="d-stage badge stage-2">Stages 1-5</span></div></div>
+    <div class="deliverable-item"><div class="d-num">3</div><div class="d-content"><h4>Concept Note and Protocol Templates</h4><p>Adaptable planning documents for survey managers to customise for their context.</p><span class="d-stage badge stage-2">Stage 2: Build</span></div></div>
+    <div class="deliverable-item"><div class="d-num">4</div><div class="d-content"><h4>Data Collection Tools</h4><p>Paper and XLSForm instruments: household listing, mortality survey, verbal autopsy, death notification. Multi-language, encryption-at-rest.</p><span class="d-stage badge stage-2">Stage 2: Build</span></div></div>
+    <div class="deliverable-item"><div class="d-num">5</div><div class="d-content"><h4>Analysis Resources</h4><p>Excel CDR/U5DR calculator, R scripts, R Shiny point-and-click application. Sample size and PPS cluster selection tools.</p><span class="d-stage badge stage-2">Stage 2: Build</span></div></div>
+    <div class="deliverable-item"><div class="d-num">5b</div><div class="d-content"><h4>Validation Findings Report</h4><p>"Think Aloud" usability testing results. Tool revisions documented before training development.</p><span class="d-stage badge stage-3">Stage 3: Test</span></div></div>
+    <div class="deliverable-item"><div class="d-num">6</div><div class="d-content"><h4>Reporting Templates</h4><p>Factsheet (1 page), slide deck, short technical report. Structured for decision-makers: Is this an emergency? Is it getting worse?</p><span class="d-stage badge stage-4">Stage 5: Train</span></div></div>
+    <div class="deliverable-item"><div class="d-num">7</div><div class="d-content"><h4>Manager Training Materials</h4><p>2-day training: sampling, data management, analysis, reporting, ethics. Slides, facilitator guide, exercises.</p><span class="d-stage badge stage-4">Stage 5: Train</span></div></div>
+    <div class="deliverable-item"><div class="d-num">8</div><div class="d-content"><h4>Enumerator Training Materials</h4><p>3-day training: consent, questionnaire administration, tablet use, distress management, data quality. Field guide included.</p><span class="d-stage badge stage-4">Stage 5: Train</span></div></div>
+    <div class="deliverable-item"><div class="d-num">9</div><div class="d-content"><h4>Community Engagement Guidance</h4><p>How to introduce mortality data collection, manage expectations, share results, and maintain trust.</p><span class="d-stage badge stage-4">Stage 5: Train</span></div></div>
+    <div class="deliverable-item"><div class="d-num">10</div><div class="d-content"><h4>Final Toolkit Package</h4><p>Integrated, quality-assured, Creative Commons licensed. Ready for the Initiative's digital hub.</p><span class="d-stage badge stage-5">Stage 6: Deliver</span></div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Day Allocation by Stage</h3>
+      <table>
+        <thead><tr><th>Stage</th><th>James</th><th>Mary</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr><td>1. Inception (Listen)</td><td>5</td><td>4</td><td><strong>9</strong></td></tr>
+          <tr><td>2. Core Build</td><td>9</td><td>7</td><td><strong>16</strong></td></tr>
+          <tr><td>3. Validation (Test)</td><td>3</td><td>3</td><td><strong>6</strong></td></tr>
+          <tr><td>4. Training (Listen + Train)</td><td>7</td><td>6</td><td><strong>13</strong></td></tr>
+          <tr><td>5. Finalisation (Deliver)</td><td>4</td><td>3</td><td><strong>7</strong></td></tr>
+          <tr><td><strong>Total</strong></td><td><strong>28</strong></td><td><strong>23</strong></td><td><strong>51</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Six Standards We Build On</h3>
+      <table>
+        <thead><tr><th>Resource</th><th>What we use it for</th></tr></thead>
+        <tbody>
+          <tr><td>SMART survey protocols</td><td>Sampling and survey design framework</td></tr>
+          <tr><td>WHO 2022 Verbal Autopsy</td><td>Cause-of-death assessment standard</td></tr>
+          <tr><td>Africa CDC 2024 guide</td><td>Surveillance approaches</td></tr>
+          <tr><td>WHO Health Cluster guidance</td><td>Emergency thresholds and indicators</td></tr>
+          <tr><td>UNHCR HIS toolkit</td><td>Data flow in refugee settings</td></tr>
+          <tr><td>LSHTM/UKHIH Partnership</td><td>Emerging methods (RaMMPS)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== D1: TOOLKIT OUTLINE ===== -->
+<div class="page" id="page-d1">
+  <div class="page-header">
+    <h2>Deliverable #1: Toolkit Outline</h2>
+    <p class="subtitle">Agreed with TAG co-chairs before production begins</p>
+    <span class="deliverable-tag">Stage 1: Listen - Week 1</span>
+  </div>
+  <div class="card">
+    <h3>Toolkit Structure</h3>
+    <div class="code-block"><span class="comment">Mortality Survey and Surveillance Toolkit v1.0</span>
+<span class="comment">Creative Commons BY 4.0 | Mortality Estimation Initiative</span>
+
+<span class="keyword">0_Sampling_Tools/</span>
+    Sample_Size_Calculator.R
+    Sample_Size_Calculator.xlsx
+    PPS_Cluster_Selection.R
+    PPS_Cluster_Selection.xlsx
+
+<span class="keyword">1_Technical_Guidance/</span>
+    Technical_Guidance_v1.pdf          <span class="comment"># 60-80 pages, 10 chapters</span>
+
+<span class="keyword">2_Planning_Templates/</span>
+    Concept_Note_Template.docx
+    Technical_Protocol_Template.docx
+
+<span class="keyword">3_Data_Collection/</span>
+    Paper/
+        Household_Listing.pdf
+        Mortality_Questionnaire.pdf
+        Verbal_Autopsy.pdf
+        Death_Notification.pdf
+    XLSForm/
+        mortality_survey_v1.xlsx       <span class="comment"># Main survey instrument</span>
+        verbal_autopsy_v1.xlsx         <span class="comment"># VA module (optional)</span>
+        death_notification_v1.xlsx     <span class="comment"># Surveillance</span>
+        household_listing_v1.xlsx      <span class="comment"># Pre-survey listing</span>
+
+<span class="keyword">4_Analysis/</span>
+    Excel/
+        CDR_U5DR_Calculator.xlsx
+        Data_Cleaning_Template.xlsx
+    R/
+        01_data_cleaning.R
+        02_cdr_calculation.R
+        03_confidence_intervals.R
+        shiny_app/app.R                <span class="comment"># Point-and-click interface</span>
+
+<span class="keyword">5_Reporting/</span>
+    Factsheet_Template.pptx
+    Short_Technical_Report.docx
+    Preliminary_Findings_Slides.pptx
+
+<span class="keyword">6_Training/</span>
+    Manager/   <span class="comment"># 2-day training package</span>
+    Enumerator/ <span class="comment"># 3-day training package</span>
+    Community_Engagement/
+
+<span class="keyword">7_Quick_Reference/</span>
+    Indicator_Definitions.pdf
+    Emergency_Thresholds.pdf
+    Local_Event_Calendar_Template.xlsx</div>
+  </div>
+</div>
+
+<!-- ===== D2: TECHNICAL GUIDANCE ===== -->
+<div class="page" id="page-d2">
+  <div class="page-header">
+    <h2>Deliverable #2: Technical Guidance Document</h2>
+    <p class="subtitle">60-80 page practitioner-facing reference document</p>
+    <span class="deliverable-tag">Three drafts: Stages 1, 2, and 4</span>
+  </div>
+  <div class="card">
+    <h3>Chapter Outline</h3>
+    <table>
+      <thead><tr><th>Ch.</th><th>Title</th><th>Content</th><th>Pages</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Introduction</td><td>Why mortality estimation matters. Emergency thresholds. How to use this toolkit.</td><td>4-5</td></tr>
+        <tr><td>2</td><td>Choosing Your Approach</td><td>Survey vs surveillance: when each is appropriate. Hybrid approaches.</td><td>4-6</td></tr>
+        <tr><td>3</td><td>Survey Design</td><td>Target population, two-stage cluster sampling with PPS, sample size, recall period, indicators (CDR, U5DR, neonatal, maternal, CSMF).</td><td>12-15</td></tr>
+        <tr><td>4</td><td>Surveillance Design</td><td>Death notification (facility and community), VA integration, denominator estimation, completeness.</td><td>8-10</td></tr>
+        <tr><td>5</td><td>Data Collection</td><td>Paper and XLSForm instruments. Household listing. Mortality questionnaire. VA administration.</td><td>8-10</td></tr>
+        <tr><td>6</td><td>Data Management</td><td>Transfer, backup, minimum cleaning standards, common errors.</td><td>4-6</td></tr>
+        <tr><td>7</td><td>Analysis</td><td>CDR/U5DR calculation with CIs, design effect, CSMF, threshold interpretation, bias documentation.</td><td>8-10</td></tr>
+        <tr><td>8</td><td>Reporting</td><td>Factsheets for decision-makers. Technical reports. Data sharing and archiving.</td><td>4-5</td></tr>
+        <tr><td>9</td><td>Training</td><td>Manager and enumerator training overviews. Community engagement.</td><td>4-5</td></tr>
+        <tr><td>10</td><td>Ethics</td><td>Informed consent, distress management, data protection, "do no harm", VA ethics.</td><td>4-6</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px;font-size:13px;color:var(--text-secondary);"><strong>Tone:</strong> Short paragraphs. Decision trees and flowcharts. Worked examples. "If you are in this situation, do X." The survey manager is the primary audience.</p>
+  </div>
+</div>
+
+<!-- ===== D3: CONCEPT NOTE & PROTOCOLS ===== -->
+<div class="page" id="page-d3">
+  <div class="page-header">
+    <h2>Deliverable #3: Concept Note and Protocol Templates</h2>
+    <p class="subtitle">Adaptable planning documents for survey managers</p>
+    <span class="deliverable-tag">Stage 2: Build</span>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Concept Note Template</h3>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">2-3 page document for internal approval</p>
+      <table>
+        <thead><tr><th>Section</th><th>Content</th></tr></thead>
+        <tbody>
+          <tr><td>Background</td><td>Why mortality data is needed in this context</td></tr>
+          <tr><td>Objectives</td><td>Primary: estimate CDR and U5DR. Secondary indicators.</td></tr>
+          <tr><td>Methodology</td><td>Survey vs surveillance. Sampling approach. Recall period.</td></tr>
+          <tr><td>Timeline</td><td>Planning, training, fieldwork, analysis, reporting</td></tr>
+          <tr><td>Budget</td><td>Personnel, transport, devices, per diem</td></tr>
+          <tr><td>Ethics</td><td>IRB requirements. Consent. Data protection.</td></tr>
+          <tr><td>Expected use</td><td>How will findings inform programming decisions?</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Technical Protocol Template</h3>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">8-12 page document for technical review and IRB</p>
+      <table>
+        <thead><tr><th>Section</th><th>Content</th></tr></thead>
+        <tbody>
+          <tr><td>Study design</td><td>Cross-sectional, retrospective mortality survey</td></tr>
+          <tr><td>Target population</td><td>Definition, inclusion/exclusion criteria</td></tr>
+          <tr><td>Sampling design</td><td>Two-stage cluster sampling with PPS. Sample size calculation with assumptions.</td></tr>
+          <tr><td>Recall period</td><td>Duration, anchor event, calendar tool</td></tr>
+          <tr><td>Data collection</td><td>Instruments, deployment platform, language</td></tr>
+          <tr><td>Quality assurance</td><td>Training plan, daily checks, supervision structure</td></tr>
+          <tr><td>Analysis plan</td><td>CDR/U5DR, CIs, DEFF, disaggregation</td></tr>
+          <tr><td>Ethical review</td><td>Consent, distress, anonymisation, data retention</td></tr>
+          <tr><td>Dissemination</td><td>Reporting products, timeline, audience</td></tr>
+          <tr><td>Limitations</td><td>Survival bias, recall bias, denominator uncertainty</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== D4: DATA COLLECTION TOOLS ===== -->
+<div class="page" id="page-d4">
+  <div class="page-header">
+    <h2>Deliverable #4: Data Collection Tools</h2>
+    <p class="subtitle">Paper and XLSForm instruments for KoBoToolbox, ODK, and SurveyCTO</p>
+    <span class="deliverable-tag">Stage 2: Build</span>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="xlsform-survey">Mortality Survey</div>
+    <div class="tab" data-tab="xlsform-hh">Household Listing</div>
+    <div class="tab" data-tab="xlsform-va">Verbal Autopsy</div>
+    <div class="tab" data-tab="xlsform-dn">Death Notification</div>
+  </div>
+
+  <div class="tab-content active" id="tab-xlsform-survey">
+    <div class="card">
+      <h3>Mortality Survey Questionnaire (XLSForm)</h3>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Bilingual (English/French). Skip logic, constraints, hint text, encryption-at-rest.</p>
+      <div class="xlsform-preview">
+        <table>
+          <thead><tr><th>type</th><th>name</th><th>label::English</th><th>label::French</th><th>relevant</th><th>constraint</th><th>hint</th></tr></thead>
+          <tbody>
+            <tr><td class="type-col">begin_group</td><td>metadata</td><td>Survey Metadata</td><td>Metadonnees</td><td></td><td></td><td></td></tr>
+            <tr><td class="type-col">select_one cluster</td><td>cluster_id</td><td>Cluster</td><td>Grappe</td><td></td><td></td><td>Select from assigned clusters</td></tr>
+            <tr><td class="type-col">integer</td><td>hh_number</td><td>Household number</td><td>Numero du menage</td><td></td><td class="constraint-col">.>0</td><td>Sequential within cluster</td></tr>
+            <tr><td class="type-col">geopoint</td><td>hh_gps</td><td>GPS location</td><td>Position GPS</td><td></td><td></td><td></td></tr>
+            <tr><td class="type-col">date</td><td>interview_date</td><td>Date of interview</td><td>Date de l'entretien</td><td></td><td></td><td></td></tr>
+            <tr><td class="type-col">end_group</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="type-col">begin_group</td><td>household</td><td>Household Information</td><td>Informations sur le menage</td><td></td><td></td><td></td></tr>
+            <tr><td class="type-col">integer</td><td>hh_size</td><td>Current household size</td><td>Taille actuelle du menage</td><td></td><td class="constraint-col">.>0 and .&lt;=50</td><td>All persons sleeping here</td></tr>
+            <tr><td class="type-col">integer</td><td>hh_under5</td><td>Children under 5</td><td>Enfants de moins de 5 ans</td><td></td><td class="constraint-col">.>=0 and .&lt;=${hh_size}</td><td></td></tr>
+            <tr><td class="type-col">integer</td><td>births</td><td>Births since [ANCHOR]</td><td>Naissances depuis [REPERE]</td><td></td><td class="constraint-col">.>=0</td><td></td></tr>
+            <tr><td class="type-col">integer</td><td>arrivals</td><td>Arrivals since [ANCHOR]</td><td>Arrivees depuis [REPERE]</td><td></td><td class="constraint-col">.>=0</td><td>People who joined the HH</td></tr>
+            <tr><td class="type-col">integer</td><td>departures</td><td>Departures since [ANCHOR]</td><td>Departs depuis [REPERE]</td><td></td><td class="constraint-col">.>=0</td><td>People who left the HH</td></tr>
+            <tr><td class="type-col">integer</td><td>num_deaths</td><td>Deaths since [ANCHOR]</td><td>Deces depuis [REPERE]</td><td></td><td class="constraint-col">.>=0</td><td>Include all ages</td></tr>
+            <tr><td class="type-col">end_group</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><td class="type-col">begin_repeat</td><td>death_detail</td><td>Death Details</td><td>Details du deces</td><td class="relevant-col">${num_deaths}>0</td><td></td><td></td></tr>
+            <tr><td class="type-col">text</td><td>deceased_name</td><td>Name of deceased</td><td>Nom du defunt</td><td></td><td></td><td></td></tr>
+            <tr><td class="type-col">select_one sex</td><td>deceased_sex</td><td>Sex</td><td>Sexe</td><td></td><td></td><td></td></tr>
+            <tr><td class="type-col">integer</td><td>deceased_age</td><td>Age at death (years)</td><td>Age au deces</td><td></td><td class="constraint-col">.>=0 and .&lt;=120</td><td></td></tr>
+            <tr><td class="type-col">date</td><td>death_date</td><td>Date of death</td><td>Date du deces</td><td></td><td class="constraint-col">>=${recall_start}</td><td>Must be in recall period</td></tr>
+            <tr><td class="type-col">select_one cause</td><td>probable_cause</td><td>Probable cause</td><td>Cause probable</td><td></td><td></td><td></td></tr>
+            <tr><td class="type-col">select_one yn</td><td>sought_care</td><td>Sought care?</td><td>A cherche des soins?</td><td></td><td></td><td></td></tr>
+            <tr><td class="type-col">note</td><td>va_flag</td><td>VA may be needed</td><td>Autopsie verbale requise</td><td class="relevant-col">${deceased_age}&lt;5 or ${probable_cause}='maternal'</td><td></td><td></td></tr>
+            <tr><td class="type-col">end_repeat</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:16px;">
+        <h4>Key XLSForm Features</h4>
+        <div class="grid-3" style="margin-top:8px;">
+          <div style="font-size:13px;"><strong>Skip logic:</strong> Death details only appear when deaths > 0. VA flag triggers on under-5 or maternal deaths.</div>
+          <div style="font-size:13px;"><strong>Constraints:</strong> Age 0-120, dates within recall period, household size > 0, under-5 count cannot exceed total.</div>
+          <div style="font-size:13px;"><strong>Encryption:</strong> Configured for encryption-at-rest on KoBoToolbox/ODK. Sensitive mortality data protected on device.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-xlsform-hh">
+    <div class="card">
+      <h3>Household Listing Form</h3>
+      <p>Used during the pre-survey phase to create a complete list of households in each selected cluster. From this list, the required number of households is randomly selected.</p>
+      <table style="margin-top:12px;">
+        <thead><tr><th>Field</th><th>Type</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>Cluster ID</td><td>select_one</td><td>Assigned cluster from PPS selection</td></tr>
+          <tr><td>Household number</td><td>integer</td><td>Sequential listing number</td></tr>
+          <tr><td>GPS</td><td>geopoint</td><td>Location for mapping and verification</td></tr>
+          <tr><td>Head of household</td><td>text</td><td>Identification for sampling</td></tr>
+          <tr><td>Household size</td><td>integer</td><td>Number of current members</td></tr>
+          <tr><td>Structure type</td><td>select_one</td><td>Dwelling classification</td></tr>
+          <tr><td>Occupied status</td><td>select_one</td><td>Occupied / Empty / Destroyed</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:12px;font-size:13px;color:var(--text-secondary);">The "Occupied status" field is critical for documenting survival bias: destroyed or empty dwellings may indicate households that died or fled.</p>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-xlsform-va">
+    <div class="card">
+      <h3>Verbal Autopsy Form (WHO 2022 aligned)</h3>
+      <p>Optional module. Activates when cause-of-death data is needed. Aligned with the WHO 2022 VA instrument covering 66 causes mapped to ICD-10.</p>
+      <table style="margin-top:12px;">
+        <thead><tr><th>Section</th><th>Fields</th><th>Duration</th></tr></thead>
+        <tbody>
+          <tr><td>Identification</td><td>Deceased demographics, respondent relationship, date of death</td><td>3-5 min</td></tr>
+          <tr><td>Signs and symptoms</td><td>Duration of illness, specific symptoms (fever, cough, diarrhoea, bleeding, etc.), progression</td><td>10-15 min</td></tr>
+          <tr><td>Medical history</td><td>Known conditions, previous treatment, pregnancies (for women 12-49)</td><td>5-8 min</td></tr>
+          <tr><td>Care-seeking</td><td>Health facility visits, treatments received, barriers to care</td><td>5-7 min</td></tr>
+          <tr><td>Circumstances</td><td>Injury details (if applicable), place of death, final hours</td><td>5-8 min</td></tr>
+          <tr><td>Open narrative</td><td>Respondent's own account of the illness and death</td><td>5-10 min</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:12px;font-size:13px;"><strong>Coding:</strong> PCVA (physician review, gold standard) or algorithmic (SmartVA, InterVA, InSilicoVA). The toolkit provides guidance on both approaches.</p>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-xlsform-dn">
+    <div class="card">
+      <h3>Community Death Notification Form (Surveillance)</h3>
+      <p>For community health workers to report deaths as they occur. Short form designed for mobile reporting.</p>
+      <table style="margin-top:12px;">
+        <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Reporting CHW</td><td>select_one</td><td>Pre-populated from CHW register</td></tr>
+          <tr><td>Community</td><td>cascading select</td><td>Region > District > Village</td></tr>
+          <tr><td>Date of death</td><td>date</td><td>Constrained to last 30 days</td></tr>
+          <tr><td>Deceased age</td><td>integer</td><td>Years (0 for neonates)</td></tr>
+          <tr><td>Deceased sex</td><td>select_one</td><td></td></tr>
+          <tr><td>Place of death</td><td>select_one</td><td>Home / Facility / Transit / Other</td></tr>
+          <tr><td>Probable cause</td><td>select_one</td><td>Simplified cause list (8-10 categories)</td></tr>
+          <tr><td>Maternal death flag</td><td>select_one yn</td><td>Triggers MPDSR notification</td></tr>
+          <tr><td>VA referral needed</td><td>calculate</td><td>Auto-flagged for under-5, maternal, or unknown cause</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== D5: ANALYSIS RESOURCES ===== -->
+<div class="page" id="page-d5">
+  <div class="page-header">
+    <h2>Deliverable #5: Analysis Resources</h2>
+    <p class="subtitle">Excel calculator, R scripts, and R Shiny application</p>
+    <span class="deliverable-tag">Stage 2: Build</span>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="analysis-shiny">R Shiny App</div>
+    <div class="tab" data-tab="analysis-excel">Excel Calculator</div>
+    <div class="tab" data-tab="analysis-scripts">R Scripts</div>
+  </div>
+
+  <div class="tab-content active" id="tab-analysis-shiny">
+    <div class="card">
+      <h3>R Shiny Application - Point-and-Click Interface</h3>
+      <p style="margin-bottom:16px;">The user never sees R code. Upload CSV, set parameters, click Generate.</p>
+      <div style="background:#f8f8f8;border:2px solid var(--border);border-radius:var(--radius);padding:24px;">
+        <div class="grid-2" style="gap:24px;">
+          <div>
+            <h4 style="margin-top:0;">Input Panel</h4>
+            <div class="form-group"><label>Upload survey data (CSV)</label><input type="file" disabled style="padding:6px;"></div>
+            <div class="form-group"><label>Recall period (days)</label><input type="number" value="90" disabled></div>
+            <div class="form-group"><label>Mid-period population</label><input type="number" value="45000" disabled></div>
+            <div class="form-group"><label>Emergency CDR threshold</label><input type="number" value="1.0" step="0.1" disabled></div>
+            <button class="primary" disabled>Generate Report</button>
+          </div>
+          <div>
+            <h4 style="margin-top:0;">Output Panel</h4>
+            <div class="result-box danger">
+              <div class="result-label">Crude Death Rate</div>
+              <div class="result-value">1.24 <span style="font-size:14px;font-weight:400;">/ 10,000 / day</span></div>
+              <div class="result-detail">95% CI: 0.82 - 1.66</div>
+              <div class="threshold-bar"><div class="fill" style="width:62%;background:#dc2626;"></div><div class="marker" style="left:50%;"></div></div>
+              <div class="threshold-text">Emergency threshold: 1.0 | Point estimate: ABOVE</div>
+            </div>
+            <div class="result-box success">
+              <div class="result-label">Under-5 Death Rate</div>
+              <div class="result-value">1.87 <span style="font-size:14px;font-weight:400;">/ 10,000 / day</span></div>
+              <div class="result-detail">95% CI: 1.12 - 2.62</div>
+              <div class="threshold-bar"><div class="fill" style="width:47%;background:#16a34a;"></div><div class="marker" style="left:50%;"></div></div>
+              <div class="threshold-text">Emergency threshold: 2.0 | Point estimate: BELOW</div>
+            </div>
+            <div style="margin-top:12px;font-size:13px;color:var(--text-secondary);">Design effect (DEFF): 1.78 | Clusters: 28 | Households: 625</div>
+          </div>
+        </div>
+      </div>
+      <p style="margin-top:16px;font-size:13px;color:var(--text-secondary);">The interactive CDR/U5DR Calculator below demonstrates the live calculation logic. The full R Shiny app adds CSV upload, disaggregation, cluster-level charts, and PDF report download.</p>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-analysis-excel">
+    <div class="card">
+      <h3>Excel CDR/U5DR Calculator</h3>
+      <p style="margin-bottom:12px;">For teams with no R capacity. Named ranges, protected formulas, no macros.</p>
+      <table>
+        <thead><tr><th>Tab</th><th>Content</th><th>User action</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1. Data Entry</strong></td><td>Cluster-level summary: cluster ID, households, person-days, deaths, under-5 deaths</td><td>Paste from KoBoToolbox export</td></tr>
+          <tr><td><strong>2. CDR Calculation</strong></td><td>CDR formula with confidence interval. Threshold comparison with conditional formatting.</td><td>Automatic</td></tr>
+          <tr><td><strong>3. U5DR Calculation</strong></td><td>Under-5 death rate with CI. Emergency threshold: 2.0/10,000/day.</td><td>Automatic</td></tr>
+          <tr><td><strong>4. Disaggregation</strong></td><td>By sex, age group, geographic area. Pivot table format.</td><td>Select disaggregation</td></tr>
+          <tr><td><strong>5. Dashboard</strong></td><td>Visual summary: CDR, U5DR, threshold comparison. Copy-paste ready.</td><td>Copy to report</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:16px;display:flex;gap:12px;">
+        <a href="downloads/CDR_U5DR_Calculator.xlsx" download class="primary" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;padding:10px 24px;background:var(--accent);color:#fff;border-radius:6px;font-weight:600;font-size:14px;">&#11015; Download CDR/U5DR Calculator</a>
+        <a href="downloads/Sample_Size_Calculator.xlsx" download class="primary" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;padding:10px 24px;background:#1c1917;color:#fff;border-radius:6px;font-weight:600;font-size:14px;">&#11015; Download Sample Size Calculator</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-analysis-scripts">
+    <div class="card">
+      <h3>Documented R Scripts</h3>
+      <p style="margin-bottom:12px;">For teams with R capacity who want full control over the analysis.</p>
+      <div class="code-block"><span class="comment"># 01_data_cleaning.R</span>
+<span class="comment"># Load raw export, check for:</span>
+<span class="comment">#   - Missing cluster/household IDs</span>
+<span class="comment">#   - Household size inconsistencies</span>
+<span class="comment">#   - Death dates outside recall period</span>
+<span class="comment">#   - Age and sex completeness for deaths</span>
+<span class="comment"># Output: survey_data_clean.csv</span>
+
+<span class="comment"># 02_cdr_calculation.R</span>
+<span class="comment"># Calculate person-time per household:</span>
+<span class="comment">#   mid_period_hh_size * recall_days</span>
+<span class="comment"># Aggregate to cluster level</span>
+<span class="comment"># CDR = (total deaths / total person-days) * 10000</span>
+<span class="comment"># Flag: above/below 1.0 emergency threshold</span>
+
+<span class="comment"># 03_confidence_intervals.R</span>
+<span class="keyword">library</span>(survey)
+design <- <span class="keyword">svydesign</span>(
+  ids = ~cluster_id,
+  data = hh_data,
+  weights = ~<span class="number">1</span>
+)
+cdr_mean <- <span class="keyword">svymean</span>(~death_rate_10k, design)
+<span class="keyword">confint</span>(cdr_mean)   <span class="comment"># 95% CI</span>
+<span class="keyword">deff</span>(cdr_mean)      <span class="comment"># Design effect</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== D6: REPORTING TEMPLATES ===== -->
+<div class="page" id="page-d6">
+  <div class="page-header">
+    <h2>Deliverable #6: Reporting Templates</h2>
+    <p class="subtitle">Factsheet, slide deck, and short technical report</p>
+    <span class="deliverable-tag">Stage 5: Train</span>
+  </div>
+  <div class="card">
+    <h3>Mortality Survey Factsheet (1 page)</h3>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Decision-makers read the top third. Methodologists read the bottom. Structured around: Is this an emergency? Is it getting worse? Where should we concentrate?</p>
+    <div class="factsheet">
+      <div class="fs-header">
+        <h2>Mortality Survey Results</h2>
+        <p>Jonglei State, South Sudan | March 2026 | 90-day recall period</p>
+      </div>
+      <div class="fs-kpi">
+        <div class="fs-kpi-card" style="background:var(--danger-bg);"><div class="kpi-value" style="color:var(--danger);">1.24</div><div class="kpi-label">CDR /10k/day</div><div style="font-size:11px;color:var(--danger);font-weight:600;">ABOVE THRESHOLD</div></div>
+        <div class="fs-kpi-card" style="background:var(--success-bg);"><div class="kpi-value" style="color:var(--success);">1.87</div><div class="kpi-label">U5DR /10k/day</div><div style="font-size:11px;color:var(--success);font-weight:600;">BELOW THRESHOLD</div></div>
+        <div class="fs-kpi-card" style="background:#f5f5f4;"><div class="kpi-value">625</div><div class="kpi-label">Households</div><div style="font-size:11px;color:var(--text-secondary);">28 clusters</div></div>
+      </div>
+      <div class="fs-section">
+        <h4>What This Means</h4>
+        <p>The crude death rate exceeds the emergency threshold of 1.0/10,000/day (95% CI: 0.82-1.66), indicating elevated mortality. Under-5 mortality is below the 2.0 threshold but requires close monitoring.</p>
+      </div>
+      <div class="fs-section">
+        <h4>Leading Causes of Death (Verbal Autopsy, n=47)</h4>
+        <div class="cause-bar"><span class="bar-label">Malaria</span><div class="bar" style="width:140px;"></div><span>28%</span></div>
+        <div class="cause-bar"><span class="bar-label">Diarrhoea</span><div class="bar" style="width:95px;"></div><span>19%</span></div>
+        <div class="cause-bar"><span class="bar-label">Pneumonia</span><div class="bar" style="width:70px;"></div><span>14%</span></div>
+        <div class="cause-bar"><span class="bar-label">Injury/violence</span><div class="bar" style="width:45px;"></div><span>9%</span></div>
+        <div class="cause-bar"><span class="bar-label">Other/unknown</span><div class="bar" style="width:150px;background:#a8a29e;"></div><span>30%</span></div>
+      </div>
+      <div class="fs-section">
+        <h4>Methodology</h4>
+        <p style="font-size:12px;">Two-stage cluster sampling (PPS), 28 clusters, 625 households. 90-day recall anchored to the start of the dry season. DEFF: 1.78. Limitations: survival bias in areas affected by displacement; 8 destroyed dwellings recorded during household listing.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== D7: MANAGER TRAINING ===== -->
+<div class="page" id="page-d7">
+  <div class="page-header">
+    <h2>Deliverable #7: Manager Training Materials</h2>
+    <p class="subtitle">2-day training package for survey managers</p>
+    <span class="deliverable-tag">Stage 5: Train</span>
+  </div>
+  <div class="card">
+    <h3>Training Outline</h3>
+    <div class="timeline">
+      <div class="timeline-item"><h4>Day 1, Morning: Survey Design</h4><p>Sampling methodology. Two-stage cluster sampling with PPS. Using the sample size calculator. Adapting for context: camps, dispersed populations, mixed settings. Recall period selection and anchoring.</p></div>
+      <div class="timeline-item"><h4>Day 1, Afternoon: Data Management</h4><p>Setting up KoBoToolbox project. Deploying XLSForm instruments. Monitoring submissions in real-time. Running daily quality checks: completeness, duration outliers, GPS consistency.</p></div>
+      <div class="timeline-item"><h4>Day 2, Morning: Analysis and Interpretation</h4><p>Using the Excel calculator or R Shiny app. Calculating CDR and U5DR. Understanding confidence intervals. Design effect. Interpreting results against emergency thresholds.</p></div>
+      <div class="timeline-item"><h4>Day 2, Afternoon: Reporting and Ethics</h4><p>Using reporting templates. Presenting to decision-makers. Documenting limitations (survival bias, recall bias). Ethical responsibilities: consent, distress, data protection.</p></div>
+    </div>
+    <h4>Package Contents</h4>
+    <table>
+      <thead><tr><th>Material</th><th>Format</th><th>Pages/Slides</th></tr></thead>
+      <tbody>
+        <tr><td>Training slide deck</td><td>PPTX</td><td>60-80 slides</td></tr>
+        <tr><td>Facilitator guide</td><td>PDF</td><td>15-20 pages</td></tr>
+        <tr><td>Manager reference guide</td><td>PDF</td><td>8-10 pages</td></tr>
+        <tr><td>Exercises and worked examples</td><td>PDF + Excel</td><td>5-8 exercises</td></tr>
+        <tr><td>Daily QC checklist</td><td>PDF (laminated)</td><td>1 page</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== D8: ENUMERATOR TRAINING ===== -->
+<div class="page" id="page-d8">
+  <div class="page-header">
+    <h2>Deliverable #8: Enumerator Training Materials</h2>
+    <p class="subtitle">3-day training package for field enumerators</p>
+    <span class="deliverable-tag">Stage 5: Train</span>
+  </div>
+  <div class="card">
+    <h3>Training Outline</h3>
+    <div class="timeline">
+      <div class="timeline-item"><h4>Day 1, Morning: Introduction</h4><p>Why we measure mortality. What CDR means. How the data will be used. The role of the enumerator in the data chain.</p></div>
+      <div class="timeline-item"><h4>Day 1, Afternoon: Consent and Ethics</h4><p>Informed consent script (practised until fluent). Respondent distress management: recognising distress, pausing interviews, referral pathways. "Do no harm." When to stop an interview.</p></div>
+      <div class="timeline-item"><h4>Day 2, Morning: The Questionnaire</h4><p>Household listing: who counts as a household member. Mortality module: recall period, anchor event, recording deaths. VA module (if applicable). Walk through every question.</p></div>
+      <div class="timeline-item"><h4>Day 2, Afternoon: Tablet Training</h4><p>Using KoBoToolbox/ODK. Navigating the XLSForm. Skip logic in practice. Uploading data. Troubleshooting common issues. GPS recording.</p></div>
+      <div class="timeline-item"><h4>Day 3, Morning: Practice Interviews</h4><p>Role-play with fellow trainees. Then practice with real households in the local area (pilot). Debriefing after each practice session.</p></div>
+      <div class="timeline-item"><h4>Day 3, Afternoon: Data Quality and Logistics</h4><p>Daily checks: what supervisors look for. Common errors. Daily schedule. Transport. Communication with supervisors. Safety and security protocols.</p></div>
+    </div>
+    <h4>Package Contents</h4>
+    <table>
+      <thead><tr><th>Material</th><th>Format</th></tr></thead>
+      <tbody>
+        <tr><td>Training slide deck</td><td>PPTX (40-50 slides)</td></tr>
+        <tr><td>Enumerator field guide</td><td>PDF (laminated pocket card + 8-page booklet)</td></tr>
+        <tr><td>Consent script</td><td>DOCX (adaptable to context and language)</td></tr>
+        <tr><td>Practice exercises</td><td>PDF (role-play scenarios)</td></tr>
+        <tr><td>Troubleshooting guide</td><td>1-page reference</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== D9: COMMUNITY ENGAGEMENT ===== -->
+<div class="page" id="page-d9">
+  <div class="page-header">
+    <h2>Deliverable #9: Community Engagement Guidance</h2>
+    <p class="subtitle">How to introduce mortality data collection to communities</p>
+    <span class="deliverable-tag">Stage 5: Train</span>
+  </div>
+  <div class="card">
+    <h3>Guidance Structure</h3>
+    <table>
+      <thead><tr><th>Phase</th><th>Activities</th><th>Key messages</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Before the survey</strong></td><td>Meet community leaders. Explain purpose, process, and what will happen with the data. Address concerns about asking about deaths.</td><td>"We are collecting this information to understand the health situation and improve services. Participation is voluntary."</td></tr>
+        <tr><td><strong>During the survey</strong></td><td>Ensure enumerators identify themselves clearly. Allow community observers if requested. Maintain sensitivity around bereaved households.</td><td>"If at any point you feel uncomfortable, you can stop the interview. This will not affect your access to services."</td></tr>
+        <tr><td><strong>After the survey</strong></td><td>Share summary findings with community leaders. Explain what actions will follow. Thank the community for participation.</td><td>"The information you shared is being used to [specific action]. Here is what we found and what happens next."</td></tr>
+      </tbody>
+    </table>
+    <h4 style="margin-top:20px;">Specific Considerations</h4>
+    <div class="grid-2" style="margin-top:8px;">
+      <div style="font-size:13px;"><strong>Verbal autopsy sensitivity:</strong> Asking bereaved families to recount death circumstances. Informed consent must acknowledge this explicitly. Distress management protocols are mandatory, not optional.</div>
+      <div style="font-size:13px;"><strong>Conflict settings:</strong> Identifying which households experienced deaths can expose respondents to risk. Discreet approaches to household identification. No household-level data shared externally.</div>
+    </div>
+    <p style="margin-top:16px;font-size:13px;color:var(--text-secondary);">Draws on Mary's PhD research on community participation in MPDSR in Kenya, and the WHO MDSR "no shame, no blame" principle.</p>
+  </div>
+</div>
+
+<!-- ===== D10: FINAL PACKAGE ===== -->
+<div class="page" id="page-d10">
+  <div class="page-header">
+    <h2>Deliverable #10: Final Toolkit Package</h2>
+    <p class="subtitle">Integrated, quality-assured, Creative Commons licensed</p>
+    <span class="deliverable-tag">Stage 6: Deliver</span>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Quality Assurance Checklist</h3>
+      <table>
+        <tbody>
+          <tr><td>All XLSForms validated on KoBoToolbox and ODK</td><td style="color:var(--success);">&#10003;</td></tr>
+          <tr><td>R Shiny app tested with simulated data</td><td style="color:var(--success);">&#10003;</td></tr>
+          <tr><td>Excel calculator tested with edge cases</td><td style="color:var(--success);">&#10003;</td></tr>
+          <tr><td>Technical guidance peer-reviewed by TAG</td><td style="color:var(--success);">&#10003;</td></tr>
+          <tr><td>"Think Aloud" usability testing completed</td><td style="color:var(--success);">&#10003;</td></tr>
+          <tr><td>Multi-language columns verified (EN/FR)</td><td style="color:var(--success);">&#10003;</td></tr>
+          <tr><td>Creative Commons BY 4.0 licensing applied</td><td style="color:var(--success);">&#10003;</td></tr>
+          <tr><td>README and version control documentation</td><td style="color:var(--success);">&#10003;</td></tr>
+          <tr><td>Ready for digital hub integration</td><td style="color:var(--success);">&#10003;</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Sustainability Design</h3>
+      <table>
+        <thead><tr><th>Principle</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Open source</strong></td><td>R, XLSForm (open standard), Excel. No proprietary dependencies.</td></tr>
+          <tr><td><strong>Modular</strong></td><td>VA module updated independently of sampling guidance. Each component self-standing.</td></tr>
+          <tr><td><strong>Creative Commons</strong></td><td>BY 4.0 licence. Anyone can adapt, translate, redistribute.</td></tr>
+          <tr><td><strong>TAG custody</strong></td><td>Designed for technically competent PH professionals to maintain.</td></tr>
+          <tr><td><strong>Digital hub</strong></td><td>Structured for the READY Initiative model. Multi-lingual, downloadable, web-hosted.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DATA PIPELINE ===== -->
+<div class="page" id="page-pipeline">
+  <div class="page-header">
+    <h2>Data Pipeline: KoBoToolbox to Dashboard</h2>
+    <p class="subtitle">End-to-end flow from data collection to decision-making</p>
+  </div>
+
+  <div class="flow-pipeline">
+    <div class="flow-stage" data-flow="collect" onclick="showFlowDetail('collect')">
+      <div class="flow-icon">&#128241;</div>
+      <div class="flow-name">KoBoToolbox Collection</div>
+    </div>
+    <div class="flow-arrow">&#10132;</div>
+    <div class="flow-stage" data-flow="export" onclick="showFlowDetail('export')">
+      <div class="flow-icon">&#128196;</div>
+      <div class="flow-name">CSV Export</div>
+    </div>
+    <div class="flow-arrow">&#10132;</div>
+    <div class="flow-stage" data-flow="clean" onclick="showFlowDetail('clean')">
+      <div class="flow-icon">&#128270;</div>
+      <div class="flow-name">Data Cleaning</div>
+    </div>
+    <div class="flow-arrow">&#10132;</div>
+    <div class="flow-stage" data-flow="analysis" onclick="showFlowDetail('analysis')">
+      <div class="flow-icon">&#128200;</div>
+      <div class="flow-name">CDR/U5DR Analysis</div>
+    </div>
+    <div class="flow-arrow">&#10132;</div>
+    <div class="flow-stage" data-flow="output" onclick="showFlowDetail('output')">
+      <div class="flow-icon">&#128203;</div>
+      <div class="flow-name">Factsheet / Dashboard</div>
+    </div>
+  </div>
+
+  <div class="flow-detail" id="flow-detail-collect">
+    <strong>KoBoToolbox Collection:</strong> Household listing and mortality survey forms deployed to tablets. Data syncs automatically when connectivity is available. Encryption-at-rest protects sensitive mortality data.
+  </div>
+  <div class="flow-detail" id="flow-detail-export">
+    <strong>CSV Export:</strong> Download from KoBoToolbox or ODK Central as CSV. The demo data below simulates a 28-cluster mortality survey export with 676 household records.
+  </div>
+  <div class="flow-detail" id="flow-detail-clean">
+    <strong>Data Cleaning:</strong> Check for missing cluster/household IDs, household size inconsistencies, death dates outside recall period, age/sex completeness. The Excel template or R script handles these checks.
+  </div>
+  <div class="flow-detail" id="flow-detail-analysis">
+    <strong>CDR/U5DR Analysis:</strong> Calculate person-time per household, aggregate to cluster level, compute CDR and U5DR with confidence intervals. Compare against emergency thresholds.
+  </div>
+  <div class="flow-detail" id="flow-detail-output">
+    <strong>Factsheet / Dashboard:</strong> One-page factsheet for decision-makers: Is this an emergency? Is it getting worse? Structured for Health Cluster coordination meetings.
+  </div>
+
+  <div class="card">
+    <h3>Demo Data</h3>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">First 10 rows of a simulated 28-cluster, 676-household KoBoToolbox export.</p>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr><th>_id</th><th>cluster_id</th><th>cluster_name</th><th>household_id</th><th>hh_size</th><th>hh_under5</th><th>births</th><th>arrivals</th><th>departures</th><th>num_deaths</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>C01</td><td>Bor Town</td><td>C01-001</td><td>6</td><td>2</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+          <tr><td>2</td><td>C01</td><td>Bor Town</td><td>C01-002</td><td>4</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>3</td><td>C01</td><td>Bor Town</td><td>C01-003</td><td>7</td><td>2</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td>4</td><td>C02</td><td>Makuach</td><td>C02-001</td><td>5</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>5</td><td>C02</td><td>Makuach</td><td>C02-002</td><td>3</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+          <tr><td>6</td><td>C03</td><td>Anyidi</td><td>C03-001</td><td>8</td><td>3</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+          <tr><td>7</td><td>C03</td><td>Anyidi</td><td>C03-002</td><td>5</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+          <tr><td>8</td><td>C04</td><td>Kolnyang</td><td>C04-001</td><td>4</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>9</td><td>C04</td><td>Kolnyang</td><td>C04-002</td><td>6</td><td>2</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+          <tr><td>10</td><td>C05</td><td>Pariak</td><td>C05-001</td><td>5</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="downloads/demo_kobo_export.csv" download class="primary" style="display:inline-block;text-decoration:none;padding:10px 24px;background:var(--accent);color:#fff;border-radius:var(--radius);font-weight:600;">Download Demo Data (CSV)</a>
+      <button class="primary" onclick="loadDemoData()" style="background:#1c1917;">Load Demo Data into Calculator &#10132;</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Aggregated Demo Summary</h3>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Totals across all 28 clusters and 676 households in the demo dataset.</p>
+    <div class="grid-3" style="margin-bottom:16px;">
+      <div class="stat-card"><div class="value">3,474</div><div class="label">Total Population</div></div>
+      <div class="stat-card"><div class="value">709</div><div class="label">Under-5 Population</div></div>
+      <div class="stat-card"><div class="value">31</div><div class="label">Total Deaths</div></div>
+    </div>
+    <div class="grid-3">
+      <div class="stat-card"><div class="value">10</div><div class="label">Under-5 Deaths</div></div>
+      <div class="stat-card"><div class="value">90</div><div class="label">Recall Days</div></div>
+      <div class="stat-card"><div class="value">28</div><div class="label">Clusters</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SAMPLING CALCULATOR ===== -->
+<div class="page" id="page-sampling">
+  <div class="page-header">
+    <h2>Sample Size Calculator</h2>
+    <p class="subtitle">Interactive tool for mortality survey sample size determination</p>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Parameters</h3>
+      <div class="form-group"><label>Expected CDR (/10,000/day)</label><input type="number" id="ss-cdr" value="0.5" step="0.1" min="0.1"><div class="hint">Baseline sub-Saharan Africa: ~0.5</div></div>
+      <div class="form-group"><label>Desired precision (+/-)</label><input type="number" id="ss-precision" value="0.3" step="0.05" min="0.05"><div class="hint">Typically 0.3-0.5 deaths/10,000/day</div></div>
+      <div class="form-group"><label>Recall period (days)</label><input type="number" id="ss-recall" value="90" min="30" max="365"></div>
+      <div class="form-group"><label>Average household size</label><input type="number" id="ss-hhsize" value="5" step="0.5" min="2"></div>
+      <div class="form-group"><label>Design effect (DEFF)</label><input type="number" id="ss-deff" value="2.0" step="0.1" min="1.0"><div class="hint">Typical: 1.5-2.0 for mortality</div></div>
+      <div class="form-group"><label>Non-response rate (%)</label><input type="number" id="ss-nonresponse" value="10" min="0" max="30"></div>
+      <div class="form-group"><label>Number of clusters</label><input type="number" id="ss-clusters" value="25" min="10" max="50"></div>
+      <button class="primary" onclick="calcSampleSize()">Calculate</button>
+    </div>
+    <div class="card" id="ss-results">
+      <h3>Results</h3>
+      <p style="color:var(--text-secondary);">Adjust parameters and click Calculate.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PPS CLUSTER SELECTION ===== -->
+<div class="page" id="page-pps">
+  <div class="page-header">
+    <h2>PPS Cluster Selection</h2>
+    <p class="subtitle">Systematic Probability Proportional to Size selection</p>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Cluster Population Data</h3>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Demo data: Bor South County, Jonglei State</p>
+      <table id="pps-input-table">
+        <thead><tr><th>Cluster</th><th>Name</th><th>Population</th><th>Cumulative</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="form-group" style="margin-top:16px;"><label>Clusters to select</label><input type="number" id="pps-n" value="8" min="3" max="15"></div>
+      <button class="primary" onclick="runPPS()">Run PPS Selection</button>
+    </div>
+    <div class="card" id="pps-results">
+      <h3>Selection Results</h3>
+      <p style="color:var(--text-secondary);">Click "Run PPS Selection" to see results.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CDR/U5DR CALCULATOR ===== -->
+<div class="page" id="page-analysis">
+  <div class="page-header">
+    <h2>CDR / U5DR Calculator</h2>
+    <p class="subtitle">Interactive mortality rate calculation with emergency threshold comparison</p>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <h3>Analysis Mode</h3>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">The core CDR/U5DR formula is the same for both survey and surveillance. The difference is in how the denominator (person-time) is estimated.</p>
+    <div style="display:flex;gap:0;border:2px solid var(--border);border-radius:var(--radius);overflow:hidden;" id="mode-toggle">
+      <button onclick="setMode('survey')" id="mode-survey" style="flex:1;padding:12px;border:none;background:var(--accent);color:#fff;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;">Survey Mode</button>
+      <button onclick="setMode('surveillance')" id="mode-surveillance" style="flex:1;padding:12px;border:none;background:var(--surface);color:var(--text);font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;border-left:2px solid var(--border);">Surveillance Mode</button>
+    </div>
+    <div id="mode-desc-survey" style="margin-top:12px;padding:12px;background:var(--info-bg);border-radius:var(--radius);font-size:13px;">
+      <strong>Survey mode:</strong> Person-time derived from sampled households. Mid-period population estimated from current household size adjusted for births, deaths, arrivals, and departures. Design effect applied. Cluster-level confidence intervals.
+    </div>
+    <div id="mode-desc-surveillance" style="margin-top:12px;padding:12px;background:var(--accent-light);border-radius:var(--radius);font-size:13px;display:none;">
+      <strong>Surveillance mode:</strong> Person-time derived from registered/enumerated population (health facility catchment or community health worker register). Completeness adjustment applied. Continuous monitoring rather than single recall period.
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Survey Data</h3>
+      <div class="form-group"><label>Total population surveyed</label><input type="number" id="cdr-pop" value="3125"></div>
+      <div class="form-group"><label>Recall period (days)</label><input type="number" id="cdr-recall" value="90"></div>
+      <div class="form-group"><label>Total deaths (all ages)</label><input type="number" id="cdr-deaths" value="35"></div>
+      <div class="form-group"><label>Under-5 population</label><input type="number" id="cdr-u5pop" value="625"></div>
+      <div class="form-group"><label>Under-5 deaths</label><input type="number" id="cdr-u5deaths" value="12"></div>
+      <div class="form-group"><label>Number of clusters</label><input type="number" id="cdr-clusters" value="28"></div>
+      <button class="primary" onclick="calcCDR()">Calculate Mortality Rates</button>
+    </div>
+    <div class="card" id="cdr-results">
+      <h3>Results</h3>
+      <p style="color:var(--text-secondary);">Enter survey data and click Calculate.</p>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+// Navigation
+document.querySelectorAll('nav a').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const pageId = 'page-' + link.dataset.page;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+    link.classList.add('active');
+    window.scrollTo(0, 0);
+  });
+});
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const parent = tab.closest('.page');
+    parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Pipeline hover
+document.querySelectorAll('.pipeline-stage').forEach(s => {
+  s.addEventListener('click', () => {
+    document.querySelectorAll('.pipeline-stage').forEach(x => x.classList.remove('highlight'));
+    s.classList.add('highlight');
+  });
+});
+
+// Sample Size Calculator
+function calcSampleSize() {
+  const cdr = parseFloat(document.getElementById('ss-cdr').value);
+  const precision = parseFloat(document.getElementById('ss-precision').value);
+  const recall = parseInt(document.getElementById('ss-recall').value);
+  const hhSize = parseFloat(document.getElementById('ss-hhsize').value);
+  const deff = parseFloat(document.getElementById('ss-deff').value);
+  const nonResponse = parseInt(document.getElementById('ss-nonresponse').value) / 100;
+  const clusters = parseInt(document.getElementById('ss-clusters').value);
+
+  const dailyRate = cdr / 10000;
+  const zAlpha = 1.96;
+  const personDaysNeeded = (zAlpha * zAlpha * dailyRate * (1 - dailyRate * recall)) / (precision / 10000) / (precision / 10000);
+  const srsPersons = personDaysNeeded / recall;
+  const clusterPersons = srsPersons * deff;
+  const adjustedPersons = clusterPersons / (1 - nonResponse);
+  const totalHH = Math.ceil(adjustedPersons / hhSize);
+  const hhPerCluster = Math.ceil(totalHH / clusters);
+  const finalTotal = hhPerCluster * clusters;
+
+  const el = document.getElementById('ss-results');
+  el.innerHTML = `
+    <h3>Results</h3>
+    <div class="result-box info">
+      <div class="result-label">Required Sample Size</div>
+      <div class="result-value">${finalTotal} households</div>
+      <div class="result-detail">${clusters} clusters x ${hhPerCluster} households per cluster</div>
+    </div>
+    <table>
+      <tbody>
+        <tr><td>SRS person-days needed</td><td><strong>${Math.round(personDaysNeeded).toLocaleString()}</strong></td></tr>
+        <tr><td>SRS persons needed</td><td><strong>${Math.round(srsPersons).toLocaleString()}</strong></td></tr>
+        <tr><td>After DEFF adjustment (x${deff})</td><td><strong>${Math.round(clusterPersons).toLocaleString()}</strong> persons</td></tr>
+        <tr><td>After non-response (${(nonResponse*100).toFixed(0)}%)</td><td><strong>${Math.round(adjustedPersons).toLocaleString()}</strong> persons</td></tr>
+        <tr><td>Households (size ${hhSize})</td><td><strong>${totalHH}</strong></td></tr>
+        <tr><td>Per cluster</td><td><strong>${hhPerCluster}</strong></td></tr>
+        <tr><td>Total (rounded)</td><td><strong>${finalTotal}</strong></td></tr>
+      </tbody>
+    </table>
+    <div class="result-box" style="background:#f5f5f4;border:1px solid var(--border);margin-top:16px;">
+      <div style="font-size:13px;">
+        <strong>Emergency thresholds:</strong><br>
+        CDR: 1.0 / 10,000 / day (double baseline)<br>
+        U5DR: 2.0 / 10,000 / day (double baseline)
+      </div>
+    </div>`;
+}
+
+// PPS Cluster Selection
+const clusterData = [
+  {id:'C01',name:'Bor Town',pop:4200},{id:'C02',name:'Makuach',pop:1800},{id:'C03',name:'Anyidi',pop:2100},
+  {id:'C04',name:'Kolnyang',pop:3500},{id:'C05',name:'Pariak',pop:900},{id:'C06',name:'Jalle',pop:1200},
+  {id:'C07',name:'Malek',pop:2800},{id:'C08',name:'Baidit',pop:1600},{id:'C09',name:'Paliau',pop:750},
+  {id:'C10',name:'Makol',pop:1100},{id:'C11',name:'Pakuau',pop:3200},{id:'C12',name:'Lith',pop:680},
+  {id:'C13',name:'Duk Padiet',pop:2400},{id:'C14',name:'Panyagor',pop:1900},{id:'C15',name:'Kongor',pop:2600}
+];
+
+function initPPS() {
+  let cumulative = 0;
+  const tbody = document.querySelector('#pps-input-table tbody');
+  tbody.innerHTML = '';
+  clusterData.forEach(c => {
+    cumulative += c.pop;
+    c.cumulative = cumulative;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${c.id}</td><td>${c.name}</td><td>${c.pop.toLocaleString()}</td><td>${cumulative.toLocaleString()}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function runPPS() {
+  const n = parseInt(document.getElementById('pps-n').value);
+  const totalPop = clusterData[clusterData.length - 1].cumulative;
+  const interval = totalPop / n;
+  const randomStart = Math.floor(Math.random() * interval) + 1;
+  const selected = [];
+
+  for (let i = 0; i < n; i++) {
+    const point = randomStart + i * interval;
+    for (const c of clusterData) {
+      if (c.cumulative >= point) {
+        selected.push({...c, selectionPoint: Math.round(point)});
+        break;
+      }
+    }
+  }
+
+  const el = document.getElementById('pps-results');
+  let html = `<h3>Selection Results</h3>
+    <div class="result-box info">
+      <div class="result-label">PPS Systematic Selection</div>
+      <div class="result-detail">Total population: ${totalPop.toLocaleString()} | Interval: ${Math.round(interval).toLocaleString()} | Random start: ${randomStart.toLocaleString()}</div>
+    </div>
+    <table><thead><tr><th>#</th><th>Cluster</th><th>Name</th><th>Pop</th><th>Selection Point</th></tr></thead><tbody>`;
+  selected.forEach((s, i) => {
+    html += `<tr><td>${i + 1}</td><td>${s.id}</td><td>${s.name}</td><td>${s.pop.toLocaleString()}</td><td>${s.selectionPoint.toLocaleString()}</td></tr>`;
+  });
+  html += `</tbody></table>`;
+  html += `<div class="bar-chart" style="margin-top:16px;"><h4>Cluster Populations (selected highlighted)</h4>`;
+  const maxPop = Math.max(...clusterData.map(c => c.pop));
+  clusterData.forEach(c => {
+    const isSelected = selected.some(s => s.id === c.id);
+    const pct = (c.pop / maxPop * 100);
+    html += `<div class="bar-row"><span class="bar-label">${c.name}</span><div class="bar-track"><div class="bar-fill ${isSelected ? '' : 'success'}" style="width:${pct}%;${isSelected ? 'background:var(--accent);' : 'background:#d6d3d1;'}"></div></div><span class="bar-value">${c.pop.toLocaleString()}</span></div>`;
+  });
+  html += `</div><p style="font-size:12px;color:var(--text-secondary);margin-top:8px;">Larger clusters (e.g. Bor Town: 4,200) are more likely to be selected. This is proportional representation.</p>`;
+  el.innerHTML = html;
+}
+
+// CDR Calculator
+function calcCDR() {
+  const pop = parseInt(document.getElementById('cdr-pop').value);
+  const recall = parseInt(document.getElementById('cdr-recall').value);
+  const deaths = parseInt(document.getElementById('cdr-deaths').value);
+  const u5pop = parseInt(document.getElementById('cdr-u5pop').value);
+  const u5deaths = parseInt(document.getElementById('cdr-u5deaths').value);
+  const clusters = parseInt(document.getElementById('cdr-clusters').value);
+
+  const personDays = pop * recall;
+  const cdr = (deaths / personDays) * 10000;
+  const se = cdr * 0.25;
+  const cdrLo = Math.max(0, cdr - 1.96 * se);
+  const cdrHi = cdr + 1.96 * se;
+
+  const u5personDays = u5pop * recall;
+  const u5dr = (u5deaths / u5personDays) * 10000;
+  const u5se = u5dr * 0.3;
+  const u5Lo = Math.max(0, u5dr - 1.96 * u5se);
+  const u5Hi = u5dr + 1.96 * u5se;
+
+  const cdrAbove = cdr >= 1.0;
+  const u5Above = u5dr >= 2.0;
+
+  const el = document.getElementById('cdr-results');
+  el.innerHTML = `
+    <h3>Results</h3>
+    <div class="result-box ${cdrAbove ? 'danger' : 'success'}">
+      <div class="result-label">Crude Death Rate</div>
+      <div class="result-value">${cdr.toFixed(2)} <span style="font-size:14px;font-weight:400;">/ 10,000 / day</span></div>
+      <div class="result-detail">95% CI: ${cdrLo.toFixed(2)} - ${cdrHi.toFixed(2)}</div>
+      <div class="threshold-bar"><div class="fill" style="width:${Math.min(100, cdr / 2 * 100)}%;background:${cdrAbove ? '#dc2626' : '#16a34a'};"></div><div class="marker" style="left:50%;"></div></div>
+      <div class="threshold-text">Emergency threshold: 1.0 | ${cdrAbove ? 'ABOVE - emergency level' : 'BELOW threshold'}</div>
+    </div>
+    <div class="result-box ${u5Above ? 'danger' : 'success'}">
+      <div class="result-label">Under-5 Death Rate</div>
+      <div class="result-value">${u5dr.toFixed(2)} <span style="font-size:14px;font-weight:400;">/ 10,000 / day</span></div>
+      <div class="result-detail">95% CI: ${u5Lo.toFixed(2)} - ${u5Hi.toFixed(2)}</div>
+      <div class="threshold-bar"><div class="fill" style="width:${Math.min(100, u5dr / 4 * 100)}%;background:${u5Above ? '#dc2626' : '#16a34a'};"></div><div class="marker" style="left:50%;"></div></div>
+      <div class="threshold-text">Emergency threshold: 2.0 | ${u5Above ? 'ABOVE - emergency level' : 'BELOW threshold'}</div>
+    </div>
+    <table style="margin-top:16px;">
+      <tbody>
+        <tr><td>Total person-days</td><td><strong>${personDays.toLocaleString()}</strong></td></tr>
+        <tr><td>Under-5 person-days</td><td><strong>${u5personDays.toLocaleString()}</strong></td></tr>
+        <tr><td>CDR formula</td><td>(${deaths} / ${personDays.toLocaleString()}) x 10,000 = ${cdr.toFixed(2)}</td></tr>
+        <tr><td>U5DR formula</td><td>(${u5deaths} / ${u5personDays.toLocaleString()}) x 10,000 = ${u5dr.toFixed(2)}</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:12px;color:var(--text-secondary);margin-top:12px;">Note: CIs shown here use a simplified approximation. The full R Shiny app uses survey::svydesign with cluster-level variance estimation for accurate confidence intervals.</p>`;
+}
+
+// Data Pipeline: flow stage click handler
+function showFlowDetail(stageId) {
+  document.querySelectorAll('.flow-stage').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.flow-detail').forEach(d => d.classList.remove('active'));
+  const stage = document.querySelector('.flow-stage[data-flow="' + stageId + '"]');
+  const detail = document.getElementById('flow-detail-' + stageId);
+  if (stage) stage.classList.add('active');
+  if (detail) detail.classList.add('active');
+}
+
+// Survey / Surveillance mode toggle
+function setMode(mode) {
+  const surveyBtn = document.getElementById('mode-survey');
+  const survBtn = document.getElementById('mode-surveillance');
+  const descSurvey = document.getElementById('mode-desc-survey');
+  const descSurv = document.getElementById('mode-desc-surveillance');
+  if (mode === 'survey') {
+    surveyBtn.style.background = 'var(--accent)';
+    surveyBtn.style.color = '#fff';
+    survBtn.style.background = 'var(--surface)';
+    survBtn.style.color = 'var(--text)';
+    descSurvey.style.display = 'block';
+    descSurv.style.display = 'none';
+  } else {
+    survBtn.style.background = 'var(--accent)';
+    survBtn.style.color = '#fff';
+    surveyBtn.style.background = 'var(--surface)';
+    surveyBtn.style.color = 'var(--text)';
+    descSurvey.style.display = 'none';
+    descSurv.style.display = 'block';
+  }
+}
+
+// Load demo data into CDR calculator and navigate there
+function loadDemoData() {
+  document.getElementById('cdr-pop').value = 3474;
+  document.getElementById('cdr-u5pop').value = 709;
+  document.getElementById('cdr-deaths').value = 31;
+  document.getElementById('cdr-u5deaths').value = 10;
+  document.getElementById('cdr-recall').value = 90;
+  document.getElementById('cdr-clusters').value = 28;
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-analysis').classList.add('active');
+  const analysisLink = document.querySelector('nav a[data-page="analysis"]');
+  if (analysisLink) analysisLink.classList.add('active');
+  window.scrollTo(0, 0);
+  calcCDR();
+}
+
+// Initialize
+initPPS();
+calcSampleSize();
+calcCDR();
+</script>
+</body>
+</html>

@@ -16,3 +16,6 @@ desktop.ini
 .Rhistory
 .RData
 .Rproj.user
+
+# Build scripts
+projects/mortality-toolkit/generate_excel.py
