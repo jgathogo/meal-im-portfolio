@@ -268,11 +268,10 @@ button.secondary { background:var(--surface); color:var(--text); border:1px soli
     <div class="pipeline-stage" data-stage="6"><div class="stage-num">Stage 6</div><div class="stage-name">Deliver</div><div class="stage-week">Week 5</div></div>
   </div>
 
-  <div class="grid-4" style="margin-bottom:24px;">
-    <div class="stat-card accent"><div class="value">51</div><div class="label">Consulting Days</div></div>
-    <div class="stat-card"><div class="value">10+</div><div class="label">Deliverables</div></div>
+  <div class="grid-3" style="margin-bottom:24px;">
+    <div class="stat-card accent"><div class="value">10+</div><div class="label">Deliverables</div></div>
     <div class="stat-card"><div class="value">6</div><div class="label">Toolkit Components</div></div>
-    <div class="stat-card"><div class="value">$29.2k</div><div class="label">Total Budget</div></div>
+    <div class="stat-card"><div class="value">6</div><div class="label">Stages</div></div>
   </div>
 
   <div class="card">
@@ -290,35 +289,100 @@ button.secondary { background:var(--surface); color:var(--text); border:1px soli
     <div class="deliverable-item"><div class="d-num">10</div><div class="d-content"><h4>Final Toolkit Package</h4><p>Integrated, quality-assured, Creative Commons licensed. Ready for the Initiative's digital hub.</p><span class="d-stage badge stage-5">Stage 6: Deliver</span></div></div>
   </div>
 
-  <div class="grid-2">
-    <div class="card">
-      <h3>Day Allocation by Stage</h3>
-      <table>
-        <thead><tr><th>Stage</th><th>James</th><th>Mary</th><th>Total</th></tr></thead>
+  <div class="card" style="margin-bottom:20px;">
+    <h3>Timeline</h3>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Indicative 7-week schedule. Grey bars are TAG/stakeholder review periods where we pause production and wait for feedback before proceeding. Actual dates depend on contract start and TAG availability.</p>
+    <div style="overflow-x:auto;">
+      <table style="font-size:12px;min-width:700px;">
+        <thead>
+          <tr>
+            <th style="width:200px;text-align:left;">Activity</th>
+            <th style="text-align:center;">Wk 1</th>
+            <th style="text-align:center;">Wk 2</th>
+            <th style="text-align:center;">Wk 3</th>
+            <th style="text-align:center;">Wk 4</th>
+            <th style="text-align:center;">Wk 5</th>
+            <th style="text-align:center;">Wk 6</th>
+            <th style="text-align:center;">Wk 7</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td>1. Inception (Listen)</td><td>5</td><td>4</td><td><strong>9</strong></td></tr>
-          <tr><td>2. Core Build</td><td>9</td><td>7</td><td><strong>16</strong></td></tr>
-          <tr><td>3. Validation (Test)</td><td>3</td><td>3</td><td><strong>6</strong></td></tr>
-          <tr><td>4. Training (Listen + Train)</td><td>7</td><td>6</td><td><strong>13</strong></td></tr>
-          <tr><td>5. Finalisation (Deliver)</td><td>4</td><td>3</td><td><strong>7</strong></td></tr>
-          <tr><td><strong>Total</strong></td><td><strong>28</strong></td><td><strong>23</strong></td><td><strong>51</strong></td></tr>
+          <tr>
+            <td><strong>1. Listen</strong> - Inception</td>
+            <td style="background:var(--accent-light);text-align:center;border-radius:4px 0 0 4px;"><span style="font-size:10px;font-weight:600;color:var(--accent-dark);">Toolkit outline, TAG briefings</span></td>
+            <td></td><td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-secondary);font-style:italic;padding-left:16px;">TAG review of outline</td>
+            <td></td>
+            <td style="background:#e5e7eb;text-align:center;border-radius:4px;"><span style="font-size:10px;color:#6b7280;">Review</span></td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td><strong>2. Build</strong> - Core production</td>
+            <td></td>
+            <td style="background:var(--accent-light);border-radius:4px 0 0 4px;text-align:center;" colspan="2"><span style="font-size:10px;font-weight:600;color:var(--accent-dark);">Guidance, XLSForms, analysis tools, protocols</span></td>
+            <td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-secondary);font-style:italic;padding-left:16px;">TAG review of draft tools</td>
+            <td></td><td></td><td></td>
+            <td style="background:#e5e7eb;text-align:center;border-radius:4px;"><span style="font-size:10px;color:#6b7280;">Review</span></td>
+            <td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td><strong>3. Test</strong> - Validation</td>
+            <td></td><td></td><td></td>
+            <td style="background:var(--success-bg);text-align:center;border-radius:4px;"><span style="font-size:10px;font-weight:600;color:var(--success);">"Think Aloud" usability testing</span></td>
+            <td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td><strong>4. Listen</strong> - Incorporate feedback</td>
+            <td></td><td></td><td></td><td></td>
+            <td style="background:var(--accent-light);text-align:center;border-radius:4px;"><span style="font-size:10px;font-weight:600;color:var(--accent-dark);">Revise tools based on testing</span></td>
+            <td></td><td></td>
+          </tr>
+          <tr>
+            <td><strong>5. Train</strong> - Training materials</td>
+            <td></td><td></td><td></td><td></td>
+            <td style="background:var(--info-bg);border-radius:4px 0 0 4px;text-align:center;" colspan="2"><span style="font-size:10px;font-weight:600;color:var(--info);">Manager, enumerator, community engagement materials</span></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-secondary);font-style:italic;padding-left:16px;">TAG review of full package</td>
+            <td></td><td></td><td></td><td></td><td></td>
+            <td style="background:#e5e7eb;text-align:center;border-radius:4px;"><span style="font-size:10px;color:#6b7280;">Review</span></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><strong>6. Deliver</strong> - Final package</td>
+            <td></td><td></td><td></td><td></td><td></td><td></td>
+            <td style="background:var(--accent);text-align:center;border-radius:4px;"><span style="font-size:10px;font-weight:600;color:#fff;">QA, package, handover</span></td>
+          </tr>
         </tbody>
       </table>
     </div>
-    <div class="card">
-      <h3>Six Standards We Build On</h3>
-      <table>
-        <thead><tr><th>Resource</th><th>What we use it for</th></tr></thead>
-        <tbody>
-          <tr><td>SMART survey protocols</td><td>Sampling and survey design framework</td></tr>
-          <tr><td>WHO 2022 Verbal Autopsy</td><td>Cause-of-death assessment standard</td></tr>
-          <tr><td>Africa CDC 2024 guide</td><td>Surveillance approaches</td></tr>
-          <tr><td>WHO Health Cluster guidance</td><td>Emergency thresholds and indicators</td></tr>
-          <tr><td>UNHCR HIS toolkit</td><td>Data flow in refugee settings</td></tr>
-          <tr><td>LSHTM/UKHIH Partnership</td><td>Emerging methods (RaMMPS)</td></tr>
-        </tbody>
-      </table>
+    <div style="display:flex;gap:16px;margin-top:12px;font-size:11px;">
+      <span><span style="display:inline-block;width:12px;height:12px;background:var(--accent-light);border-radius:2px;vertical-align:middle;margin-right:4px;"></span> Consultant production</span>
+      <span><span style="display:inline-block;width:12px;height:12px;background:#e5e7eb;border-radius:2px;vertical-align:middle;margin-right:4px;"></span> TAG/stakeholder review (we pause, you review)</span>
+      <span><span style="display:inline-block;width:12px;height:12px;background:var(--success-bg);border-radius:2px;vertical-align:middle;margin-right:4px;"></span> Usability testing</span>
+      <span><span style="display:inline-block;width:12px;height:12px;background:var(--accent);border-radius:2px;vertical-align:middle;margin-right:4px;"></span> Final delivery</span>
     </div>
+  </div>
+
+  <div class="card">
+    <h3>Six Standards We Build On</h3>
+    <table>
+      <thead><tr><th>Resource</th><th>What we use it for</th></tr></thead>
+      <tbody>
+        <tr><td>SMART survey protocols</td><td>Sampling and survey design framework</td></tr>
+        <tr><td>WHO 2022 Verbal Autopsy</td><td>Cause-of-death assessment standard</td></tr>
+        <tr><td>Africa CDC 2024 guide</td><td>Surveillance approaches</td></tr>
+        <tr><td>WHO Health Cluster guidance</td><td>Emergency thresholds and indicators</td></tr>
+        <tr><td>UNHCR HIS toolkit</td><td>Data flow in refugee settings</td></tr>
+        <tr><td>LSHTM/UKHIH Partnership</td><td>Emerging methods (RaMMPS)</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
