@@ -280,7 +280,7 @@ button.secondary { background:var(--surface); color:var(--text); border:1px soli
     <div class="deliverable-item"><div class="d-num">1</div><div class="d-content"><h4>Finalised Toolkit Outline</h4><p>Structure and scope agreed with TAG co-chairs before production begins.</p><span class="d-stage badge stage-1">Stage 1: Listen</span></div></div>
     <div class="deliverable-item"><div class="d-num">2</div><div class="d-content"><h4>Technical Guidance Document</h4><p>60-80 page practitioner-facing reference. Survey design, sampling, analysis, surveillance, ethics. Three drafts across stages.</p><span class="d-stage badge stage-2">Stages 1-5</span></div></div>
     <div class="deliverable-item"><div class="d-num">3</div><div class="d-content"><h4>Concept Note and Protocol Templates</h4><p>Adaptable planning documents for survey managers to customise for their context.</p><span class="d-stage badge stage-2">Stage 2: Build</span></div></div>
-    <div class="deliverable-item"><div class="d-num">4</div><div class="d-content"><h4>Data Collection Tools</h4><p>Paper and XLSForm instruments: household listing, mortality survey, verbal autopsy, death notification. Multi-language, encryption-at-rest.</p><span class="d-stage badge stage-2">Stage 2: Build</span></div></div>
+    <div class="deliverable-item"><div class="d-num">4</div><div class="d-content"><h4>Data Collection Tools</h4><p>Two pathways: <strong>Survey</strong> (household listing + mortality questionnaire) and <strong>Surveillance</strong> (death notification). Verbal autopsy shared across both. Paper and XLSForm formats, multi-language, encryption-at-rest.</p><span class="d-stage badge stage-2">Stage 2: Build</span></div></div>
     <div class="deliverable-item"><div class="d-num">5</div><div class="d-content"><h4>Analysis Resources</h4><p>Excel CDR/U5DR calculator, R scripts, R Shiny point-and-click application. Sample size and PPS cluster selection tools.</p><span class="d-stage badge stage-2">Stage 2: Build</span></div></div>
     <div class="deliverable-item"><div class="d-num">5b</div><div class="d-content"><h4>Validation Findings Report</h4><p>"Think Aloud" usability testing results. Tool revisions documented before training development.</p><span class="d-stage badge stage-3">Stage 3: Test</span></div></div>
     <div class="deliverable-item"><div class="d-num">6</div><div class="d-content"><h4>Reporting Templates</h4><p>Factsheet (1 page), slide deck, short technical report. Structured for decision-makers: Is this an emergency? Is it getting worse?</p><span class="d-stage badge stage-4">Stage 5: Train</span></div></div>
@@ -348,16 +348,23 @@ button.secondary { background:var(--surface); color:var(--text); border:1px soli
     Technical_Protocol_Template.docx
 
 <span class="keyword">3_Data_Collection/</span>
-    Paper/
-        Household_Listing.pdf
-        Mortality_Questionnaire.pdf
-        Verbal_Autopsy.pdf
-        Death_Notification.pdf
-    XLSForm/
-        mortality_survey_v1.xlsx       <span class="comment"># Main survey instrument</span>
-        verbal_autopsy_v1.xlsx         <span class="comment"># VA module (optional)</span>
-        death_notification_v1.xlsx     <span class="comment"># Surveillance</span>
-        household_listing_v1.xlsx      <span class="comment"># Pre-survey listing</span>
+    Survey/
+        Paper/
+            Household_Listing.pdf
+            Mortality_Questionnaire.pdf
+        XLSForm/
+            household_listing_v1.xlsx      <span class="comment"># Pre-survey cluster listing</span>
+            mortality_survey_v1.xlsx       <span class="comment"># Retrospective HH survey</span>
+    Surveillance/
+        Paper/
+            Death_Notification.pdf
+        XLSForm/
+            death_notification_v1.xlsx     <span class="comment"># CHW continuous reporting</span>
+    Shared/
+        Paper/
+            Verbal_Autopsy.pdf
+        XLSForm/
+            verbal_autopsy_v1.xlsx         <span class="comment"># VA module (both pathways)</span>
 
 <span class="keyword">4_Analysis/</span>
     Excel/
@@ -468,17 +475,37 @@ button.secondary { background:var(--surface); color:var(--text); border:1px soli
     <span class="deliverable-tag">Stage 2: Build</span>
   </div>
 
+  <div class="card" style="margin-bottom:20px;">
+    <h3>Two Pathways, Shared Standards</h3>
+    <p style="font-size:14px;margin-bottom:12px;">The toolkit provides separate data collection instruments for survey and surveillance. Each pathway has its own forms, deployment model, and data flow. Verbal Autopsy is shared across both.</p>
+    <div class="grid-3" style="gap:16px;">
+      <div style="padding:16px;background:var(--info-bg);border-radius:var(--radius);border:1px solid #93c5fd;">
+        <h4 style="margin:0 0 6px;color:var(--info);font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">Survey Pathway</h4>
+        <p style="font-size:13px;margin:0;">One-off retrospective household survey. Cluster sampling, fixed recall period. Two forms: <strong>Household Listing</strong> (pre-survey) and <strong>Mortality Survey</strong> (main instrument).</p>
+      </div>
+      <div style="padding:16px;background:var(--accent-light);border-radius:var(--radius);border:1px solid #fcd34d;">
+        <h4 style="margin:0 0 6px;color:var(--accent-dark);font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">Surveillance Pathway</h4>
+        <p style="font-size:13px;margin:0;">Continuous death reporting by CHWs or facility staff. No sampling frame needed. One form: <strong>Death Notification</strong> (short mobile form, ongoing).</p>
+      </div>
+      <div style="padding:16px;background:#f5f5f4;border-radius:var(--radius);border:1px solid var(--border);">
+        <h4 style="margin:0 0 6px;color:var(--text-secondary);font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">Shared</h4>
+        <p style="font-size:13px;margin:0;"><strong>Verbal Autopsy</strong> (WHO 2022) can be triggered from either pathway when cause-of-death data is needed for under-5, maternal, or unknown-cause deaths.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="tabs">
-    <div class="tab active" data-tab="xlsform-survey">Mortality Survey</div>
-    <div class="tab" data-tab="xlsform-hh">Household Listing</div>
+    <div class="tab active" data-tab="xlsform-survey" style="border-left:3px solid var(--info);padding-left:17px;">Mortality Survey</div>
+    <div class="tab" data-tab="xlsform-hh" style="border-left:3px solid var(--info);padding-left:17px;">Household Listing</div>
+    <div class="tab" data-tab="xlsform-dn" style="border-left:3px solid var(--accent);padding-left:17px;">Death Notification</div>
     <div class="tab" data-tab="xlsform-va">Verbal Autopsy</div>
-    <div class="tab" data-tab="xlsform-dn">Death Notification</div>
   </div>
 
   <div class="tab-content active" id="tab-xlsform-survey">
     <div class="card">
+      <div style="display:inline-block;background:var(--info-bg);color:var(--info);font-size:11px;font-weight:600;padding:2px 10px;border-radius:12px;margin-bottom:8px;">SURVEY PATHWAY</div>
       <h3>Mortality Survey Questionnaire (XLSForm)</h3>
-      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Bilingual (English/French). Skip logic, constraints, hint text, encryption-at-rest.</p>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Bilingual (English/French). Skip logic, constraints, hint text, encryption-at-rest. Deployed to tablets for retrospective household interviews during a cluster survey.</p>
       <div class="xlsform-preview">
         <table>
           <thead><tr><th>type</th><th>name</th><th>label::English</th><th>label::French</th><th>relevant</th><th>constraint</th><th>hint</th></tr></thead>
@@ -522,6 +549,7 @@ button.secondary { background:var(--surface); color:var(--text); border:1px soli
 
   <div class="tab-content" id="tab-xlsform-hh">
     <div class="card">
+      <div style="display:inline-block;background:var(--info-bg);color:var(--info);font-size:11px;font-weight:600;padding:2px 10px;border-radius:12px;margin-bottom:8px;">SURVEY PATHWAY</div>
       <h3>Household Listing Form</h3>
       <p>Used during the pre-survey phase to create a complete list of households in each selected cluster. From this list, the required number of households is randomly selected.</p>
       <table style="margin-top:12px;">
@@ -542,8 +570,9 @@ button.secondary { background:var(--surface); color:var(--text); border:1px soli
 
   <div class="tab-content" id="tab-xlsform-va">
     <div class="card">
+      <div style="display:inline-block;background:#f5f5f4;color:var(--text-secondary);font-size:11px;font-weight:600;padding:2px 10px;border-radius:12px;margin-bottom:8px;">SHARED - BOTH PATHWAYS</div>
       <h3>Verbal Autopsy Form (WHO 2022 aligned)</h3>
-      <p>Optional module. Activates when cause-of-death data is needed. Aligned with the WHO 2022 VA instrument covering 66 causes mapped to ICD-10.</p>
+      <p>Optional module triggered from either survey or surveillance when cause-of-death data is needed. Aligned with the WHO 2022 VA instrument covering 66 causes mapped to ICD-10.</p>
       <table style="margin-top:12px;">
         <thead><tr><th>Section</th><th>Fields</th><th>Duration</th></tr></thead>
         <tbody>
@@ -561,8 +590,9 @@ button.secondary { background:var(--surface); color:var(--text); border:1px soli
 
   <div class="tab-content" id="tab-xlsform-dn">
     <div class="card">
-      <h3>Community Death Notification Form (Surveillance)</h3>
-      <p>For community health workers to report deaths as they occur. Short form designed for mobile reporting.</p>
+      <div style="display:inline-block;background:var(--accent-light);color:var(--accent-dark);font-size:11px;font-weight:600;padding:2px 10px;border-radius:12px;margin-bottom:8px;">SURVEILLANCE PATHWAY</div>
+      <h3>Community Death Notification Form</h3>
+      <p>For community health workers to report deaths as they occur. Short form designed for mobile reporting. Continuous data collection, no recall period or sampling frame.</p>
       <table style="margin-top:12px;">
         <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
         <tbody>
