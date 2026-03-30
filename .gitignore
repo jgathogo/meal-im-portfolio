@@ -19,3 +19,6 @@ desktop.ini
 
 # Build scripts
 projects/mortality-toolkit/generate_excel.py
+
+# Embedded repos (deployed separately)
+projects/hbcc-membership-db/
