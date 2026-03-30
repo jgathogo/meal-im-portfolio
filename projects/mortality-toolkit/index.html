@@ -1314,6 +1314,16 @@ function loadDemoData() {
   calcCDR();
 }
 
+// Live recalculation on input change
+['ss-cdr','ss-precision','ss-recall','ss-hhsize','ss-deff','ss-nonresponse','ss-clusters'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', calcSampleSize);
+});
+['cdr-pop','cdr-recall','cdr-deaths','cdr-u5pop','cdr-u5deaths','cdr-clusters'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', calcCDR);
+});
+
 // Initialize
 initPPS();
 calcSampleSize();
