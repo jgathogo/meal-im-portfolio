@@ -1224,7 +1224,7 @@ cdr_mean <- <span class="keyword">svymean</span>(~death_rate_10k, design)
 
 <script>
 // Navigation
-document.querySelectorAll('nav a').forEach(link => {
+document.querySelectorAll('nav a[data-page]').forEach(link => {
   link.addEventListener('click', e => {
     e.preventDefault();
     const pageId = 'page-' + link.dataset.page;
